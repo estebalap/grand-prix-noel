@@ -84,22 +84,39 @@ const CHAOS_EVENTS = [
 // =============================================================================
 const REAL_SOUNDS = {
     click: 'sounds/mk_click.wav',
+    mk_click: 'sounds/mk_click.wav',
     countdown: 'sounds/mk_countdown.wav',
+    mk_countdown: 'sounds/mk_countdown.wav',
     go: 'sounds/mk_go.wav',
+    mk_go: 'sounds/mk_go.wav',
     race_ok: 'sounds/mk_race_ok.wav',
+    mk_race_ok: 'sounds/mk_race_ok.wav',
     roulette: 'sounds/mk_roulette.wav',
+    mk_roulette: 'sounds/mk_roulette.wav',
     roulette_stop: 'sounds/mk_roulette_stop.wav',
+    mk_roulette_stop: 'sounds/mk_roulette_stop.wav',
     goal: 'sounds/mk_goal.wav',
+    mk_goal: 'sounds/mk_goal.wav',
     lap: 'sounds/mk_lap.wav',
+    mk_lap: 'sounds/mk_lap.wav',
     rank_up: 'sounds/mk_rank_up.wav',
+    mk_rank_up: 'sounds/mk_rank_up.wav',
     points: 'sounds/mk_points.wav',
+    mk_points: 'sounds/mk_points.wav',
     coin: 'sounds/mario_coin.wav',
+    mario_coin: 'sounds/mario_coin.wav',
     mario: 'sounds/sm64_its_a_me_mario.wav',
+    sm64_its_a_me_mario: 'sounds/sm64_its_a_me_mario.wav',
     lets_go: 'sounds/sm64_lets_a_go.wav',
+    sm64_lets_a_go: 'sounds/sm64_lets_a_go.wav',
     bowser: 'sounds/sm64_bowser_laugh.wav',
+    sm64_bowser_laugh: 'sounds/sm64_bowser_laugh.wav',
     pipe: 'sounds/sm64_pipe.wav',
+    sm64_pipe: 'sounds/sm64_pipe.wav',
     red_coin: 'sounds/sm64_red_coin.wav',
+    sm64_red_coin: 'sounds/sm64_red_coin.wav',
     pikachu: 'sounds/pokemon_pikachu.wav',
+    pokemon_pikachu: 'sounds/pokemon_pikachu.wav',
     smash_fixed: 'sounds/smash_fixed.wav',
     smash_cancel: 'sounds/smash_cancel.wav',
     tekken_decide: 'sounds/tekken_decide.wav',
@@ -118,24 +135,61 @@ const REAL_SOUNDS = {
 };
 
 const AUDIO_CACHE = {};
+const AUDIO_BUFFERS = {};
+
+function preloadAudioBuffers() {
+    const ctx = getAudioContext();
+    if (!ctx) return;
+    Object.entries(REAL_SOUNDS).forEach(([key, path]) => {
+        if (!AUDIO_BUFFERS[key]) {
+            fetch(path)
+                .then(r => {
+                    if (!r.ok) throw new Error(`HTTP ${r.status}`);
+                    return r.arrayBuffer();
+                })
+                .then(ab => ctx.decodeAudioData(ab))
+                .then(decoded => {
+                    AUDIO_BUFFERS[key] = decoded;
+                })
+                .catch(() => {});
+        }
+    });
+}
 
 function playRealSound(key, volume = 0.7) {
     try {
+        const ctx = getAudioContext();
+
+        // MÉTHODE 1 : Web Audio API Buffer (Ultra rapide, 0ms de latence, polyphonique et 100% supporté sur iPhone)
+        if (ctx && AUDIO_BUFFERS[key]) {
+            const source = ctx.createBufferSource();
+            const gain = ctx.createGain();
+            source.buffer = AUDIO_BUFFERS[key];
+            gain.gain.value = Math.max(0, Math.min(1, volume));
+            source.connect(gain);
+            gain.connect(ctx.destination);
+            source.start(0);
+            return true;
+        }
+
+        // MÉTHODE 2 : HTML5 Audio standard (Sans cloneNode qui bloque sur iOS Safari)
         const src = REAL_SOUNDS[key];
-        if (!src) return false;
-        if (!AUDIO_CACHE[key]) {
-            AUDIO_CACHE[key] = new Audio(src);
-            AUDIO_CACHE[key].preload = 'auto';
+        if (src) {
+            let audio = AUDIO_CACHE[key];
+            if (!audio) {
+                audio = new Audio(src);
+                audio.preload = 'auto';
+                AUDIO_CACHE[key] = audio;
+            }
+            audio.currentTime = 0;
+            audio.volume = Math.max(0, Math.min(1, volume));
+            const p = audio.play();
+            if (p !== undefined) {
+                p.catch(() => {});
+            }
+            return true;
         }
-        const snd = AUDIO_CACHE[key].cloneNode();
-        snd.volume = Math.max(0, Math.min(1, volume));
-        const playPromise = snd.play();
-        if (playPromise !== undefined) {
-            playPromise.catch(() => {
-                // Silently catch autoplay restrictions
-            });
-        }
-        return true;
+        return false;
     } catch (e) {
         return false;
     }
@@ -494,10 +548,10 @@ function playTaunt(type) {
 }
 
 // -----------------------------------------------------------------------------
-// CLICS SONORES INTERACTIFS ADAPTÉS AU MODE DE JEU (WEB AUDIO API)
+// CLICS SONORES INTERACTIFS ADAPTÉS À L'ÉCURIE & ALÉATOIRES
 // -----------------------------------------------------------------------------
 function initUiClickSounds() {
-    // Débloquer l'audio au premier toucher sur iPhone / smartphone
+    // Débloquer l'audio et précharger les buffers au premier toucher sur iPhone / smartphone
     const unlockAudio = () => {
         const ctx = getAudioContext();
         if (ctx) {
@@ -508,38 +562,137 @@ function initUiClickSounds() {
             src.start(0);
             if (ctx.state === 'suspended') ctx.resume();
         }
-        window.removeEventListener('touchstart', unlockAudio, true);
-        window.removeEventListener('touchend', unlockAudio, true);
+        preloadAudioBuffers();
     };
-    window.addEventListener('touchstart', unlockAudio, true);
-    window.addEventListener('touchend', unlockAudio, true);
+    window.addEventListener('touchstart', unlockAudio, { once: true, capture: true });
+    window.addEventListener('touchend', unlockAudio, { once: true, capture: true });
+    window.addEventListener('click', unlockAudio, { once: true, capture: true });
 
     document.addEventListener('click', (e) => {
-        const target = e.target.closest('button, .btn, .nav-btn, .mobile-nav-btn, select, .car-picker, .team-item-card, .radio-btn, .bet-card, .item-card, .profile-card, .wallet-badge');
+        const target = e.target.closest('button, .btn, .nav-btn, .mobile-nav-btn, select, .car-picker, .team-item-card, .radio-btn, .bet-card, .item-card, .profile-card, .wallet-badge, .tab-btn, .paddock-slot');
         if (!target) return;
         if (target.disabled || target.classList.contains('disabled')) return;
-        playModeUiClick(APP_STATE.activeMode);
+        playInteractiveUiClick();
     }, true);
 }
 
-function playModeUiClick(mode) {
-    try {
-        let played = false;
-        if (mode === 'gp_pure' || mode === 'gp_strategy') {
-            played = playRealSound('click', 0.55);
-        } else if (mode === 'boss_tomica') {
-            played = playRealSound('tekken_decide', 0.55);
-        } else if (mode === 'survival') {
-            played = playRealSound('smash_fixed', 0.55);
-        } else if (mode === 'relic_cup') {
-            played = playRealSound('sm64_red_coin', 0.55);
-        } else if (mode === 'chaos_unlimited') {
-            played = playRealSound('dbz_ok', 0.55);
-        } else {
-            played = playRealSound('click', 0.55);
-        }
-        if (played) return;
+function playInteractiveUiClick() {
+    const teamId = APP_STATE.activeTeamId || 9;
+    let played = false;
 
+    // SONS ADAPTÉS À L'ÉCURIE ACTIVE + VARIATIONS ALÉATOIRES
+    switch (teamId) {
+        case 1: { // Laurent (Petite Mimine Racing) : V8 et clics mécaniques
+            const sounds = ['mk_click', 'mk_race_ok', 'tekken_decide'];
+            const rand = sounds[Math.floor(Math.random() * sounds.length)];
+            played = playRealSound(rand, 0.6);
+            if (Math.random() < 0.2) playTaunt('rev');
+            break;
+        }
+        case 2: { // Nadine (Twingo Oasis V16) : Clochette Candy Crush & Twingo
+            const sounds = ['ac_bell', 'mk_click', 'mario_coin'];
+            const rand = sounds[Math.floor(Math.random() * sounds.length)];
+            played = playRealSound(rand, 0.65);
+            if (Math.random() < 0.15) playTaunt('horn');
+            break;
+        }
+        case 3: { // Isabelle (Optic-Breuillet Racing) : Laser et Smash Bros
+            const sounds = ['smash_fixed', 'tekken_decide', 'mk_click'];
+            const rand = sounds[Math.floor(Math.random() * sounds.length)];
+            played = playRealSound(rand, 0.7);
+            break;
+        }
+        case 4: { // Frédéric (Tata Freddy Motorsport - Poker/Balatro) : Jetons et Pièces
+            const sounds = ['coin', 'red_coin', 'mk_click', 'points'];
+            const rand = sounds[Math.floor(Math.random() * sounds.length)];
+            played = playRealSound(rand, 0.7);
+            break;
+        }
+        case 5: { // Mario (Super Mario Pression) : Les vrais bips Mario Kart & Pièce
+            const sounds = ['mk_click', 'coin', 'mk_race_ok', 'pipe'];
+            const rand = sounds[Math.floor(Math.random() * sounds.length)];
+            played = playRealSound(rand, 0.75);
+            if (Math.random() < 0.1) playRealSound('mario', 0.85);
+            break;
+        }
+        case 6: { // Lucine (Scuderia Symphonie E-Tech) : Carillon musical étoilé
+            const sounds = ['points', 'mk_lap', 'red_coin', 'mk_click'];
+            const rand = sounds[Math.floor(Math.random() * sounds.length)];
+            played = playRealSound(rand, 0.7);
+            break;
+        }
+        case 7: { // Fanny (Yaris 2 Invincible - Zelda) : Smash Bros & Triforce
+            const sounds = ['smash_fixed', 'mk_click', 'ac_bell'];
+            const rand = sounds[Math.floor(Math.random() * sounds.length)];
+            played = playRealSound(rand, 0.7);
+            break;
+        }
+        case 8: { // Ludwig (A4 Oil Leaking - Samus Metroid) : Métal Tekken
+            const sounds = ['tekken_decide', 'dbz_ok', 'smash_fixed'];
+            const rand = sounds[Math.floor(Math.random() * sounds.length)];
+            played = playRealSound(rand, 0.7);
+            break;
+        }
+        case 9: { // Esteban (Titou Wyvern SRT) : DBZ Teleport & Mario Kart
+            const sounds = ['dbz_ok', 'mk_click', 'tekken_decide'];
+            const rand = sounds[Math.floor(Math.random() * sounds.length)];
+            played = playRealSound(rand, 0.7);
+            if (Math.random() < 0.2) playTaunt('rev');
+            break;
+        }
+        case 10: { // Diego (Doom Slayer Issue GP) : K.O. Tekken et Frappes
+            const sounds = ['tekken_ko', 'tekken_decide', 'smash_fixed'];
+            const rand = sounds[Math.floor(Math.random() * sounds.length)];
+            played = playRealSound(rand, 0.75);
+            break;
+        }
+        case 11: { // Gabrielle (Milo's Princess) : Clochettes magiques Peach
+            const sounds = ['ac_bell', 'mk_click', 'points'];
+            const rand = sounds[Math.floor(Math.random() * sounds.length)];
+            played = playRealSound(rand, 0.75);
+            break;
+        }
+        case 12: { // Thom / Bob (Bob's Bizarre Racing - JoJo) : JoJo & Tekken
+            const sounds = ['tekken_decide', 'smash_fixed', 'dbz_ok'];
+            const rand = sounds[Math.floor(Math.random() * sounds.length)];
+            played = playRealSound(rand, 0.75);
+            if (Math.random() < 0.15) playRealSound('jojo_jotaro', 0.85);
+            break;
+        }
+        case 13: { // Jonah (Jojo la Sirène Veloce) : Bip d'alerte rythmique
+            const sounds = ['mk_click', 'dbz_ok', 'mk_lap'];
+            const rand = sounds[Math.floor(Math.random() * sounds.length)];
+            played = playRealSound(rand, 0.7);
+            break;
+        }
+        case 14: { // Janis (Ninja-Nissan Street Racing) : Turbo & Crépitement
+            const sounds = ['mk_click', 'tekken_decide', 'dbz_ok'];
+            const rand = sounds[Math.floor(Math.random() * sounds.length)];
+            played = playRealSound(rand, 0.7);
+            if (Math.random() < 0.2) playTaunt('turbo');
+            break;
+        }
+        case 15: { // Élie (Princess Blooming Speed) : Clic joyeux & Pièce rouge
+            const sounds = ['red_coin', 'mk_click', 'points'];
+            const rand = sounds[Math.floor(Math.random() * sounds.length)];
+            played = playRealSound(rand, 0.75);
+            break;
+        }
+        default: {
+            const sounds = ['mk_click', 'mk_race_ok', 'smash_fixed', 'dbz_ok'];
+            const rand = sounds[Math.floor(Math.random() * sounds.length)];
+            played = playRealSound(rand, 0.6);
+            break;
+        }
+    }
+
+    if (!played) {
+        playSynthModeClick(APP_STATE.activeMode);
+    }
+}
+
+function playSynthModeClick(mode = 'gp_pure') {
+    try {
         const ctx = getAudioContext();
         if (!ctx) return;
         const now = ctx.currentTime;
@@ -893,9 +1046,9 @@ function initMobileNavigation() {
     // Branchement du bouton de changement d'écurie sur la fiche mobile
     const switchBtn = document.getElementById('mob-btn-switch-team');
     if (switchBtn) {
-        switchBtn.addEventListener('click', () => {
-            const teamModal = document.getElementById('team-modal');
-            if (teamModal) teamModal.style.display = 'flex';
+        switchBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            window.openTeamModal();
         });
     }
 
@@ -1059,6 +1212,67 @@ function applyTeamTheme(team) {
     root.style.setProperty('--team-secondary', c2);
     root.style.setProperty('--team-glow', `${c1}66`);
     root.style.setProperty('--neon-blue', c1);
+    root.style.setProperty('--border-glow', `${c1}55`);
+
+    // CHANGEMENT VISUEL IMMÉDIAT ET RADICAL DU FOND DE LA PAGE SELON L'ÉCURIE
+    // 1. Fond général du body avec halo géant coloré aux couleurs officielles de l'écurie
+    document.body.style.background = `radial-gradient(ellipse at 50% 12%, ${c1}3d 0%, ${c2}24 45%, #05050a 85%)`;
+
+    // 2. Calque graphique d'arrière-plan avec le logo géant stylisé en filigrane lumineux centré
+    const artLayer = document.getElementById('bg-art-layer');
+    if (artLayer) {
+        artLayer.style.backgroundImage = `
+            radial-gradient(circle at 50% 22%, ${c1}55 0%, transparent 68%),
+            linear-gradient(180deg, rgba(5,5,10,0.5) 0%, rgba(5,5,10,0.92) 100%),
+            url('${team.logo}')
+        `;
+        artLayer.style.backgroundRepeat = 'no-repeat, no-repeat, no-repeat';
+        artLayer.style.backgroundPosition = 'center 12%, center center, center 20%';
+        artLayer.style.backgroundSize = '900px 900px, 100% 100%, 340px auto';
+        artLayer.style.opacity = '0.94';
+    }
+
+    // 3. Teinte et lueur d'ambiance du calque dynamique
+    const dynLayer = document.getElementById('bg-dynamic-layer');
+    if (dynLayer) {
+        dynLayer.style.backgroundColor = '#05050a';
+        dynLayer.style.boxShadow = `inset 0 0 160px ${c1}4d`;
+    }
+
+    // 4. Accentuation de la barre supérieure (Mobile & Desktop)
+    const headerEl = document.querySelector('.header, .app-header, .regie-header');
+    if (headerEl) {
+        headerEl.style.borderBottom = `2px solid ${c1}`;
+        headerEl.style.boxShadow = `0 4px 25px ${c1}44`;
+    }
+
+    // 5. Ajuster le fond vidéo pour laisser transparaître le thème et le logo de l'écurie
+    const videoWrap = document.getElementById('bg-video-wrapper');
+    if (videoWrap) {
+        videoWrap.style.boxShadow = `inset 0 0 120px ${c1}55`;
+        if (window.innerWidth <= 860) {
+            videoWrap.style.opacity = '0.25';
+        } else {
+            videoWrap.style.opacity = '0.4';
+        }
+    }
+
+    // 6. Carte résumé mobile personnalisée aux couleurs de l'écurie
+    const mobCard = document.getElementById('mobile-team-summary-card');
+    if (mobCard) {
+        mobCard.style.borderColor = c1;
+        mobCard.style.boxShadow = `0 0 25px ${c1}33, inset 0 0 20px ${c1}15`;
+        mobCard.style.background = `linear-gradient(135deg, ${c1}20 0%, #121929 70%)`;
+    }
+
+    // 7. Barre d'état du navigateur smartphone (Safari iOS & Android Chrome)
+    let metaTheme = document.querySelector('meta[name="theme-color"]');
+    if (!metaTheme) {
+        metaTheme = document.createElement('meta');
+        metaTheme.name = 'theme-color';
+        document.head.appendChild(metaTheme);
+    }
+    metaTheme.content = c1;
 }
 
 function updateActiveTeamHeader() {
