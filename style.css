@@ -546,11 +546,15 @@ h1, h2, h3, h4, .font-racing {
     gap: 0.75rem;
     cursor: pointer;
     transition: all 0.25s ease;
+    font-family: inherit;
+    color: inherit;
+    text-align: left;
+    touch-action: manipulation;
 }
 
-.profile-card:hover {
+.profile-card:hover, .profile-card:active {
     border-color: var(--neon-blue);
-    box-shadow: 0 0 15px rgba(0, 229, 255, 0.25);
+    box-shadow: 0 0 15px rgba(0, 229, 255, 0.35);
     transform: translateY(-1px);
 }
 
@@ -4541,34 +4545,63 @@ body[data-mode="relic_cup"] .nav-btn.active {
 }
 
 .mobile-modal-box {
-    max-width: 480px;
-    width: 92%;
+    max-width: 440px;
+    width: 95%;
+    max-height: 85vh !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch !important;
     text-align: center;
-    background: rgba(13, 19, 33, 0.98);
+    background: #0d1321;
     border: 2px solid var(--neon-blue);
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.9), 0 0 30px rgba(0, 229, 255, 0.25);
-    padding: 1.5rem;
+    border-radius: var(--radius-lg);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.95), 0 0 30px rgba(0, 229, 255, 0.25);
+    padding: 1.25rem 1rem;
+    box-sizing: border-box;
+    margin: auto;
 }
 
 .modal-header-row {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 1rem;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-    padding-bottom: 0.75rem;
+    margin-bottom: 0.75rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+    padding-bottom: 0.6rem;
 }
 
 .modal-header-row h2 {
-    font-size: 1.25rem;
+    font-size: 1.15rem;
     color: #fff;
     margin: 0;
 }
 
+.modal-close-btn {
+    background: rgba(239, 68, 68, 0.25);
+    border: 1.5px solid #ef4444;
+    color: #fff;
+    font-size: 1.25rem;
+    font-weight: 900;
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    touch-action: manipulation;
+    transition: all 0.2s;
+    flex-shrink: 0;
+}
+
+.modal-close-btn:active {
+    background: #ef4444;
+    transform: scale(0.95);
+}
+
 .mob-connect-desc {
-    font-size: 0.9rem;
+    font-size: 0.85rem;
     color: #cbd5e1;
-    margin-bottom: 1.25rem;
+    margin-bottom: 1rem;
     line-height: 1.4;
 }
 
@@ -4576,15 +4609,15 @@ body[data-mode="relic_cup"] .nav-btn.active {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 0.75rem;
-    margin-bottom: 1.5rem;
+    gap: 0.6rem;
+    margin-bottom: 1rem;
 }
 
 .qr-code-box {
-    width: 210px;
-    height: 210px;
+    width: 190px;
+    height: 190px;
     background: #ffffff;
-    padding: 12px;
+    padding: 10px;
     border-radius: 12px;
     display: flex;
     align-items: center;
@@ -4610,17 +4643,17 @@ body[data-mode="relic_cup"] .nav-btn.active {
     background: rgba(0, 0, 0, 0.5);
     border: 1px solid rgba(255, 255, 255, 0.15);
     border-radius: var(--radius-sm);
-    padding: 0.85rem;
-    margin-bottom: 1.25rem;
+    padding: 0.75rem;
+    margin-bottom: 1rem;
     text-align: left;
 }
 
 .direct-link-label {
     display: block;
-    font-size: 0.75rem;
+    font-size: 0.7rem;
     color: var(--text-muted);
     font-weight: 700;
-    margin-bottom: 0.5rem;
+    margin-bottom: 0.4rem;
 }
 
 .direct-link-input-group {
@@ -4634,15 +4667,29 @@ body[data-mode="relic_cup"] .nav-btn.active {
     border: 1px solid rgba(255, 255, 255, 0.2);
     color: #38bdf8;
     font-family: monospace;
-    font-size: 0.95rem;
+    font-size: 0.85rem;
     font-weight: bold;
-    padding: 0.5rem 0.75rem;
+    padding: 0.45rem 0.6rem;
     border-radius: var(--radius-sm);
     outline: none;
 }
 
 .mob-modal-actions {
-    margin-top: 1rem;
+    margin-top: 0.75rem;
+}
+
+.btn-modal-close-large {
+    width: 100%;
+    padding: 0.85rem 1rem;
+    font-size: 1rem;
+    font-weight: 700;
+    border-radius: var(--radius-md);
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+    color: #fff;
+    border: none;
+    box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4);
+    cursor: pointer;
+    touch-action: manipulation;
 }
 
 /* ==========================================================================
@@ -4910,66 +4957,70 @@ body[data-mode="relic_cup"] .nav-btn.active {
         flex-shrink: 0 !important;
     }
 
-    /* Jukebox ultra compact et sans débordement sur smartphone */
+    /* Masquer le Jukebox sur smartphone : le son d'ambiance tourne sur la TV/PC du salon */
     .jukebox-bar {
-        width: 100% !important;
-        max-width: 100% !important;
-        box-sizing: border-box !important;
-        padding: 0.4rem 0.6rem !important;
-        gap: 0.4rem !important;
-        flex-wrap: nowrap !important;
-        overflow: hidden !important;
-    }
-
-    .jukebox-info {
-        min-width: 0 !important;
-        flex: 1 1 auto !important;
-        overflow: hidden !important;
-    }
-
-    .jukebox-icon-disc {
-        font-size: 1.3rem !important;
-    }
-
-    .jukebox-text-group {
-        max-width: 160px !important;
-        overflow: hidden !important;
-    }
-
-    .jukebox-playlist-tag {
-        font-size: 0.58rem !important;
-    }
-
-    .jukebox-track-title {
-        font-size: 0.72rem !important;
-        white-space: nowrap !important;
-        text-overflow: ellipsis !important;
-        overflow: hidden !important;
-    }
-
-    .jukebox-controls {
-        flex-shrink: 0 !important;
-        gap: 0.25rem !important;
-    }
-
-    .jb-btn {
-        width: 32px !important;
-        height: 32px !important;
-        font-size: 0.85rem !important;
-    }
-
-    .jukebox-track-picker-wrap,
-    .jukebox-volume-wrap {
         display: none !important;
     }
 
-    /* Conteneur principal pleine largeur */
+    /* En-tête de régie et choix du mode réagencés verticalement sur mobile */
+    .regie-header {
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 0.6rem !important;
+        padding: 0.75rem !important;
+        margin-bottom: 1rem !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+    }
+
+    .mode-select-box {
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 0.35rem !important;
+        width: 100% !important;
+    }
+
+    .mode-select-box label {
+        font-size: 0.8rem !important;
+        color: var(--neon-blue) !important;
+        white-space: nowrap !important;
+    }
+
+    .mode-select-box select {
+        width: 100% !important;
+        max-width: 100% !important;
+        font-size: 0.9rem !important;
+        box-sizing: border-box !important;
+    }
+
+    .race-timer-box {
+        width: 100% !important;
+        text-align: center !important;
+    }
+
+    .race-timer-box .badge {
+        width: 100% !important;
+        display: block !important;
+        text-align: center !important;
+        padding: 0.5rem !important;
+        box-sizing: border-box !important;
+    }
+
+    /* Calque visuel et stickers sans aucune interférence sur le tactile */
+    .fg-dynamic-layer,
+    #fg-ambient-canvas,
+    #fg-stickers-container {
+        pointer-events: none !important;
+    }
+
+    /* Conteneur principal pleine largeur et défilement fluide */
     .main-container {
         width: 100% !important;
         max-width: 100% !important;
         box-sizing: border-box !important;
-        padding: 0.75rem 0.5rem 95px 0.5rem !important;
+        padding: 0.75rem 0.5rem 110px 0.5rem !important;
         overflow-x: hidden !important;
+        -webkit-overflow-scrolling: touch !important;
     }
 
     /* Sélecteur de mode de jeu */

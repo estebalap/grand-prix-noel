@@ -89,14 +89,14 @@
                 <span class="mobile-text">MOBILE</span>
             </button>
 
-            <!-- Profil de l'Écurie Active -->
-            <div class="profile-card" id="profile-selector-btn">
+            <!-- Profil de l'Écurie Active (Cliquable pour changer d'écurie) -->
+            <button type="button" class="profile-card" id="profile-selector-btn" onclick="openTeamModal()" title="Changer d'écurie">
                 <img id="active-team-logo" src="logos/09_esteban_titou_wyvern_srt.jpg" alt="Logo Écurie" class="team-avatar">
                 <div class="profile-info">
-                    <span class="pilot-label">PILOTE CONNECTÉ</span>
+                    <span class="pilot-label">ÉCURIE (CHANGER 🔄)</span>
                     <strong id="active-team-name">Titou Wyvern SRT</strong>
                 </div>
-            </div>
+            </button>
 
             <!-- Portefeuille de Pièces Mario Party -->
             <div class="wallet-badge" title="Portefeuille de Pièces d'Or">
@@ -776,15 +776,15 @@
     </nav>
 
     <!-- MODAL DE CONNEXION SMARTPHONE & QR CODE WI-FI -->
-    <div id="mobile-connect-modal" class="modal-overlay" style="display:none;">
+    <div id="mobile-connect-modal" class="modal-overlay" style="display:none;" onclick="if(event.target===this) closeMobileConnectModal()">
         <div class="modal-box card mobile-modal-box">
             <div class="modal-header-row">
-                <h2>📲 CONNECTER VOTRE SMARTPHONE</h2>
-                <button class="modal-close" onclick="closeMobileConnectModal()">×</button>
+                <h2>📲 CONNECTER UN SMARTPHONE</h2>
+                <button type="button" class="modal-close-btn" onclick="closeMobileConnectModal()" aria-label="Fermer">✕</button>
             </div>
             <div class="mobile-connect-content">
                 <p class="mob-connect-desc">
-                    Gérez votre écurie, vos bolides et placez vos paris directement depuis n'importe quel smartphone :
+                    Pointez l'appareil photo d'un smartphone pour ouvrir le jeu directement :
                 </p>
 
                 <!-- Zone d'affichage du QR Code -->
@@ -792,22 +792,22 @@
                     <div id="qr-code-display" class="qr-code-box">
                         <img id="qr-code-img" src="qrcode.png" alt="QR Code Grand Prix" class="qr-img">
                     </div>
-                    <span class="qr-instruction">📷 Pointez l'appareil photo de votre smartphone pour ouvrir</span>
+                    <span class="qr-instruction">📷 Scannez pour ouvrir le jeu</span>
                 </div>
 
                 <!-- Lien direct tapable -->
                 <div class="direct-link-box">
-                    <span class="direct-link-label">OU SAISISSEZ CETTE ADRESSE DANS LE NAVIGATEUR DU TÉLÉPHONE :</span>
+                    <span class="direct-link-label">OU SAISISSEZ CETTE ADRESSE DANS LE NAVIGATEUR :</span>
                     <div class="direct-link-input-group">
                         <input type="text" id="mob-direct-url" readonly value="https://estebalap.github.io/grand-prix-noel/">
                         <button id="btn-copy-mob-url" class="btn btn-secondary">Copier</button>
                     </div>
                 </div>
 
-                <!-- Simulation sur PC pour tester immédiatement -->
+                <!-- Gros bouton Fermer indispensable pour smartphone -->
                 <div class="mob-modal-actions">
-                    <button id="btn-simulate-mobile" class="btn btn-primary">
-                        📱 Activer / Désactiver la Vue Smartphone sur cet écran
+                    <button type="button" class="btn btn-modal-close-large" onclick="closeMobileConnectModal()">
+                        ✕ FERMER CETTE FENÊTRE
                     </button>
                 </div>
             </div>
@@ -815,14 +815,17 @@
     </div>
 
     <!-- MODAL DE SÉLECTION DU PROFIL PILOTE / ÉCURIE -->
-    <div id="team-modal" class="modal-overlay" style="display:none;">
+    <div id="team-modal" class="modal-overlay" style="display:none;" onclick="if(event.target===this) closeTeamModal()">
         <div class="modal-box card">
-            <h2>🏎️ CHOISISSEZ VOTRE ÉCURIE</h2>
+            <div class="modal-header-row">
+                <h2>🏎️ CHOISISSEZ VOTRE ÉCURIE</h2>
+                <button type="button" class="modal-close-btn" onclick="closeTeamModal()" aria-label="Fermer">✕</button>
+            </div>
             <p>Sélectionnez votre profil officiel parmi les 15 écuries familiales :</p>
             <div class="teams-pick-grid" id="teams-pick-list">
                 <!-- Rempli en JS -->
             </div>
-            <button class="btn btn-secondary modal-close" onclick="closeTeamModal()">Fermer</button>
+            <button type="button" class="btn btn-modal-close-large" onclick="closeTeamModal()">✕ FERMER CETTE FENÊTRE</button>
         </div>
     </div>
 

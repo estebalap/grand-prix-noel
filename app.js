@@ -809,8 +809,19 @@ function initMobileConnectModal() {
 
 window.closeMobileConnectModal = function() {
     const modal = document.getElementById('mobile-connect-modal');
-    if (modal) modal.style.display = 'none';
+    if (modal) {
+        modal.style.display = 'none';
+        document.body.style.overflow = '';
+    }
 };
+
+// Fermer les fenêtres modales avec la touche Échap
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+        window.closeMobileConnectModal();
+        if (typeof window.closeTeamModal === 'function') window.closeTeamModal();
+    }
+});
 
 // =============================================================================
 // 6. GESTION DU PROFIL & DE L'ÉCURIE ACTIVE
@@ -869,21 +880,33 @@ function updateWalletDisplay() {
     updateMobileTeamSummary();
 }
 
+window.openTeamModal = function() {
+    const modal = document.getElementById('team-modal');
+    if (modal) {
+        modal.style.display = 'flex';
+        renderTeamPickerList();
+    }
+};
+
+window.closeTeamModal = function() {
+    const modal = document.getElementById('team-modal');
+    if (modal) modal.style.display = 'none';
+};
+
 function initTeamModal() {
     const selectorBtn = document.getElementById('profile-selector-btn');
     const modal = document.getElementById('team-modal');
-    const pickList = document.getElementById('teams-pick-list');
 
-    if (selectorBtn && modal) {
-        selectorBtn.addEventListener('click', () => {
-            modal.style.display = 'flex';
-            renderTeamPickerList();
+    if (selectorBtn) {
+        selectorBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            window.openTeamModal();
         });
     }
 
     if (modal) {
         modal.addEventListener('click', (e) => {
-            if (e.target === modal) closeTeamModal();
+            if (e.target === modal) window.closeTeamModal();
         });
     }
 }
@@ -896,6 +919,8 @@ function renderTeamPickerList() {
     APP_STATE.teams.forEach(team => {
         const card = document.createElement('div');
         card.className = `team-pick-card ${team.id === APP_STATE.activeTeamId ? 'active' : ''}`;
+        card.setAttribute('role', 'button');
+        card.setAttribute('tabindex', '0');
         card.innerHTML = `
             <img src="${team.logo}" alt="${team.name}">
             <div class="team-meta">
@@ -909,15 +934,10 @@ function renderTeamPickerList() {
             updateActiveTeamHeader();
             renderMyPaddock();
             saveLocalStorage();
-            closeTeamModal();
+            window.closeTeamModal();
         });
         pickList.appendChild(card);
     });
-}
-
-function closeTeamModal() {
-    const modal = document.getElementById('team-modal');
-    if (modal) modal.style.display = 'none';
 }
 
 // =============================================================================
