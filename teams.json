@@ -1,0 +1,152 @@
+[
+  {
+    "id": 1,
+    "pilot": "Laurent",
+    "nickname": "Papinou",
+    "name": "Petite Mimine Racing",
+    "logo": "logos/01_laurent_petite_mimine_racing.png",
+    "colors": ["#334155", "#84cc16"],
+    "quote": "Vient petite mimine, vient petite mimine !",
+    "specialty": "Chasseur de Chronos & Pâté de Sanglier"
+  },
+  {
+    "id": 2,
+    "pilot": "Nadine",
+    "nickname": "Maminou",
+    "name": "Twingo Oasis V16 Racing",
+    "logo": "logos/02_nadine_twingo_oasis_v16_racing.jpg",
+    "colors": ["#F5E6A3", "#ec4899"],
+    "quote": "Un coup de balai sur la piste et un combo Candy Crush !",
+    "specialty": "Twingo 1.2L 16V & Candy Crush Saga"
+  },
+  {
+    "id": 3,
+    "pilot": "Isabelle",
+    "nickname": "Zabou",
+    "name": "Optic-Breuillet Racing",
+    "logo": "logos/03_isabelle_optic_breuillet_racing.jpg",
+    "colors": ["#eab308", "#18181b"],
+    "quote": "Tu ne m'as pas vue venir ? Va chez Optic-Breuillet !",
+    "specialty": "Dioptries de Course & Service Gagnant"
+  },
+  {
+    "id": 4,
+    "pilot": "Frédéric",
+    "nickname": "Tata Freddy",
+    "name": "Tata Freddy Motorsport",
+    "logo": "logos/04_frederic_tata_freddy_motorsport.png",
+    "colors": ["#f97316", "#7e22ce"],
+    "quote": "C'est mathématiquement impossible que je perde, j'ai compté les cartes.",
+    "specialty": "Balatro All-In & Vinyles 33T"
+  },
+  {
+    "id": 5,
+    "pilot": "Mario",
+    "nickname": "Mario",
+    "name": "Super Mario Pression",
+    "logo": "logos/05_mario_super_mario_pression.jpg",
+    "colors": ["#ef4444", "#09090b"],
+    "quote": "It's-a me, Mario... et j'ai une tournée d'avance sur vous !",
+    "specialty": "Pinte de Bière & Solo Stratocaster"
+  },
+  {
+    "id": 6,
+    "pilot": "Lucine",
+    "nickname": "Lucine",
+    "name": "Scuderia Symphonie E-Tech",
+    "logo": "logos/06_lucine_scuderia_symphonie_e_tech.jpg",
+    "colors": ["#09090b", "#facc15"],
+    "quote": "Le silence de l'électrique, le fracas du caractère !",
+    "specialty": "R5 E-Tech Noire & Clé de Sol"
+  },
+  {
+    "id": 7,
+    "pilot": "Fanny",
+    "nickname": "Fafay",
+    "name": "Yaris 2 Invincible",
+    "logo": "logos/07_fanny_yaris_2_invincible.jpg",
+    "colors": ["#d4d4d8", "#eab308"],
+    "quote": "Je prépare les gâteaux et j'enterre la concurrence !",
+    "specialty": "Yaris 2 Increvable & Cupcakes Triforce"
+  },
+  {
+    "id": 8,
+    "pilot": "Ludwig",
+    "nickname": "Lulu",
+    "name": "A4 Oil Leaking",
+    "logo": "logos/08_ludwig_a4_oil_leaking.jpg",
+    "colors": ["#64748b", "#ea580c"],
+    "quote": "Réveillez-moi sur la plus haute marche du podium.",
+    "specialty": "Audi A4 Dépanneuse Club & Samus Metroid"
+  },
+  {
+    "id": 9,
+    "pilot": "Esteban",
+    "nickname": "Titou",
+    "name": "Titou Wyvern SRT",
+    "logo": "logos/09_esteban_titou_wyvern_srt.jpg",
+    "colors": ["#1e3a8a", "#dc2626"],
+    "quote": "C'est scientifiquement optimisé pour vous pourrir la course.",
+    "specialty": "Ingénierie Monster Hunter & Dodge V8"
+  },
+  {
+    "id": 10,
+    "pilot": "Diego",
+    "nickname": "Diego",
+    "name": "Doom Slayer Issue GP",
+    "logo": "logos/10_diego_doom_slayer_issue_gp.jpg",
+    "colors": ["#000000", "#991b1b"],
+    "quote": "Prépare-toi à mourir. You Died.",
+    "specialty": "Dragon Slayer Berserk & Minecraft Moddé"
+  },
+  {
+    "id": 11,
+    "pilot": "Gabrielle",
+    "nickname": "Gaboune",
+    "name": "Milo's princess Vroom Vroom",
+    "logo": "logos/11_gabrielle_milos_princess_vroom_vroom.jpg",
+    "colors": ["#f472b6", "#0f172a"],
+    "quote": "Trop mignonne pour perdre, trop rapide pour tes yeux.",
+    "specialty": "Princesse Peach & Chat Blanc Milo"
+  },
+  {
+    "id": 12,
+    "pilot": "Thom",
+    "nickname": "Bob",
+    "name": "Bob's Bizarre Racing",
+    "logo": "logos/12_thom_bobs_bizarre_racing.jpg",
+    "colors": ["#8b5cf6", "#facc15"],
+    "quote": "Yare Yare Daze... la victoire est une question de style !",
+    "specialty": "JoJo Pose Menacing & Persona Phantom"
+  },
+  {
+    "id": 13,
+    "pilot": "Jonah",
+    "nickname": "Jojo",
+    "name": "Jojo la Sirène Veloce",
+    "logo": "logos/13_jonah_jojo_la_sirene_veloce.jpg",
+    "colors": ["#06b6d4", "#0f172a"],
+    "quote": "Le solo de batterie commence quand tu passes la ligne derrière moi.",
+    "specialty": "Sirène du Bitume & Double Pédale Batterie"
+  },
+  {
+    "id": 14,
+    "pilot": "Janis",
+    "nickname": "Jaja",
+    "name": "Ninja-Nissan Street Racing",
+    "logo": "logos/14_janis_ninja_nissan_street_racing.jpg",
+    "colors": ["#09090b", "#b91c1c"],
+    "quote": "Discret dans mon coin, premier sur la ligne.",
+    "specialty": "Shuriken Turbo Fan & Tokyo Drift"
+  },
+  {
+    "id": 15,
+    "pilot": "Élie",
+    "nickname": "Élie",
+    "name": "Princess Blooming Speed",
+    "logo": "logos/15_elie_princess_blooming_speed.jpg",
+    "colors": ["#eab308", "#f97316"],
+    "quote": "Hi I'm Daisy ! Et je vais vous faire danser la valse des tonneaux.",
+    "specialty": "Marguerite Daisy & Danseuse Étoile"
+  }
+]

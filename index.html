@@ -1,0 +1,1164 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grand Prix de Noël — Mario Kart 3D</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="manifest" href="manifest.json">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Grand Prix">
+    <link rel="apple-touch-icon" href="logos/09_esteban_titou_wyvern_srt.jpg">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:ital,wght@0,400;0,700;1,700&family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- DYNAMIC THEMED BACKGROUND LAYERS -->
+    <div id="bg-dynamic-layer" class="bg-dynamic-layer">
+        <!-- Calque Graphique Néon (Arrière-plan de secours) -->
+        <div class="bg-art-layer" id="bg-art-layer"></div>
+
+        <!-- Calque Vidéo Réaliste HD (Par-dessus le fond graphique) -->
+        <div id="bg-video-wrapper" class="bg-video-wrapper">
+            <video id="bg-local-video" autoplay loop muted playsinline style="display:none;"></video>
+            <iframe id="bg-video-iframe" 
+                    src="" 
+                    title="Ambient Mode Video"
+                    frameborder="0" 
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+                    referrerpolicy="no-referrer-when-downgrade"
+                    tabindex="-1">
+            </iframe>
+            <!-- Rideau fluide pour masquer les flashs de boutons pause/play au démarrage -->
+            <div id="bg-video-curtain" class="bg-video-curtain"></div>
+        </div>
+
+        <!-- Vignette & Scanlines arcade translucides -->
+        <div class="bg-vignette"></div>
+
+        <!-- Particules Canvas réactives d'arrière-plan -->
+        <canvas id="ambient-canvas"></canvas>
+    </div>
+
+    <!-- CALQUE D'EFFETS D'ANIMATION AU PREMIER PLAN (DEVANT LE CONTENU) -->
+    <div id="fg-dynamic-layer" class="fg-dynamic-layer">
+        <canvas id="fg-ambient-canvas"></canvas>
+        <div id="fg-stickers-container" class="fg-stickers-container"></div>
+    </div>
+
+    <!-- HEADER SUPÉRIEUR -->
+    <header class="app-header">
+        <div class="header-left">
+            <span class="flag-icon">🏁</span>
+            <div class="title-group">
+                <h1>GRAND PRIX DE NOËL</h1>
+                <span class="subtitle">ÉDITION MARIO KART 3D • SAISON FAMILIALE</span>
+            </div>
+        </div>
+
+        <div class="header-right">
+            <!-- Bouton Effets Visuels 1er Plan -->
+            <button id="btn-toggle-fg-fx" class="fg-fx-btn active" title="Activer / Désactiver les Animations et Effets qui passent au Premier Plan">
+                <span class="fg-icon">✨</span>
+                <span class="fg-text">1ER PLAN : ON</span>
+            </button>
+
+            <!-- Bouton Studio Vidéo & Personnalisation -->
+            <button id="btn-open-video-studio" class="video-studio-btn" title="Ouvrir le Studio Vidéo : choix des édits, opacité et liens">
+                <span class="video-icon">🎛️</span>
+                <span class="video-text">STUDIO VIDÉO</span>
+            </button>
+
+            <!-- Bouton Vidéo Réaliste de Fond -->
+            <button id="btn-toggle-video" class="video-toggle-btn active" title="Activer / Désactiver la Vidéo Réaliste en arrière-plan">
+                <span class="video-icon">🎬</span>
+                <span class="video-text">VIDÉO : ON</span>
+            </button>
+
+            <!-- Bouton Ambiance Sonore & Musique Thématique -->
+            <button id="btn-ambient-music" class="music-toggle-btn" title="Activer / Couper la Musique Thématique du Mode">
+                <span class="music-icon">🔇</span>
+                <span class="music-text">MUSIQUE : OFF</span>
+            </button>
+
+            <!-- Bouton Connexion Smartphone & QR Code -->
+            <button id="btn-open-mobile-connect" class="mobile-connect-btn" title="Connecter un Smartphone ou Tablette via QR Code Wi-Fi">
+                <span class="mobile-icon">📲</span>
+                <span class="mobile-text">MOBILE</span>
+            </button>
+
+            <!-- Profil de l'Écurie Active -->
+            <div class="profile-card" id="profile-selector-btn">
+                <img id="active-team-logo" src="logos/09_esteban_titou_wyvern_srt.jpg" alt="Logo Écurie" class="team-avatar">
+                <div class="profile-info">
+                    <span class="pilot-label">PILOTE CONNECTÉ</span>
+                    <strong id="active-team-name">Titou Wyvern SRT</strong>
+                </div>
+            </div>
+
+            <!-- Portefeuille de Pièces Mario Party -->
+            <div class="wallet-badge" title="Portefeuille de Pièces d'Or">
+                <span class="coin-icon">🪙</span>
+                <span id="player-coins" class="coin-count">100</span>
+                <span class="coin-label">PIÈCES</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- =================================================================== -->
+    <!-- BARRE JUKEBOX MUSIQUE RÉELLE & PLAYLISTS THÉMATIQUES -->
+    <!-- =================================================================== -->
+    <div id="jukebox-bar" class="jukebox-bar">
+        <div class="jukebox-info">
+            <span class="jukebox-icon-disc" id="jb-disc-icon">💿</span>
+            <div class="jukebox-text-group">
+                <span class="jukebox-playlist-tag" id="jb-playlist-tag">PLAYLIST : RAINBOW ROAD 4 VOIES</span>
+                <div class="jukebox-ticker">
+                    <span id="jb-track-title" class="jukebox-track-title">Mario Kart 8 Deluxe — Rainbow Road (Live Band)</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="jukebox-controls">
+            <button id="jb-btn-prev" class="jb-btn" title="Piste précédente">⏮️</button>
+            <button id="jb-btn-play" class="jb-btn jb-btn-main" title="Lecture / Pause">▶️</button>
+            <button id="jb-btn-next" class="jb-btn" title="Piste suivante">⏭️</button>
+        </div>
+
+        <div class="jukebox-track-picker-wrap">
+            <select id="jb-track-select" class="jb-track-select" title="Choisir un titre officiel"></select>
+        </div>
+
+        <div class="jukebox-volume-group">
+            <span class="jb-vol-icon" id="jb-vol-icon">🔊</span>
+            <input type="range" id="jb-volume-slider" min="0" max="100" value="75" class="jb-volume-slider" title="Volume musique (0 - 100%)">
+            <span id="jb-volume-val" class="jb-vol-val">75%</span>
+        </div>
+
+        <!-- Lecteur YouTube Streaming Audio invisible -->
+        <div id="jukebox-iframe-holder" class="jukebox-iframe-holder">
+            <iframe id="jukebox-audio-iframe" 
+                    src="" 
+                    title="Jukebox Audio Stream" 
+                    frameborder="0" 
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+                    referrerpolicy="no-referrer-when-downgrade"
+                    tabindex="-1">
+            </iframe>
+        </div>
+    </div>
+
+    <!-- NAVIGATION PRINCIPALE (ONGLETS) -->
+    <nav class="nav-bar">
+        <button class="nav-btn active" data-tab="tab-regie">📺 Régie & Course</button>
+        <button class="nav-btn" data-tab="tab-draft">📦 Scanner & Paddock</button>
+        <button class="nav-btn" data-tab="tab-bets">🎲 Paris en Direct</button>
+        <button class="nav-btn" data-tab="tab-shop">🛒 Pièges & Chaos</button>
+        <button class="nav-btn" data-tab="tab-taunts">📢 Taunt Box</button>
+        <button class="nav-btn" data-tab="tab-standings">📊 Classements</button>
+    </nav>
+
+    <!-- CONTENU PRINCIPAL -->
+    <main class="main-container">
+
+        <!-- =================================================================== -->
+        <!-- ONGLET 1 : RÉGIE & ÉCRAN TV DE COURSE -->
+        <!-- =================================================================== -->
+        <section id="tab-regie" class="tab-pane active">
+            <div class="regie-header">
+                <div class="mode-select-box">
+                    <label for="race-mode-select">MODE DE JEU ACTIF :</label>
+                    <select id="race-mode-select">
+                        <option value="gp_pure">🏆 Grand Prix — Pure Vitesse (Sans obstacle)</option>
+                        <option value="gp_strategy">⭐ Grand Prix — Paris & Stratégie (Bonus/Malus)</option>
+                        <option value="survival">👑 Survie Ultime — Mort Subite (Top 1)</option>
+                        <option value="boss_tomica">🇯🇵 Boss Fight — Le Shogun Tomica</option>
+                        <option value="boss_majorette">🇫🇷 Défi Cocorico — Le Gang Majorette</option>
+                        <option value="f1_apex">🏎️ Apex Challenge — 100% Formule 1</option>
+                        <option value="chaos_unlimited">🌋 Chaos Total — Obstacles Illimités</option>
+                        <option value="relic_cup">🕰️ Coupe des Reliques — Les 20 Anciennes</option>
+                    </select>
+                </div>
+
+                <div class="race-timer-box">
+                    <span id="race-status-badge" class="badge ready">PRÊT AU DÉPART</span>
+                </div>
+            </div>
+
+            <!-- BANNIÈRES DYNAMIQUES & EFFETS SPÉCIFIQUES AUX MODES -->
+            <div id="mode-banner-container" class="mode-banner-container">
+                <!-- Mode Noël / Rainbow Road -->
+                <div class="mode-banner-banner banner-rainbow" id="banner-rainbow">
+                    <span class="banner-star">⭐</span>
+                    <span class="banner-text">CIRCUIT ARC-EN-CIEL 4 VOIES • DÉPART IMMINENT</span>
+                    <span class="banner-boost-arrows">🏎️💨💨</span>
+                </div>
+
+                <!-- Mode Tokyo Drift / Boss Tomica -->
+                <div class="mode-banner-banner banner-tokyo" id="banner-tokyo">
+                    <span class="kanji-neon">東京ドリフト</span>
+                    <span class="miku-badge">⚡ HATSUNE MIKU BATTLE ⚡</span>
+                    <span class="kanji-neon">夜間暴走</span>
+                </div>
+
+                <!-- Mode Survie Mad Max / Punk -->
+                <div class="mode-banner-banner banner-madmax" id="banner-madmax">
+                    <div class="hazard-tape"></div>
+                    <span class="madmax-title">💀 WASTELAND DERBY — SURVIE PUNK SANS PITIE 💀</span>
+                    <div class="hazard-tape"></div>
+                </div>
+
+                <!-- Mode F1 Apex -->
+                <div class="mode-banner-banner banner-f1" id="banner-f1">
+                    <div class="f1-rpm-bar">
+                        <div class="rpm-label">RPM TELEMETRY :</div>
+                        <div class="rpm-lights-cluster">
+                            <span class="rpm-led green"></span><span class="rpm-led green"></span><span class="rpm-led green"></span><span class="rpm-led green"></span>
+                            <span class="rpm-led yellow"></span><span class="rpm-led yellow"></span><span class="rpm-led yellow"></span><span class="rpm-led yellow"></span>
+                            <span class="rpm-led red"></span><span class="rpm-led red"></span><span class="rpm-led red"></span><span class="rpm-led red"></span>
+                            <span class="rpm-led blue"></span><span class="rpm-led blue"></span><span class="rpm-led blue"></span><span class="rpm-led blue"></span>
+                        </div>
+                        <span class="drs-status">DRS OPEN</span>
+                    </div>
+                </div>
+
+                <!-- Mode Chaos Total -->
+                <div class="mode-banner-banner banner-chaos" id="banner-chaos">
+                    <span class="chaos-icon">🌋</span>
+                    <span class="chaos-title">💣 CHAOS TOTAL — ITEMS & PIÈGES ILLIMITÉS 💣</span>
+                    <span class="chaos-icon">⚡</span>
+                </div>
+
+                <!-- Mode Boss Majorette (Cocorico Le Mans) -->
+                <div class="mode-banner-banner banner-majorette" id="banner-majorette">
+                    <span class="tricolor-badge">🇫🇷 DÉFI COCORICO 🇫🇷</span>
+                    <span class="majorette-title">LE GANG MAJORETTE • 24 HEURES DU MANS VINTAGE</span>
+                    <span class="laurel-badge">🏆 CLASSIC</span>
+                </div>
+
+                <!-- Mode Coupe des Reliques (Outrun Synthwave) -->
+                <div class="mode-banner-banner banner-relic" id="banner-relic">
+                    <span class="relic-pixel">💾 [1985]</span>
+                    <span class="relic-title">COUPE DES RELIQUES — LES 20 ANCIENNES D'ENFANCE</span>
+                    <span class="relic-tag">📼 COTES x12</span>
+                </div>
+            </div>
+
+            <!-- NOUVEAU : HUD DYNAMIQUE DES RÈGLES & AMBIANCE DU MODE ACTIF -->
+            <div id="mode-rules-hud" class="mode-rules-hud">
+                <!-- Rempli dynamiquement par renderModeRules(mode) dans app.js -->
+            </div>
+
+            <!-- GRILLE DES 4 VOIES RAINBOW ROAD -->
+            <div class="rainbow-lanes-grid">
+                <!-- VOIE 1 -->
+                <div class="track-lane lane-1" data-lane="1">
+                    <div class="lane-header">
+                        <span class="lane-tag">VOIE 1</span>
+                        <span class="lane-name">JAUNE CITRON</span>
+                    </div>
+                    <div class="lane-content">
+                        <select class="car-picker" id="picker-lane-1"></select>
+                        <div class="car-preview-card" id="card-lane-1">
+                            <h4 class="car-alias">Sélectionnez...</h4>
+                            <span class="car-real">--</span>
+                            <div class="lane-stat">Vitesse : <strong class="car-speed">--</strong></div>
+                            <div class="lane-odds">Cote : <strong class="odds-val">2.5</strong></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- VOIE 2 -->
+                <div class="track-lane lane-2" data-lane="2">
+                    <div class="lane-header">
+                        <span class="lane-tag">VOIE 2</span>
+                        <span class="lane-name">VERT ÉMERAUDE</span>
+                    </div>
+                    <div class="lane-content">
+                        <select class="car-picker" id="picker-lane-2"></select>
+                        <div class="car-preview-card" id="card-lane-2">
+                            <h4 class="car-alias">Sélectionnez...</h4>
+                            <span class="car-real">--</span>
+                            <div class="lane-stat">Vitesse : <strong class="car-speed">--</strong></div>
+                            <div class="lane-odds">Cote : <strong class="odds-val">2.5</strong></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- VOIE 3 -->
+                <div class="track-lane lane-3" data-lane="3">
+                    <div class="lane-header">
+                        <span class="lane-tag">VOIE 3</span>
+                        <span class="lane-name">ROUGE CORSA</span>
+                    </div>
+                    <div class="lane-content">
+                        <select class="car-picker" id="picker-lane-3"></select>
+                        <div class="car-preview-card" id="card-lane-3">
+                            <h4 class="car-alias">Sélectionnez...</h4>
+                            <span class="car-real">--</span>
+                            <div class="lane-stat">Vitesse : <strong class="car-speed">--</strong></div>
+                            <div class="lane-odds">Cote : <strong class="odds-val">2.5</strong></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- VOIE 4 -->
+                <div class="track-lane lane-4" data-lane="4">
+                    <div class="lane-header">
+                        <span class="lane-tag">VOIE 4</span>
+                        <span class="lane-name">BLEU ÉLECTRIQUE</span>
+                    </div>
+                    <div class="lane-content">
+                        <select class="car-picker" id="picker-lane-4"></select>
+                        <div class="car-preview-card" id="card-lane-4">
+                            <h4 class="car-alias">Sélectionnez...</h4>
+                            <span class="car-real">--</span>
+                            <div class="lane-stat">Vitesse : <strong class="car-speed">--</strong></div>
+                            <div class="lane-odds">Cote : <strong class="odds-val">2.5</strong></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CONTRÔLES DE COURSE & VALIDATION PHOTO-FINISH -->
+            <div class="race-controls-bar">
+                <button id="btn-open-bets" class="btn btn-warning">🎲 Ouvrir la Bourse aux Paris (45s)</button>
+                <button id="btn-start-countdown" class="btn btn-primary">🚦 3, 2, 1... GO !</button>
+                <button id="btn-randomize-grid" class="btn btn-secondary">🔀 Tirage Aléatoire des 4 Voies</button>
+            </div>
+
+            <!-- MODAL DE SAISIE DE L'ARRIVÉE -->
+            <div class="finish-panel card">
+                <h3>🏁 PHOTO-FINISH : SAISIE DU RÉSULTAT</h3>
+                <p>Sélectionnez l'ordre d'arrivée des 4 bolides :</p>
+                <div class="finish-selectors-row">
+                    <div class="finish-slot">
+                        <span class="rank-badge gold">1er</span>
+                        <select id="finish-pos-1"></select>
+                    </div>
+                    <div class="finish-slot">
+                        <span class="rank-badge silver">2e</span>
+                        <select id="finish-pos-2"></select>
+                    </div>
+                    <div class="finish-slot">
+                        <span class="rank-badge bronze">3e</span>
+                        <select id="finish-pos-3"></select>
+                    </div>
+                    <div class="finish-slot">
+                        <span class="rank-badge zinc">4e</span>
+                        <select id="finish-pos-4"></select>
+                    </div>
+                </div>
+                <button id="btn-validate-finish" class="btn btn-success btn-lg">🏆 VALIDER LE RÉSULTAT & DISTRIBUER LES POINTS</button>
+            </div>
+        </section>
+
+        <!-- =================================================================== -->
+        <!-- ONGLET 2 : SCANNER DRAFT & MON PADDOCK -->
+        <!-- =================================================================== -->
+        <section id="tab-draft" class="tab-pane">
+            <!-- TABLEAU DE BORD ÉCURIE MOBILE (VUE UTILITAIRE TÉLÉPHONE) -->
+            <div class="mobile-team-summary-card card" id="mobile-team-summary-card">
+                <div class="mob-team-header">
+                    <img id="mob-team-logo" src="logos/09_esteban_titou_wyvern_srt.jpg" alt="Logo Écurie" class="mob-team-avatar">
+                    <div class="mob-team-details">
+                        <span class="mob-team-subtitle">ÉCURIE ACTIVE</span>
+                        <h2 id="mob-team-title">Titou Wyvern SRT</h2>
+                        <span id="mob-team-pilot" class="mob-team-pilot">Pilote : Esteban (Titou)</span>
+                    </div>
+                    <button id="mob-btn-switch-team" class="btn btn-secondary btn-sm" title="Changer d'écurie">🔄 Écurie</button>
+                </div>
+                <div class="mob-team-stats-strip">
+                    <div class="mob-stat-box">
+                        <span class="mob-stat-val" id="mob-stat-points">0</span>
+                        <span class="mob-stat-lbl">Points</span>
+                    </div>
+                    <div class="mob-stat-box">
+                        <span class="mob-stat-val" id="mob-stat-wins">0</span>
+                        <span class="mob-stat-lbl">Victoires 🏆</span>
+                    </div>
+                    <div class="mob-stat-box">
+                        <span class="mob-stat-val" id="mob-stat-coins">100</span>
+                        <span class="mob-stat-lbl">Pièces 🪙</span>
+                    </div>
+                    <div class="mob-stat-box">
+                        <span class="mob-stat-val" id="mob-stat-cars">0/6</span>
+                        <span class="mob-stat-lbl">Bolides 🏎️</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="draft-hero-card card">
+                <h2>📦 SCANNER DU DRAFT À L'AVEUGLE</h2>
+                <p>Saisissez le code alphanumérique situé sur la gommette du paquet mystère (ex: <code>B07</code>, <code>FR02</code>, <code>F03</code>, <code>TK05</code>, <code>J02</code>...) :</p>
+                <div class="scanner-input-group">
+                    <input type="text" id="draft-code-input" maxlength="4" placeholder="CODE" autocomplete="off">
+                    <button id="btn-scan-code" class="btn btn-primary">RÉVÉLER LE BOLIDE !</button>
+                </div>
+            </div>
+
+            <!-- CARTE DE RÉVÉLATION DU BOLIDE (CACHÉE PAR DÉFAUT) -->
+            <div id="reveal-card" class="reveal-card card" style="display:none;">
+                <div class="reveal-header">
+                    <div class="reveal-tags">
+                        <span id="reveal-code" class="badge badge-code">B01</span>
+                        <span id="reveal-category" class="badge badge-cat">Catégorie</span>
+                    </div>
+                    <h2 id="reveal-alias">IS THAT A SUPRA ?!</h2>
+                    <h3 id="reveal-realname">Toyota Supra MK4</h3>
+                    <p id="reveal-team" class="team-sub">Écurie : Tokyo Midnight Club</p>
+                </div>
+
+                <div class="stats-bars-container">
+                    <div class="stat-row">
+                        <span>⚡ Vitesse sur pente 45° :</span>
+                        <div class="progress-bar"><div id="stat-bar-speed" class="bar-fill red" style="width: 85%;"></div></div>
+                        <strong id="stat-val-speed">85/100</strong>
+                    </div>
+                    <div class="stat-row">
+                        <span>✈️ Aérodynamisme :</span>
+                        <div class="progress-bar"><div id="stat-bar-aero" class="bar-fill blue" style="width: 90%;"></div></div>
+                        <strong id="stat-val-aero">90/100</strong>
+                    </div>
+                    <div class="stat-row">
+                        <span>🍌 Résistance Bananes :</span>
+                        <div class="progress-bar"><div id="stat-bar-banana" class="bar-fill yellow" style="width: 45%;"></div></div>
+                        <strong id="stat-val-banana">45/100</strong>
+                    </div>
+                    <div class="stat-row">
+                        <span>🌪️ Facteur Chaos :</span>
+                        <div class="progress-bar"><div id="stat-bar-chaos" class="bar-fill purple" style="width: 65%;"></div></div>
+                        <strong id="stat-val-chaos">65/100</strong>
+                    </div>
+                    <div class="stat-row">
+                        <span>😈 Intimidation Paddock :</span>
+                        <div class="progress-bar"><div id="stat-bar-intim" class="bar-fill green" style="width: 95%;"></div></div>
+                        <strong id="stat-val-intim">95/100</strong>
+                    </div>
+                </div>
+
+                <blockquote id="reveal-quote" class="car-quote">"Citation de vestiaire..."</blockquote>
+                <p id="reveal-lore" class="car-lore">Lore de la voiture...</p>
+
+                <div class="reveal-actions">
+                    <button id="btn-add-to-paddock" class="btn btn-success btn-lg">➕ ASSIGNER À MON PADDOCK D'ÉCURIE</button>
+                </div>
+            </div>
+
+            <!-- MON PADDOCK (LES 6 PLACES) -->
+            <div class="my-paddock-section">
+                <div class="paddock-header">
+                    <h3>🏎️ MON PADDOCK OFFICIEL (6 PLACES)</h3>
+                    <span id="paddock-count-badge" class="badge">0 / 6 Voitures</span>
+                </div>
+                <div id="paddock-slots-grid" class="paddock-slots-grid">
+                    <!-- Généré dynamiquement en JS -->
+                </div>
+            </div>
+        </section>
+
+        <!-- =================================================================== -->
+        <!-- ONGLET 3 : PARIS EN DIRECT -->
+        <!-- =================================================================== -->
+        <section id="tab-bets" class="tab-pane">
+            <div class="bets-hero card">
+                <h2>🎲 BOURSE AUX PARIS SPORTIFS</h2>
+                <p>Misez vos pièces d'or sur le vainqueur de la manche en cours. Gains crédités dès la validation de la Photo-Finish !</p>
+                <div class="my-wallet-banner">
+                    <span>SOLDE DISPONIBLE :</span>
+                    <strong id="bet-wallet-display">100 🪙</strong>
+                </div>
+            </div>
+
+            <div class="live-betting-grid" id="betting-grid-cards">
+                <!-- Généré dynamiquement en fonction des 4 bolides sur la piste -->
+            </div>
+
+            <div class="active-bets-card card">
+                <h3>📋 MES PARIS EN COURS SUR CETTE MANCHE</h3>
+                <ul id="active-bets-list" class="bets-list">
+                    <li class="empty-msg">Aucun pari engagé sur cette manche.</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- =================================================================== -->
+        <!-- ONGLET 4 : BOUTIQUE DE PIÈGES & CHAOS -->
+        <!-- =================================================================== -->
+        <section id="tab-shop" class="tab-pane">
+            <div class="shop-hero card">
+                <h2>🛒 L'ARSENAL MARIO PARTY : PIÈGES 3D</h2>
+                <p>Achetez des pièges physiques avec vos pièces d'or pour les poser sur les voies de vos adversaires !</p>
+            </div>
+
+            <div class="traps-shop-grid">
+                <!-- PIÈGE 1 -->
+                <div class="trap-card card">
+                    <div class="trap-icon">🍌</div>
+                    <h3>Peau de Banane 3D</h3>
+                    <p class="trap-desc">Pièce plastique glissante posée sur la voie d'un rival. Provoque tête-à-queue ou ralentissement net.</p>
+                    <div class="trap-footer">
+                        <span class="trap-price">15 🪙</span>
+                        <button class="btn btn-warning btn-sm" onclick="buyTrap('Peau de Banane', 15)">Acheter</button>
+                    </div>
+                </div>
+
+                <!-- PIÈGE 2 -->
+                <div class="trap-card card">
+                    <div class="trap-icon">🪨</div>
+                    <h3>Portique Thwomp 3D</h3>
+                    <p class="trap-desc">Portique clipsé sur la piste (hauteur 28mm). Laisse passer les F1 mais bloque les pick-ups et vans !</p>
+                    <div class="trap-footer">
+                        <span class="trap-price">30 🪙</span>
+                        <button class="btn btn-warning btn-sm" onclick="buyTrap('Portique Thwomp', 30)">Acheter</button>
+                    </div>
+                </div>
+
+                <!-- PIÈGE 3 -->
+                <div class="trap-card card">
+                    <div class="trap-icon">🛡️</div>
+                    <h3>Déflecteur Protecteur</h3>
+                    <p class="trap-desc">Nettoie et immunise votre propre voie contre tout piège posé pour cette manche.</p>
+                    <div class="trap-footer">
+                        <span class="trap-price">15 🪙</span>
+                        <button class="btn btn-warning btn-sm" onclick="buyTrap('Déflecteur Protecteur', 15)">Acheter</button>
+                    </div>
+                </div>
+
+                <!-- PIÈGE 4 -->
+                <div class="trap-card card">
+                    <div class="trap-icon">⚡</div>
+                    <h3>Lest de Plomb (Malus)</h3>
+                    <p class="trap-desc">Clipse une pièce de 2€ sur le toit d'un adversaire pour alourdir son centre de gravité.</p>
+                    <div class="trap-footer">
+                        <span class="trap-price">25 🪙</span>
+                        <button class="btn btn-warning btn-sm" onclick="buyTrap('Lest de Plomb', 25)">Acheter</button>
+                    </div>
+                </div>
+
+                <!-- PIÈGE 5 -->
+                <div class="trap-card card highlight">
+                    <div class="trap-icon">👑</div>
+                    <h3>La Carapace Bleue</h3>
+                    <p class="trap-desc">Réservée au dernier du classement : force le leader du tournoi à partir sur la voie la plus lente.</p>
+                    <div class="trap-footer">
+                        <span class="trap-price">60 🪙</span>
+                        <button class="btn btn-warning btn-sm" onclick="buyTrap('Carapace Bleue', 60)">Acheter</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- LA ROUE DU CHAOS -->
+            <div class="wheel-box card">
+                <h3>🎲 LA ROUE DU CHAOS (CARTES DÉFIS)</h3>
+                <p>Tirez un événement aléatoire obligatoire pour pimenter la manche :</p>
+                <button id="btn-spin-chaos" class="btn btn-danger btn-lg">🌪️ DÉCLENCHER UN ÉVÉNEMENT CHAOS !</button>
+                <div id="chaos-result-box" class="chaos-result" style="display:none;">
+                    <h4 id="chaos-title">DÉPART EN MARCHE ARRIÈRE !</h4>
+                    <p id="chaos-desc">Tous les 4 bolides doivent être posés le coffre en avant sur la grille de départ.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- =================================================================== -->
+        <!-- ONGLET 5 : TAUNT BOX (BRUITAGES) -->
+        <!-- =================================================================== -->
+        <section id="tab-taunts" class="tab-pane">
+            <div class="taunt-hero card">
+                <h2>📢 LA TAUNT BOX (CHAMBRAGE OFFICIEL)</h2>
+                <p>Cliquez sur un bouton pour déclencher un bruitage instantané et mettre la pression sur la grille de départ !</p>
+            </div>
+
+            <div class="taunts-grid">
+                <button class="taunt-btn" onclick="playTaunt('horn')">🎺 Klaxon Vintage</button>
+                <button class="taunt-btn" onclick="playTaunt('rev')">🏎️ Vrombissement V8 / F1</button>
+                <button class="taunt-btn" onclick="playTaunt('turbo')">💨 Pshhh Turbo Valve</button>
+                <button class="taunt-btn" onclick="playTaunt('skid')">🛞 Pneus qui crissent</button>
+                <button class="taunt-btn" onclick="playTaunt('banana')">🍌 Glissade sur Banane</button>
+                <button class="taunt-btn" onclick="playTaunt('laugh')">🤡 Rire Démoniaque Joker</button>
+                <button class="taunt-btn" onclick="playTaunt('pikachu')">⚡ Attaque Éclair Pikachu</button>
+                <button class="taunt-btn" onclick="playTaunt('siren')">🚨 Sirène Police GCPD</button>
+                <button class="taunt-btn" onclick="playTaunt('mario')">🍄 Mario : "Here We Go !"</button>
+                <button class="taunt-btn" onclick="playTaunt('crash')">💥 Gros Carambolage</button>
+            </div>
+        </section>
+
+        <!-- =================================================================== -->
+        <!-- ONGLET 6 : CLASSEMENTS & SAISON -->
+        <!-- =================================================================== -->
+        <section id="tab-standings" class="tab-pane">
+            <div class="standings-header">
+                <h2>🏆 CLASSEMENTS DU CHAMPIONNAT</h2>
+                <div class="standings-toggle">
+                    <button id="btn-view-teams" class="btn btn-sm active" onclick="switchStandings('teams')">🏁 Écuries (Constructeurs)</button>
+                    <button id="btn-view-cars" class="btn btn-sm" onclick="switchStandings('cars')">🏎️ Voitures (Pilotes)</button>
+                    <button id="btn-view-trophies" class="btn btn-sm" onclick="switchStandings('trophies')">🏆 Trophées & Podiums</button>
+                    <button id="btn-view-rules-pts" class="btn btn-sm" onclick="switchStandings('rules_pts')">📜 Barème des Points</button>
+                    <button class="btn btn-sm btn-warning btn-ceremony-pulse" onclick="openCeremonyModal()">🎉 CÉRÉMONIE FINALE</button>
+                </div>
+            </div>
+
+            <!-- TABLEAU DES ÉCURIES -->
+            <div id="standings-teams-panel" class="standings-panel card">
+                <div class="panel-header-flex">
+                    <h3>CLASSEMENT DES 15 ÉCURIES (POINTS CUMULÉS & STRATÉGIE)</h3>
+                    <span class="panel-sub-tag">Points Bolides + Bonus Pièces Dépensées</span>
+                </div>
+                <table class="standings-table">
+                    <thead>
+                        <tr>
+                            <th>Rang</th>
+                            <th>Écurie</th>
+                            <th>Pilote</th>
+                            <th>Points Totaux</th>
+                            <th>Victoires 🏆</th>
+                            <th>Podiums 🎖️</th>
+                            <th>Pièces Dépensées 🪙</th>
+                        </tr>
+                    </thead>
+                    <tbody id="teams-standings-body">
+                        <!-- Rempli en JS -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- TABLEAU DES VOITURES -->
+            <div id="standings-cars-panel" class="standings-panel card" style="display:none;">
+                <div class="panel-header-flex">
+                    <h3>TOP BOLIDES DU CIRCUIT (CHAMPIONNAT PILOTES)</h3>
+                    <span class="panel-sub-tag">Performances Individuelles des Voitures</span>
+                </div>
+                <table class="standings-table">
+                    <thead>
+                        <tr>
+                            <th>Rang</th>
+                            <th>Code</th>
+                            <th>Nom de Scène</th>
+                            <th>Modèle Réel</th>
+                            <th>Écurie Propriétaire</th>
+                            <th>Points</th>
+                            <th>Victoires</th>
+                            <th>Courses</th>
+                        </tr>
+                    </thead>
+                    <tbody id="cars-standings-body">
+                        <!-- Rempli en JS -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- PANNEAU DES TROPHÉES DE FIN DE TOURNOI -->
+            <div id="standings-trophies-panel" class="standings-panel card" style="display:none;">
+                <div class="trophies-header-banner">
+                    <div>
+                        <h3>🏆 LE PANTHÉON DES TROPHÉES DU GRAND PRIX DE NOËL</h3>
+                        <p class="trophies-desc">Répartition officielle des 6 trophées majeurs récompensant les meilleures écuries, bolides, flambeurs et stratèges.</p>
+                    </div>
+                    <button class="btn btn-warning btn-lg btn-ceremony-pulse" onclick="openCeremonyModal()">
+                        🎉 DÉCLENCHER LE PODIUM OFFICIEL
+                    </button>
+                </div>
+
+                <div class="trophies-grid" id="trophies-cards-grid">
+                    <!-- Rempli dynamiquement par renderTrophiesPanel() -->
+                </div>
+
+                <!-- SECTION TROPHÉES SECRETS PLOT TWIST DANS L'ONGLET -->
+                <div class="trophies-plot-twist-section" style="margin-top: 2rem;">
+                    <div class="trophies-header-banner plot-twist-theme">
+                        <div>
+                            <span class="plot-twist-tag">🎬 COUPS DE THÉÂTRE & MEMES</span>
+                            <h3>🎭 LES TROPHÉES "PLOT TWIST" DE LA DIRECTION DE COURSE</h3>
+                            <p class="trophies-desc">Personne ne s'y attendait... Des trophées bonus secrets se déclenchent aléatoirement pour pimenter la fin du championnat !</p>
+                        </div>
+                        <button class="btn btn-danger btn-plot-twist" onclick="triggerPlotTwistTrophies()">
+                            🚨 DÉCLENCHER UN PLOT TWIST ALÉATOIRE !
+                        </button>
+                    </div>
+
+                    <div class="plot-twist-cards-grid" id="standings-plot-twist-grid">
+                        <!-- Rempli dynamiquement -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- PANNEAU DU BARÈME & RÉPARTITION DES POINTS -->
+            <div id="standings-rules-pts-panel" class="standings-panel card" style="display:none;">
+                <div class="points-rule-header">
+                    <h3>📜 RÈGLEMENT OFFICIEL : RÉPARTITION DES POINTS & DES TROPHÉES</h3>
+                    <p>Découvrez comment les points sont attribués lors de chaque course, comment l'écurie les cumule, et comment les pièces d'or 🪙 influencent les récompenses finales.</p>
+                </div>
+
+                <div class="points-rules-grid">
+                    <!-- RÈGLE 1 : POINTS DE COURSE PAR BOLIDE -->
+                    <div class="rule-card card highlight-blue">
+                        <div class="rule-card-icon">🏎️</div>
+                        <h4>1. Points de Course (Par Bolide)</h4>
+                        <p>À chaque manche de 4 bolides, l'arrivée officielle attribue des points individuels au bolide :</p>
+                        <ul class="points-scale-list">
+                            <li><span class="scale-pos p1">1ère Place 🥇</span> <strong class="scale-pts">+10 Points</strong></li>
+                            <li><span class="scale-pos p2">2ème Place 🥈</span> <strong class="scale-pts">+6 Points</strong></li>
+                            <li><span class="scale-pos p3">3ème Place 🥉</span> <strong class="scale-pts">+4 Points</strong></li>
+                            <li><span class="scale-pos p4">4ème Place 🎖️</span> <strong class="scale-pts">+2 Points</strong></li>
+                        </ul>
+                        <div class="rule-badge-note">Ces points définissent le lauréat du <strong>Bolide d'Or 🏆</strong>.</div>
+                    </div>
+
+                    <!-- RÈGLE 2 : POINTS ÉCURIE & PADDOCK -->
+                    <div class="rule-card card highlight-gold">
+                        <div class="rule-card-icon">🏁</div>
+                        <h4>2. Points Constructeur (Écurie)</h4>
+                        <p>Chaque écurie possède son Paddock privé (3 à 5 voitures). Les points de course marqués par n'importe quel bolide de votre paddock sont <strong>automatiquement reversés à l'écurie</strong> !</p>
+                        <div class="rule-calc-box">
+                            <strong>Points Écurie = Somme des points de tous les bolides du paddock + Bonus Pièces</strong>
+                        </div>
+                        <p style="margin-top:0.5rem; font-size:0.85rem; color:var(--text-muted);">
+                            Faire tourner l'ensemble de votre flotte permet de maximiser vos chances face aux autres écuries.
+                        </p>
+                    </div>
+
+                    <!-- RÈGLE 3 : RÔLE DES PIÈCES & STRATÉGIE -->
+                    <div class="rule-card card highlight-emerald">
+                        <div class="rule-card-icon">🪙</div>
+                        <h4>3. Rôle des Pièces 🪙 & Stratégie</h4>
+                        <p>Les pièces d'or gagnées aux paris ou distribuées par la direction ont un triple rôle clé :</p>
+                        <ul class="points-bullet-list">
+                            <li><strong>Armement & Pièges :</strong> Acheter des bananes 🍌, carapaces bleues 👑 ou Thwomps 🪨 pour saboter les rivaux.</li>
+                            <li><strong>Bonus Stratégie (+1 pt / 20🪙) :</strong> Chaque tranche de 20 pièces dépensées rapporte +1 point bonus d'audace au classement général écurie.</li>
+                            <li><strong>Trophée Grand Flambeur :</strong> L'écurie ayant le plus misé et investi décroche le Trophée Flambeur de l'Année !</li>
+                        </ul>
+                    </div>
+
+                    <!-- RÈGLE 4 : DISTRIBUTION DES TROPHÉES DE FIN DE TOURNOI -->
+                    <div class="rule-card card highlight-purple">
+                        <div class="rule-card-icon">👑</div>
+                        <h4>4. Les 6 Trophées de Fin de Tournoi</h4>
+                        <p>À la fin du tournoi, la cérémonie décerne 6 trophées distincts :</p>
+                        <ul class="points-bullet-list">
+                            <li>🏆 <strong>Champion du Monde Constructeurs :</strong> Écurie #1 au cumul des points.</li>
+                            <li>🏎️ <strong>Bolide d'Or :</strong> Voiture individuelle #1 du circuit.</li>
+                            <li>🪙 <strong>Trophée Grand Flambeur :</strong> Joueur ayant le plus misé/dépensé de pièces.</li>
+                            <li>💣 <strong>Roi du Chaos & Saboteur :</strong> Pilote ayant activé le plus de pièges.</li>
+                            <li>🎖️ <strong>Trophée de la Régularité :</strong> Meilleur ratio de podiums Top 3.</li>
+                            <li>🚀 <strong>Trophée de la Remontada :</strong> Plus belle remontée au championnat.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- BARRE DE NAVIGATION TACTILE MOBILE (FIXE EN BAS D'ÉCRAN EN MODE PORTRAIT / SMARTPHONE) -->
+    <nav class="mobile-bottom-nav" id="mobile-bottom-nav">
+        <button class="mobile-nav-btn active" data-tab="tab-draft">
+            <span class="mob-nav-icon">🏎️</span>
+            <span class="mob-nav-label">Mon Écurie</span>
+        </button>
+        <button class="mobile-nav-btn" data-tab="tab-bets">
+            <span class="mob-nav-icon">🎲</span>
+            <span class="mob-nav-label">Paris</span>
+        </button>
+        <button class="mobile-nav-btn" data-tab="tab-shop">
+            <span class="mob-nav-icon">🛒</span>
+            <span class="mob-nav-label">Pièges</span>
+        </button>
+        <button class="mobile-nav-btn" data-tab="tab-standings">
+            <span class="mob-nav-icon">📊</span>
+            <span class="mob-nav-label">Scores</span>
+        </button>
+        <button class="mobile-nav-btn" data-tab="tab-regie">
+            <span class="mob-nav-icon">📺</span>
+            <span class="mob-nav-label">Course TV</span>
+        </button>
+    </nav>
+
+    <!-- MODAL DE CONNEXION SMARTPHONE & QR CODE WI-FI -->
+    <div id="mobile-connect-modal" class="modal-overlay" style="display:none;">
+        <div class="modal-box card mobile-modal-box">
+            <div class="modal-header-row">
+                <h2>📲 CONNECTER VOTRE SMARTPHONE</h2>
+                <button class="modal-close" onclick="closeMobileConnectModal()">×</button>
+            </div>
+            <div class="mobile-connect-content">
+                <p class="mob-connect-desc">
+                    Gérez votre écurie, vos bolides et placez vos paris directement depuis votre smartphone connecté au <strong>même réseau Wi-Fi</strong> :
+                </p>
+
+                <!-- Zone d'affichage du QR Code -->
+                <div class="qr-code-wrapper">
+                    <div id="qr-code-display" class="qr-code-box">
+                        <img id="qr-code-img" src="" alt="QR Code Wi-Fi" class="qr-img">
+                    </div>
+                    <span class="qr-instruction">📷 Pointez l'appareil photo de votre smartphone pour ouvrir</span>
+                </div>
+
+                <!-- Lien direct tapable -->
+                <div class="direct-link-box">
+                    <span class="direct-link-label">OU SAISISSEZ CETTE ADRESSE DANS LE NAVIGATEUR DU TÉLÉPHONE :</span>
+                    <div class="direct-link-input-group">
+                        <input type="text" id="mob-direct-url" readonly value="http://192.168.50.82:8000">
+                        <button id="btn-copy-mob-url" class="btn btn-secondary">Copier</button>
+                    </div>
+                </div>
+
+                <!-- Simulation sur PC pour tester immédiatement -->
+                <div class="mob-modal-actions">
+                    <button id="btn-simulate-mobile" class="btn btn-primary">
+                        📱 Activer / Désactiver la Vue Smartphone sur cet écran
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL DE SÉLECTION DU PROFIL PILOTE / ÉCURIE -->
+    <div id="team-modal" class="modal-overlay" style="display:none;">
+        <div class="modal-box card">
+            <h2>🏎️ CHOISISSEZ VOTRE ÉCURIE</h2>
+            <p>Sélectionnez votre profil officiel parmi les 15 écuries familiales :</p>
+            <div class="teams-pick-grid" id="teams-pick-list">
+                <!-- Rempli en JS -->
+            </div>
+            <button class="btn btn-secondary modal-close" onclick="closeTeamModal()">Fermer</button>
+        </div>
+    </div>
+
+    <!-- MODAL DU STUDIO VIDÉO & AMBIANCE FLASHEE -->
+    <div id="video-studio-modal" class="modal-overlay" style="display:none;">
+        <div class="modal-box card studio-modal-box">
+            <h2>🎛️ STUDIO VIDÉO & AMBIANCES FLASHY</h2>
+            <p>Personnalisez la vidéo d'arrière-plan, testez des édits YouTube ou vos propres vidéos MP4 locales :</p>
+            
+            <div class="studio-settings-grid">
+                <!-- Source de Vidéo -->
+                <div class="studio-group">
+                    <label for="studio-source-select">SOURCE VIDÉO :</label>
+                    <select id="studio-source-select">
+                        <option value="youtube">🌐 YouTube / Web Embed (Édits recommandés)</option>
+                        <option value="local">📁 Fichier Local MP4 (dossier app/videos/)</option>
+                        <option value="art">🎨 Fond Graphique Seul (Sans vidéo)</option>
+                    </select>
+                </div>
+
+                <!-- Entrée URL / Fichier -->
+                <div class="studio-group full-width">
+                    <label for="studio-url-input">LIEN YOUTUBE OU FICHIER LOCAL (ex: tokyo_drift.mp4) :</label>
+                    <div class="studio-input-row">
+                        <input type="text" id="studio-url-input" placeholder="Ex: https://www.youtube.com/watch?v=... ou tokyo_drift.mp4">
+                        <button id="btn-apply-custom-video" class="btn btn-primary">🚀 APPLIQUER</button>
+                    </div>
+                </div>
+
+                <!-- Curseurs d'opacité et d'effets -->
+                <div class="studio-group">
+                    <label for="slider-video-opacity">OPACITÉ VIDÉO (<span id="val-video-opacity">80%</span>) :</label>
+                    <input type="range" id="slider-video-opacity" min="10" max="100" value="80">
+                </div>
+
+                <div class="studio-group">
+                    <label for="slider-video-brightness">LUMINOSITÉ (<span id="val-video-brightness">100%</span>) :</label>
+                    <input type="range" id="slider-video-brightness" min="50" max="150" value="100">
+                </div>
+            </div>
+
+            <!-- Liste des Édits Prédéfinis -->
+            <div class="studio-presets-section">
+                <h3>⚡ ÉDITS ANIME & FAN ANIMATIONS RECOMMANDÉS (1-CLIC)</h3>
+                <div class="presets-buttons-grid">
+                    <button class="btn btn-secondary btn-sm" onclick="applyPresetVideo('aTBLelM_SyI', 'youtube')">💥 Redline Anime — Course Ultime & Crashs Explosifs</button>
+                    <button class="btn btn-secondary btn-sm" onclick="applyPresetVideo('3LSsLpoCltc', 'youtube')">🚀 Redline Phonk AMV — Nitro & Explosions 1000HP</button>
+                    <button class="btn btn-secondary btn-sm" onclick="applyPresetVideo('BJ0xBCwkg3E', 'youtube')">🏎️ Initial D — Touge Drift (Eurobeat Edit)</button>
+                    <button class="btn btn-secondary btn-sm" onclick="applyPresetVideo('dv13gl0a-FA', 'youtube')">🔰 Initial D — Déjà Vu AE86 Battle</button>
+                    <button class="btn btn-secondary btn-sm" onclick="applyPresetVideo('h_S3yC1s720', 'youtube')">🇯🇵 Tokyo Drift — JDM Masters Phonk</button>
+                    <button class="btn btn-secondary btn-sm" onclick="applyPresetVideo('FdPy0N_C2_Gc', 'youtube')">🌈 Mario Kart — Rainbow Road 4K60</button>
+                    <button class="btn btn-secondary btn-sm" onclick="applyPresetVideo('n8X9_MgEdCg', 'youtube')">⚡ Cyberpunk 2077 / Akira — Night Drive</button>
+                    <button class="btn btn-secondary btn-sm" onclick="applyPresetVideo('MgYnKu8GhAU', 'youtube')">💀 Mad Max Fury Road — Desert Chase</button>
+                    <button class="btn btn-secondary btn-sm" onclick="applyPresetVideo('3NDZVN4HQfQ', 'youtube')">🏁 F1 Ferrari V10 Classic Monaco (60FPS)</button>
+                    <button class="btn btn-secondary btn-sm" onclick="applyPresetVideo('0N4qvwho9ro', 'youtube')">🇫🇷 Le Mans Classic 1965 POV Vintage</button>
+                    <button class="btn btn-secondary btn-sm" onclick="applyPresetVideo('Ntp85nlChj0', 'youtube')">🕰️ Groupe B Rally 80s Insanity (Lancia/Audi)</button>
+                    <button class="btn btn-secondary btn-sm" onclick="applyPresetVideo('kJQP7kiw5Fk', 'youtube')">🌆 Retro Synthwave 90s Highway</button>
+                    <button class="btn btn-secondary btn-sm" onclick="applyPresetVideo('L_LUpnjgPso', 'youtube')">🔥 Feu de Cheminée Cozy de Noël</button>
+                </div>
+            </div>
+
+            <div class="studio-footer" style="margin-top:1.5rem; display:flex; justify-content:space-between; align-items:center;">
+                <button class="btn btn-warning btn-sm" onclick="forceReloadBackgroundVideo()">🔄 FORCER LE DÉMARRAGE VIDÉO</button>
+                <button class="btn btn-secondary modal-close" onclick="closeVideoStudio()">Fermer le Studio</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL CÉRÉMONIE FINALE & PODIUM OFFICIEL -->
+    <div id="ceremony-modal" class="modal-overlay ceremony-modal-overlay" style="display:none;">
+        <canvas id="ceremony-confetti-canvas" class="ceremony-confetti-canvas"></canvas>
+        <div class="modal-box card ceremony-modal-box">
+            <div class="ceremony-header">
+                <span class="ceremony-trophy-spin">🏆</span>
+                <h2>GRAND PRIX DE NOËL — CÉRÉMONIE DU PODIUM FINAL</h2>
+                <p>Palmarès Officiel du Championnat & Remise des Coupes d'Honneur</p>
+            </div>
+
+            <!-- LE PODIUM OFFICIEL (1er, 2e, 3e) -->
+            <div class="podium-stage-container">
+                <!-- 2ème Place (Argent) -->
+                <div class="podium-step step-2" id="podium-step-2">
+                    <div class="podium-driver-card">
+                        <span class="podium-badge medal-silver">🥈 2ème</span>
+                        <img id="podium-logo-2" src="logos/01_laurent_petite_mimine_racing.png" class="podium-avatar" alt="2e" onerror="this.src='logos/01_laurent_petite_mimine_racing.png'">
+                        <h4 id="podium-name-2">Écurie 2</h4>
+                        <span id="podium-pilot-2" class="podium-pilot">Pilote</span>
+                        <strong id="podium-pts-2" class="podium-pts">0 pts</strong>
+                    </div>
+                    <div class="podium-pillar pillar-silver">
+                        <span class="pillar-rank">2</span>
+                    </div>
+                </div>
+
+                <!-- 1ère Place (Or / Champion) -->
+                <div class="podium-step step-1" id="podium-step-1">
+                    <div class="podium-crown-icon">👑</div>
+                    <div class="podium-driver-card card-gold">
+                        <span class="podium-badge medal-gold">🥇 CHAMPION DU MONDE</span>
+                        <img id="podium-logo-1" src="logos/09_esteban_titou_wyvern_srt.jpg" class="podium-avatar avatar-gold" alt="1er" onerror="this.src='logos/01_laurent_petite_mimine_racing.png'">
+                        <h4 id="podium-name-1">Écurie Championne</h4>
+                        <span id="podium-pilot-1" class="podium-pilot">Pilote Étoile</span>
+                        <strong id="podium-pts-1" class="podium-pts pts-gold">0 pts</strong>
+                    </div>
+                    <div class="podium-pillar pillar-gold">
+                        <span class="pillar-rank">1</span>
+                    </div>
+                </div>
+
+                <!-- 3ème Place (Bronze) -->
+                <div class="podium-step step-3" id="podium-step-3">
+                    <div class="podium-driver-card">
+                        <span class="podium-badge medal-bronze">🥉 3ème</span>
+                        <img id="podium-logo-3" src="logos/02_nadine_twingo_oasis_v16_racing.jpg" class="podium-avatar" alt="3e" onerror="this.src='logos/01_laurent_petite_mimine_racing.png'">
+                        <h4 id="podium-name-3">Écurie 3</h4>
+                        <span id="podium-pilot-3" class="podium-pilot">Pilote</span>
+                        <strong id="podium-pts-3" class="podium-pts">0 pts</strong>
+                    </div>
+                    <div class="podium-pillar pillar-bronze">
+                        <span class="pillar-rank">3</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PALMARÈS DES 6 RÉCOMPENSES D'HONNEUR -->
+            <div class="ceremony-awards-section">
+                <h3>🎖️ PALMARÈS COMPLET DES 6 TROPHÉES DE SAISON</h3>
+                <div class="ceremony-awards-grid" id="ceremony-awards-grid">
+                    <!-- Rempli en JS -->
+                </div>
+            </div>
+
+            <!-- BANNIÈRE INTERACTIVE PLOT TWIST EN DIRECT SUR LE PODIUM -->
+            <div class="plot-twist-banner" id="ceremony-plot-twist-banner">
+                <div class="plot-twist-header">
+                    <span class="plot-twist-icon">🚨</span>
+                    <div>
+                        <h4>ATTENDEZ... UN COUP DE THÉÂTRE EN DIRECT !</h4>
+                        <p>Des trophées surprises hors-compétition viennent d'être homologués par les commissaires...</p>
+                    </div>
+                </div>
+                <button class="btn btn-danger btn-plot-twist" onclick="triggerPlotTwistTrophies()">
+                    ⚡ DÉVOILER UN TROPHÉE PLOT TWIST !
+                </button>
+            </div>
+
+            <!-- CONTENEUR DES TROPHÉES PLOT TWIST SUR LE PODIUM -->
+            <div id="ceremony-plot-twist-grid" class="plot-twist-cards-grid" style="margin-top: 1rem;">
+                <!-- Rempli dynamiquement -->
+            </div>
+
+            <div class="ceremony-footer-actions">
+                <button class="btn btn-warning" onclick="playCeremonyFanfare()">🎺 Rejouer la Fanfare Triomphale</button>
+                <button class="btn btn-secondary modal-close" onclick="closeCeremonyModal()">Fermer le Podium</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- BOUTON FLOTTANT PERMANENT DIRECTION DE COURSE (100% VISIBLE EN BAS À DROITE) -->
+    <button id="btn-floating-admin" class="btn-floating-admin" title="Accès Direction de Course (Code 1806)">
+        <span class="floating-admin-icon">🔒</span>
+        <span class="floating-admin-text">COMMISSAIRE (1806)</span>
+    </button>
+
+    <!-- PIED DE PAGE : ACCÈS COMMISSAIRE DE COURSE -->
+    <footer class="app-footer">
+        <div class="footer-inner">
+            <div class="footer-brand">
+                <span class="footer-flag">🏁</span>
+                <span class="footer-text">Grand Prix de Noël — Direction de Course & Régie Officielle</span>
+            </div>
+            <button id="btn-open-admin" class="btn-admin-pill" title="Accès Direction de Course (Code 1806)">
+                <span class="admin-icon">🔒</span>
+                <span class="admin-label">MENU COMMISSAIRE (1806)</span>
+            </button>
+        </div>
+    </footer>
+
+    <!-- MODAL COMMISSAIRE DE COURSE (ADMINISTRATION PROTÉGÉE PAR LE CODE 1806) -->
+    <div id="admin-modal" class="modal-overlay" style="display:none;">
+        <div class="modal-box card admin-modal-box">
+            
+            <!-- ÉCRAN 1 : SAISIE DU CODE PIN 1806 -->
+            <div id="admin-lock-screen" class="admin-lock-screen">
+                <div class="admin-lock-header">
+                    <span class="admin-huge-icon">🔐</span>
+                    <h2>DIRECTION DE COURSE — ACCÈS SÉCURISÉ</h2>
+                    <p>Ce menu est réservé aux commissaires de piste et à la régie pour superviser l'ensemble du Grand Prix.</p>
+                </div>
+
+                <div class="admin-pin-group">
+                    <label for="admin-pin-input">SAISISSEZ LE CODE D'ACCÈS COMMISSAIRE :</label>
+                    <div class="admin-pin-row">
+                        <input type="password" id="admin-pin-input" maxlength="4" placeholder="••••" autocomplete="off" autofocus>
+                        <button id="btn-submit-admin-pin" class="btn btn-primary">DÉVERROUILLER</button>
+                    </div>
+                    <div id="admin-pin-error" class="admin-pin-error" style="display:none;">
+                        ❌ Code erroné. Veuillez réessayer.
+                    </div>
+                </div>
+
+                <div class="admin-keypad">
+                    <button class="keypad-btn" data-key="1">1</button>
+                    <button class="keypad-btn" data-key="2">2</button>
+                    <button class="keypad-btn" data-key="3">3</button>
+                    <button class="keypad-btn" data-key="4">4</button>
+                    <button class="keypad-btn" data-key="5">5</button>
+                    <button class="keypad-btn" data-key="6">6</button>
+                    <button class="keypad-btn" data-key="7">7</button>
+                    <button class="keypad-btn" data-key="8">8</button>
+                    <button class="keypad-btn" data-key="9">9</button>
+                    <button class="keypad-btn" data-key="clear">C</button>
+                    <button class="keypad-btn" data-key="0">0</button>
+                    <button class="keypad-btn" data-key="ok">OK</button>
+                </div>
+
+                <div class="modal-footer-actions">
+                    <button class="btn btn-secondary" onclick="closeAdminModal()">Annuler</button>
+                </div>
+            </div>
+
+            <!-- ÉCRAN 2 : TABLEAU DE BORD DU COMMISSAIRE (AFFICHÉ APRÈS SAISIE DU CODE 1806) -->
+            <div id="admin-dashboard-screen" class="admin-dashboard-screen" style="display:none;">
+                <div class="admin-dash-header">
+                    <div class="admin-dash-title">
+                        <span class="admin-status-badge">🔓 ACCÈS COMMISSAIRE ACTIF</span>
+                        <h2>COMMAND CENTER DU GRAND PRIX</h2>
+                    </div>
+                    <button id="btn-lock-admin" class="btn btn-danger btn-sm">🔒 VERROUILLER</button>
+                </div>
+
+                <!-- ONGLET ACTIONS COMMISSAIRE -->
+                <div class="admin-sections-grid">
+                    
+                    <!-- 1. GESTION DE LA COURSE EN COURS -->
+                    <div class="admin-card card">
+                        <h3>🚦 GESTION DU DÉPART & DE LA MANCHE</h3>
+                        <p class="admin-card-desc">Contrôle direct de l'état de course sur l'écran TV Régie :</p>
+                        <div class="admin-buttons-grid">
+                            <button id="btn-admin-restart-race" class="btn btn-warning">
+                                🔄 REDÉMARRER LA MANCHE
+                            </button>
+                            <button id="btn-admin-cancel-race" class="btn btn-danger">
+                                🛑 DRAPEAU ROUGE (ANNULER)
+                            </button>
+                            <button id="btn-admin-force-start" class="btn btn-success">
+                                🟢 DÉPART IMMÉDIAT SANS TIMER
+                            </button>
+                            <button id="btn-admin-yellow-flag" class="btn btn-warning">
+                                ⚠️ SAFETY CAR / DRAPEAU JAUNE
+                            </button>
+                            <button id="btn-admin-quick-finish" class="btn btn-secondary">
+                                🏁 SIMULER ARRIVÉE ALÉATOIRE (1-4)
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- 2. GESTION DE LA RÉGIE & DE LA PISTE -->
+                    <div class="admin-card card">
+                        <h3>🧹 PISTE, PIÈGES & MULTIMÉDIA</h3>
+                        <p class="admin-card-desc">Nettoyage de piste et contrôle sonore :</p>
+                        <div class="admin-buttons-grid">
+                            <button id="btn-admin-clear-traps" class="btn btn-secondary">
+                                🍌 NETTOYER TOUS LES PIÈGES EN PISTE
+                            </button>
+                            <button id="btn-admin-give-coins" class="btn btn-primary">
+                                🪙 DONNER +25 PIÈCES À TOUS
+                            </button>
+                            <button id="btn-admin-reload-video" class="btn btn-secondary">
+                                🎬 FORCER LA RELANCE VIDÉO
+                            </button>
+                            <button id="btn-admin-toggle-mute-taunt" class="btn btn-warning">
+                                🔇 COUPE-SON TAUNT BOX (COMMISSAIRE)
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- 3. MODIFICATION DIRECTE DES POINTS ET CLASSEMENTS -->
+                    <div class="admin-card card full-width">
+                        <div class="admin-score-header">
+                            <div>
+                                <h3>📊 MODIFICATION MANUELLE DES SCORES & PIÈCES</h3>
+                                <p class="admin-card-desc">Ajustez les points ou les pièces de chaque écurie en temps réel :</p>
+                            </div>
+                            <button id="btn-admin-reset-scores" class="btn btn-danger btn-sm">
+                                ⚠️ RÉINITIALISER TOUS LES SCORES À ZÉRO
+                            </button>
+                        </div>
+
+                        <div class="admin-teams-table-wrap">
+                            <table class="admin-teams-table">
+                                <thead>
+                                    <tr>
+                                        <th>Écurie</th>
+                                        <th>Pilote</th>
+                                        <th>Points Actuels</th>
+                                        <th>Ajustement Points</th>
+                                        <th>Pièces 🪙</th>
+                                        <th>Pénalités Commissaire</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="admin-teams-tbody">
+                                    <!-- Rempli dynamiquement par renderAdminScores() -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- 4. SAUVEGARDE & SYSTÈME -->
+                    <div class="admin-card card full-width">
+                        <h3>💾 SAUVEGARDE, EXPORT & RÉINITIALISATION SYSTÈME</h3>
+                        <div class="admin-buttons-grid">
+                            <button id="btn-admin-export-backup" class="btn btn-secondary">
+                                💾 EXPORTER LA SAUVEGARDE (JSON)
+                            </button>
+                            <button id="btn-admin-import-backup" class="btn btn-secondary">
+                                📥 IMPORTER UNE SAUVEGARDE
+                            </button>
+                            <button id="btn-admin-factory-reset" class="btn btn-danger">
+                                💣 RÉINITIALISATION TOTALE USINE (RESET TOUT)
+                            </button>
+                        </div>
+                        <input type="file" id="admin-file-importer" accept=".json" style="display:none;">
+                    </div>
+
+                </div>
+
+                <div class="modal-footer-actions" style="margin-top:1.5rem;">
+                    <button class="btn btn-secondary modal-close" onclick="closeAdminModal()">Fermer la Fenêtre Commissaire</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script src="data.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>

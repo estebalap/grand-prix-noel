@@ -1,0 +1,4945 @@
+/* ==========================================================================
+   GRAND PRIX DE NOËL — ÉDITION MARIO KART 3D
+   Feuille de styles Arcade / Hot Wheels (Dark Neon Theme)
+   ========================================================================== */
+
+:root {
+    --bg-dark: #090d16;
+    --bg-card: #121929;
+    --bg-card-hover: #182238;
+    --bg-surface: #1e293b;
+    --border-color: #27354f;
+    --border-glow: rgba(0, 229, 255, 0.4);
+
+    --text-main: #f1f5f9;
+    --text-muted: #94a3b8;
+    --text-dim: #64748b;
+
+    /* Hot Wheels / Arcade Neon Colors */
+    --neon-blue: #00e5ff;
+    --neon-pink: #ff2a85;
+    --neon-orange: #ff5722;
+    --neon-green: #10b981;
+    --neon-yellow: #fbbf24;
+    --neon-purple: #a855f7;
+
+    /* Rainbow Road 4-Lanes */
+    --lane-1-yellow: #facc15;
+    --lane-1-bg: rgba(250, 204, 21, 0.08);
+    --lane-1-glow: rgba(250, 204, 21, 0.4);
+
+    --lane-2-green: #22c55e;
+    --lane-2-bg: rgba(34, 197, 94, 0.08);
+    --lane-2-glow: rgba(34, 197, 94, 0.4);
+
+    --lane-3-red: #ef4444;
+    --lane-3-bg: rgba(239, 68, 68, 0.08);
+    --lane-3-glow: rgba(239, 68, 68, 0.4);
+
+    --lane-4-blue: #3b82f6;
+    --lane-4-bg: rgba(59, 130, 246, 0.08);
+    --lane-4-glow: rgba(59, 130, 246, 0.4);
+
+    --radius-sm: 8px;
+    --radius-md: 14px;
+    --radius-lg: 20px;
+    --radius-full: 9999px;
+
+    --font-heading: 'Chakra Petch', sans-serif;
+    --font-body: 'Outfit', sans-serif;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    background-color: #060911;
+    color: var(--text-main);
+    font-family: var(--font-body);
+    font-size: 16px;
+    line-height: 1.5;
+    min-height: 100vh;
+    position: relative;
+    overflow-x: hidden;
+}
+
+/* ==========================================================================
+   DYNAMIC THEMED BACKGROUND LAYERS & CANVASES
+   ========================================================================== */
+
+.bg-dynamic-layer {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: -1;
+    pointer-events: none;
+    overflow: hidden;
+}
+
+/* Calque Vidéo Réaliste HD (YouTube Ambient 4K & Local MP4) */
+.bg-video-wrapper {
+    position: absolute;
+    top: -10%;
+    left: -10%;
+    width: 120%;
+    height: 120%;
+    pointer-events: none;
+    opacity: 0.85;
+    transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+    overflow: hidden;
+    z-index: 1;
+    transform: translate3d(0, 0, 0);
+    will-change: transform;
+    contain: strict;
+}
+
+.bg-video-wrapper video,
+.bg-video-wrapper iframe {
+    position: absolute;
+    top: -18%;
+    left: -18%;
+    width: 136%;
+    height: 136%;
+    object-fit: cover;
+    pointer-events: none;
+    border: none;
+    transform: scale(1.32) translateZ(0);
+    transform-origin: center center;
+    will-change: transform;
+}
+
+.bg-video-curtain {
+    position: absolute;
+    inset: 0;
+    background: #060913;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+    z-index: 3;
+}
+
+.bg-video-curtain.veiled {
+    opacity: 1 !important;
+    transition: opacity 0.2s ease-in;
+}
+
+.bg-video-wrapper.hidden {
+    opacity: 0 !important;
+}
+
+.bg-video-wrapper.fade-out {
+    opacity: 0.35 !important;
+}
+
+.bg-art-layer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    transition: all 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+    background-size: cover;
+    background-position: center;
+    z-index: 0;
+}
+
+/* Quand la vidéo est active, on estompe l'art layer pour que la vidéo soit 100% éclatante */
+body.video-active .bg-art-layer {
+    opacity: 0;
+}
+
+.bg-vignette {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle at 50% 50%, rgba(9, 13, 22, 0.1) 0%, rgba(9, 13, 22, 0.6) 75%, rgba(6, 9, 17, 0.9) 100%);
+    pointer-events: none;
+    z-index: 2;
+    transform: translateZ(0);
+}
+
+#ambient-canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 3;
+    transform: translate3d(0, 0, 0);
+    will-change: transform;
+}
+
+/* ==========================================================================
+   CALQUE D'ANIMATION ET D'EFFETS AU PREMIER PLAN (DEVANT TOUT LE CONTENU)
+   ========================================================================== */
+
+.fg-dynamic-layer {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    pointer-events: none;
+    z-index: 85; /* Passe par-dessus les cartes et tableaux */
+    overflow: hidden;
+    transition: opacity 0.4s ease;
+}
+
+.fg-dynamic-layer.disabled {
+    display: none !important;
+}
+
+#fg-ambient-canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+}
+
+.fg-stickers-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+}
+
+/* Stickers Animés au 1er Plan */
+.fg-sticker {
+    position: absolute;
+    pointer-events: none;
+    user-select: none;
+    will-change: transform, opacity;
+}
+
+/* 1. Étoile Mario Kart 3D Flottante au 1er Plan */
+.fg-star-sprite {
+    font-size: 2.2rem;
+    filter: drop-shadow(0 0 15px rgba(250, 204, 21, 0.85));
+    animation: fgStarFly 14s linear infinite;
+}
+
+@keyframes fgStarFly {
+    0% { transform: translate(-60px, 85vh) rotate(0deg) scale(0.6); opacity: 0; }
+    12% { opacity: 0.95; }
+    88% { opacity: 0.95; }
+    100% { transform: translate(105vw, 15vh) rotate(720deg) scale(1.15); opacity: 0; }
+}
+
+/* 2. Pièce Dorée Mario Kart au 1er Plan */
+.fg-coin-sprite {
+    font-size: 2.1rem;
+    filter: drop-shadow(0 0 16px rgba(250, 204, 21, 0.9));
+    animation: fgCoinFloat 10s ease-in-out infinite;
+}
+
+@keyframes fgCoinFloat {
+    0% { transform: translate(12vw, 105vh) scale(0.8); opacity: 0; }
+    15% { opacity: 1; }
+    85% { opacity: 1; }
+    100% { transform: translate(22vw, -60px) scale(1.1); opacity: 0; }
+}
+
+/* 3. Badge Holographique Kanji Tokyo Drift au 1er Plan */
+.fg-kanji-sticker {
+    position: absolute;
+    font-family: 'Chakra Petch', sans-serif;
+    font-weight: 900;
+    font-size: 1.4rem;
+    color: #00f0ff;
+    text-shadow: 0 0 10px #00f0ff, 0 0 20px #ff007f;
+    background: rgba(10, 5, 25, 0.8);
+    border: 1.5px solid #00f0ff;
+    padding: 0.3rem 0.8rem;
+    border-radius: 6px;
+    box-shadow: 0 0 18px rgba(0, 240, 255, 0.6);
+    animation: fgHoloGlitch 5s infinite ease-in-out;
+}
+
+@keyframes fgHoloGlitch {
+    0%, 100% { opacity: 0.7; transform: skewX(0deg); }
+    15% { opacity: 0.95; transform: skewX(-5deg) scale(1.03); }
+    50% { opacity: 0.55; transform: skewX(3deg); }
+    75% { opacity: 0.85; transform: skewX(-2deg); }
+}
+
+/* 4. Speed Lines Dynamiques au 1er plan */
+.fg-anime-speedlines {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(ellipse at center, transparent 65%, rgba(0, 229, 255, 0.12) 100%),
+               repeating-conic-gradient(from 0deg at 50% 50%, rgba(255, 255, 255, 0.05) 0deg 1.5deg, transparent 1.5deg 12deg);
+    pointer-events: none;
+    mix-blend-mode: screen;
+    opacity: 0.5;
+    animation: animeSpeedPulse 0.4s infinite alternate;
+}
+
+@keyframes animeSpeedPulse {
+    from { transform: scale(1); opacity: 0.3; }
+    to { transform: scale(1.02); opacity: 0.6; }
+}
+
+/* --------------------------------------------------------------------------
+   THEME 1 : GRAND PRIX DE NOËL (FEU DE CHEMINÉE & RÉVEILLON)
+   Modes : 'gp_pure' et 'gp_strategy'
+   -------------------------------------------------------------------------- */
+body[data-mode="gp_pure"] .bg-art-layer,
+body[data-mode="gp_strategy"] .bg-art-layer,
+body:not([data-mode]) .bg-art-layer {
+    background-color: #120704;
+    background-image: 
+        radial-gradient(circle at 50% 110%, rgba(255, 90, 20, 0.55) 0%, rgba(200, 40, 5, 0.3) 35%, transparent 70%),
+        radial-gradient(circle at 15% 20%, rgba(251, 191, 36, 0.18) 0%, transparent 45%),
+        radial-gradient(circle at 85% 25%, rgba(16, 185, 129, 0.15) 0%, transparent 45%),
+        repeating-linear-gradient(45deg, rgba(60, 20, 10, 0.25) 0, rgba(60, 20, 10, 0.25) 2px, transparent 2px, transparent 40px),
+        linear-gradient(180deg, #0d0604 0%, #200d08 60%, #3a1306 100%);
+    filter: saturate(1.2) contrast(1.1);
+}
+
+/* --------------------------------------------------------------------------
+   THEME 2 : BOSS SHOGUN TOMICA & HATSUNE MIKU (TOKYO DRIFT CYBERPUNK)
+   Mode : 'boss_tomica'
+   -------------------------------------------------------------------------- */
+body[data-mode="boss_tomica"] .bg-art-layer {
+    background-color: #050518;
+    background-image: 
+        radial-gradient(circle at 50% 100%, rgba(255, 0, 128, 0.45) 0%, rgba(0, 240, 255, 0.3) 40%, transparent 75%),
+        radial-gradient(circle at 20% 15%, rgba(0, 240, 255, 0.3) 0%, transparent 50%),
+        radial-gradient(circle at 80% 20%, rgba(57, 255, 20, 0.2) 0%, transparent 45%),
+        linear-gradient(rgba(0, 240, 255, 0.15) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 0, 128, 0.15) 1px, transparent 1px),
+        linear-gradient(180deg, #04040f 0%, #0c0827 50%, #1d0738 100%);
+    background-size: 100% 100%, 100% 100%, 100% 100%, 40px 40px, 40px 40px, 100% 100%;
+    filter: drop-shadow(0 0 30px rgba(0, 240, 255, 0.3)) saturate(1.4);
+}
+
+/* --------------------------------------------------------------------------
+   THEME 3 : DÉFI COCORICO (GANG MAJORETTE / LE MANS CLASSIQUE)
+   Mode : 'boss_majorette'
+   -------------------------------------------------------------------------- */
+body[data-mode="boss_majorette"] .bg-art-layer {
+    background-color: #060c18;
+    background-image: 
+        radial-gradient(circle at 50% 10%, rgba(255, 255, 255, 0.15) 0%, transparent 50%),
+        linear-gradient(90deg, 
+            transparent 0%, 
+            rgba(0, 35, 149, 0.35) 47%, 
+            rgba(255, 255, 255, 0.4) 50%, 
+            rgba(237, 41, 57, 0.35) 53%, 
+            transparent 100%),
+        radial-gradient(circle at 15% 80%, rgba(0, 35, 149, 0.4) 0%, transparent 45%),
+        radial-gradient(circle at 85% 80%, rgba(237, 41, 57, 0.4) 0%, transparent 45%),
+        repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.04) 0px, rgba(255, 255, 255, 0.04) 2px, transparent 2px, transparent 20px),
+        linear-gradient(180deg, #050a16 0%, #0d172e 60%, #0b1120 100%);
+    filter: contrast(1.15);
+}
+
+/* --------------------------------------------------------------------------
+   THEME 4 : APEX CHALLENGE (100% FORMULE 1 MONACO NIGHT TELEMETRY)
+   Mode : 'f1_apex'
+   -------------------------------------------------------------------------- */
+body[data-mode="f1_apex"] .bg-art-layer {
+    background-color: #08080c;
+    background-image: 
+        radial-gradient(circle at 50% 0%, rgba(239, 68, 68, 0.45) 0%, transparent 60%),
+        radial-gradient(circle at 80% 85%, rgba(0, 229, 255, 0.3) 0%, transparent 55%),
+        repeating-linear-gradient(45deg, #101018 0, #101018 10px, #0b0b12 10px, #0b0b12 20px),
+        linear-gradient(180deg, #08080c 0%, #151522 60%, #0a0a10 100%);
+    filter: contrast(1.25);
+}
+
+/* --------------------------------------------------------------------------
+   THEME 5 : SURVIE ULTIME — MORT SUBITE (LAVE VOLCANIQUE & ALERTE ROUGE)
+   Mode : 'survival'
+   -------------------------------------------------------------------------- */
+body[data-mode="survival"] .bg-art-layer {
+    background-color: #140404;
+    background-image: 
+        radial-gradient(circle at 50% 100%, rgba(239, 68, 68, 0.6) 0%, rgba(185, 28, 28, 0.4) 30%, transparent 70%),
+        radial-gradient(circle at 10% 30%, rgba(220, 38, 38, 0.3) 0%, transparent 45%),
+        radial-gradient(circle at 90% 40%, rgba(245, 158, 11, 0.25) 0%, transparent 50%),
+        repeating-linear-gradient(-45deg, rgba(239, 68, 68, 0.12) 0, rgba(239, 68, 68, 0.12) 15px, transparent 15px, transparent 30px),
+        linear-gradient(180deg, #0e0202 0%, #1f0707 60%, #2f0808 100%);
+    filter: saturate(1.3) contrast(1.2);
+}
+
+/* --------------------------------------------------------------------------
+   THEME 6 : CHAOS TOTAL — OBSTACLES ILLIMITÉS (MARIO KART WARP NEBULA)
+   Mode : 'chaos_unlimited'
+   -------------------------------------------------------------------------- */
+body[data-mode="chaos_unlimited"] .bg-art-layer {
+    background-color: #0b021a;
+    background-image: 
+        radial-gradient(circle at 30% 20%, rgba(168, 85, 247, 0.5) 0%, transparent 45%),
+        radial-gradient(circle at 70% 80%, rgba(244, 63, 94, 0.45) 0%, transparent 50%),
+        radial-gradient(circle at 85% 15%, rgba(250, 204, 21, 0.4) 0%, transparent 40%),
+        radial-gradient(circle at 15% 85%, rgba(6, 182, 212, 0.4) 0%, transparent 45%),
+        repeating-radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.04) 0, rgba(255, 255, 255, 0.04) 20px, transparent 20px, transparent 60px),
+        linear-gradient(180deg, #090114 0%, #190533 50%, #29084e 100%);
+    filter: saturate(1.5) contrast(1.15);
+}
+
+/* --------------------------------------------------------------------------
+   THEME 7 : COUPE DES RELIQUES (VINTAGE 90S NOSTALGIA & SEPIA AMBRE)
+   Mode : 'relic_cup'
+   -------------------------------------------------------------------------- */
+body[data-mode="relic_cup"] .bg-art-layer {
+    background-color: #120e06;
+    background-image: 
+        radial-gradient(circle at 50% 25%, rgba(245, 158, 11, 0.3) 0%, transparent 60%),
+        radial-gradient(circle at 20% 75%, rgba(217, 119, 6, 0.25) 0%, transparent 50%),
+        radial-gradient(circle at 80% 70%, rgba(180, 83, 9, 0.25) 0%, transparent 50%),
+        repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.2) 0px, rgba(0, 0, 0, 0.2) 2px, transparent 2px, transparent 4px),
+        linear-gradient(180deg, #0e0a04 0%, #1c1409 60%, #2b1d0c 100%);
+    filter: sepia(0.2) contrast(1.1);
+}
+
+/* ==========================================================================
+   BOUTON AMBIANCE SONORE & MUSIQUE THÉMATIQUE
+   ========================================================================== */
+
+.music-toggle-btn {
+    background: linear-gradient(135deg, rgba(30, 41, 59, 0.8), rgba(15, 23, 42, 0.9));
+    border: 1.5px solid var(--border-color);
+    border-radius: var(--radius-full);
+    padding: 0.45rem 1rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--text-muted);
+    font-family: var(--font-heading);
+    font-size: 0.8rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    user-select: none;
+    outline: none;
+}
+
+.music-toggle-btn:hover {
+    border-color: var(--neon-blue);
+    color: #fff;
+    transform: translateY(-1px);
+    box-shadow: 0 0 15px rgba(0, 229, 255, 0.25);
+}
+
+.music-toggle-btn.active {
+    background: linear-gradient(135deg, rgba(0, 229, 255, 0.2), rgba(255, 42, 133, 0.25));
+    border-color: var(--neon-blue);
+    color: #fff;
+    box-shadow: 0 0 20px rgba(0, 229, 255, 0.4);
+    animation: musicPulse 2s infinite ease-in-out;
+}
+
+@keyframes musicPulse {
+    0%, 100% { box-shadow: 0 0 15px rgba(0, 229, 255, 0.3); }
+    50% { box-shadow: 0 0 25px rgba(255, 42, 133, 0.5); }
+}
+
+.music-toggle-btn.active .music-icon {
+    display: inline-block;
+    animation: bounceNote 0.8s infinite alternate ease-in-out;
+}
+
+@keyframes bounceNote {
+    from { transform: translateY(0) rotate(-6deg); }
+    to { transform: translateY(-3px) rotate(6deg); }
+}
+
+/* ==========================================================================
+   TYPOGRAPHIE & TITRES
+   ========================================================================== */
+
+h1, h2, h3, h4, .font-racing {
+    font-family: var(--font-heading);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    font-weight: 700;
+}
+
+/* ==========================================================================
+   HEADER PRINCIPAL
+   ========================================================================== */
+
+.app-header {
+    background: rgba(10, 15, 26, 0.94);
+    backdrop-filter: blur(4px);
+    border-bottom: 2px solid var(--border-color);
+    padding: 1rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.flag-icon {
+    font-size: 2.2rem;
+    filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.3));
+    animation: flagWave 3s ease-in-out infinite;
+}
+
+@keyframes flagWave {
+    0%, 100% { transform: rotate(0deg); }
+    50% { transform: rotate(8deg); }
+}
+
+.title-group h1 {
+    font-size: 1.6rem;
+    background: linear-gradient(90deg, #ffffff, var(--neon-blue), #ff9100);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    line-height: 1.1;
+}
+
+.title-group .subtitle {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    font-weight: 600;
+    letter-spacing: 0.15em;
+}
+
+.header-right {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+}
+
+.profile-card {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-full);
+    padding: 0.35rem 1rem 0.35rem 0.35rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    cursor: pointer;
+    transition: all 0.25s ease;
+}
+
+.profile-card:hover {
+    border-color: var(--neon-blue);
+    box-shadow: 0 0 15px rgba(0, 229, 255, 0.25);
+    transform: translateY(-1px);
+}
+
+.team-avatar {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid var(--neon-blue);
+    background: #000;
+}
+
+.profile-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.pilot-label {
+    font-size: 0.65rem;
+    color: var(--text-dim);
+    font-weight: 700;
+    letter-spacing: 0.08em;
+}
+
+.profile-info strong {
+    font-size: 0.9rem;
+    color: var(--text-main);
+    font-family: var(--font-heading);
+}
+
+.wallet-badge {
+    background: linear-gradient(135deg, rgba(245, 158, 11, 0.2), rgba(217, 119, 6, 0.35));
+    border: 1.5px solid var(--neon-yellow);
+    border-radius: var(--radius-full);
+    padding: 0.45rem 1.1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    box-shadow: 0 0 15px rgba(245, 158, 11, 0.2);
+}
+
+.coin-icon {
+    font-size: 1.25rem;
+    animation: coinPulse 2s infinite ease-in-out;
+}
+
+@keyframes coinPulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.15) rotate(10deg); }
+}
+
+.coin-count {
+    font-family: var(--font-heading);
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #fff;
+    text-shadow: 0 0 8px rgba(245, 158, 11, 0.6);
+}
+
+.coin-label {
+    font-size: 0.7rem;
+    color: #fde68a;
+    font-weight: 800;
+    letter-spacing: 0.05em;
+}
+
+/* Boutons de contrôle média dans le Header */
+.fg-fx-btn,
+.video-studio-btn,
+.video-toggle-btn,
+.music-toggle-btn {
+    background: rgba(30, 41, 59, 0.75);
+    backdrop-filter: blur(10px);
+    border: 1.5px solid var(--border-color);
+    border-radius: var(--radius-full);
+    padding: 0.45rem 1rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--text-muted);
+    font-family: var(--font-heading);
+    font-size: 0.8rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    user-select: none;
+    outline: none;
+}
+
+.fg-fx-btn:hover,
+.video-studio-btn:hover,
+.video-toggle-btn:hover,
+.music-toggle-btn:hover {
+    color: #fff;
+    transform: translateY(-1px);
+}
+
+.fg-fx-btn {
+    border-color: rgba(168, 85, 247, 0.5);
+    color: #e9d5ff;
+}
+
+.fg-fx-btn:hover {
+    border-color: var(--neon-purple);
+    box-shadow: 0 0 15px rgba(168, 85, 247, 0.45);
+    background: rgba(168, 85, 247, 0.15);
+}
+
+.fg-fx-btn.active {
+    background: linear-gradient(135deg, rgba(168, 85, 247, 0.3), rgba(0, 229, 255, 0.2));
+    border-color: var(--neon-purple);
+    color: #fff;
+    box-shadow: 0 0 18px rgba(168, 85, 247, 0.5);
+}
+
+.video-studio-btn {
+    border-color: rgba(250, 204, 21, 0.6);
+    color: #fde68a;
+}
+
+.video-studio-btn:hover {
+    border-color: var(--neon-yellow);
+    box-shadow: 0 0 15px rgba(250, 204, 21, 0.4);
+    background: rgba(250, 204, 21, 0.15);
+}
+
+.video-toggle-btn:hover {
+    border-color: var(--neon-pink);
+    box-shadow: 0 0 15px rgba(255, 42, 133, 0.35);
+}
+
+.music-toggle-btn:hover {
+    border-color: var(--neon-blue);
+    box-shadow: 0 0 15px rgba(0, 229, 255, 0.35);
+}
+
+.video-toggle-btn.active {
+    background: linear-gradient(135deg, rgba(255, 42, 133, 0.3), rgba(255, 42, 133, 0.15));
+    border-color: var(--neon-pink);
+    color: #fff;
+    box-shadow: 0 0 20px rgba(255, 42, 133, 0.45);
+    animation: videoPulse 2.5s infinite ease-in-out;
+}
+
+.music-toggle-btn.active {
+    background: linear-gradient(135deg, rgba(0, 229, 255, 0.3), rgba(0, 229, 255, 0.15));
+    border-color: var(--neon-blue);
+    color: #fff;
+    box-shadow: 0 0 20px rgba(0, 229, 255, 0.45);
+    animation: musicPulse 2s infinite ease-in-out;
+}
+
+@keyframes videoPulse {
+    0%, 100% { box-shadow: 0 0 15px rgba(255, 42, 133, 0.3); }
+    50% { box-shadow: 0 0 25px rgba(255, 42, 133, 0.6); }
+}
+
+@keyframes musicPulse {
+    0%, 100% { box-shadow: 0 0 15px rgba(0, 229, 255, 0.3); }
+    50% { box-shadow: 0 0 25px rgba(0, 229, 255, 0.6); }
+}
+
+.music-toggle-btn.active .music-icon {
+    display: inline-block;
+    animation: bounceNote 0.8s infinite alternate ease-in-out;
+}
+
+@keyframes bounceNote {
+    from { transform: translateY(0) rotate(-6deg); }
+    to { transform: translateY(-3px) rotate(6deg); }
+}
+
+/* Studio Vidéo Modal Styling */
+.studio-modal-box {
+    max-width: 750px;
+    border: 2px solid var(--neon-pink);
+    box-shadow: 0 0 35px rgba(255, 42, 133, 0.35);
+}
+
+.studio-modal-box h2 {
+    color: var(--neon-pink);
+    margin-bottom: 0.3rem;
+}
+
+.studio-settings-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.25rem;
+    margin-bottom: 1.5rem;
+}
+
+.studio-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.studio-group.full-width {
+    grid-column: span 2;
+}
+
+.studio-group label {
+    font-family: var(--font-heading);
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--text-muted);
+}
+
+.studio-group select,
+.studio-group input[type="text"] {
+    background: var(--bg-surface);
+    color: #fff;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    padding: 0.65rem 1rem;
+    font-size: 0.95rem;
+    outline: none;
+}
+
+.studio-group select:focus,
+.studio-group input[type="text"]:focus {
+    border-color: var(--neon-pink);
+    box-shadow: 0 0 12px rgba(255, 42, 133, 0.35);
+}
+
+.studio-group input[type="range"] {
+    accent-color: var(--neon-pink);
+    height: 6px;
+    cursor: pointer;
+}
+
+.studio-input-row {
+    display: flex;
+    gap: 0.75rem;
+}
+
+.studio-input-row input {
+    flex: 1;
+}
+
+.studio-presets-section {
+    background: rgba(0, 0, 0, 0.35);
+    border-radius: var(--radius-md);
+    padding: 1.25rem;
+    border: 1px solid var(--border-color);
+    margin-bottom: 1rem;
+}
+
+.studio-presets-section h3 {
+    font-size: 0.95rem;
+    color: var(--neon-blue);
+    margin-bottom: 0.85rem;
+}
+
+.presets-buttons-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.65rem;
+}
+
+/* ==========================================================================
+   JUKEBOX BAR — LECTEUR AUDIO MUSIQUE RÉELLE & PLAYLISTS
+   ========================================================================== */
+
+.jukebox-bar {
+    background: linear-gradient(90deg, rgba(15, 23, 42, 0.96), rgba(30, 27, 75, 0.96), rgba(15, 23, 42, 0.96));
+    backdrop-filter: blur(4px);
+    border-bottom: 2px solid rgba(0, 229, 255, 0.4);
+    padding: 0.5rem 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.25rem;
+    position: relative;
+    z-index: 95;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+.jukebox-info {
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+    min-width: 260px;
+    flex: 1;
+}
+
+.jukebox-icon-disc {
+    font-size: 1.75rem;
+    display: inline-block;
+    transition: transform 0.3s ease;
+    filter: drop-shadow(0 0 8px rgba(0, 229, 255, 0.6));
+}
+
+.jukebox-bar.is-playing .jukebox-icon-disc {
+    animation: spinJukeboxDisc 3s linear infinite;
+}
+
+@keyframes spinJukeboxDisc {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+.jukebox-text-group {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.jukebox-playlist-tag {
+    font-size: 0.65rem;
+    font-weight: 800;
+    color: var(--neon-blue);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    font-family: var(--font-heading);
+}
+
+.jukebox-ticker {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 320px;
+}
+
+.jukebox-track-title {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: #ffffff;
+    font-family: var(--font-heading);
+    letter-spacing: 0.03em;
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+}
+
+.jukebox-controls {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.jb-btn {
+    background: rgba(30, 41, 59, 0.85);
+    border: 1px solid var(--border-color);
+    color: #fff;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.95rem;
+    transition: all 0.2s ease;
+    user-select: none;
+}
+
+.jb-btn:hover {
+    border-color: var(--neon-blue);
+    background: rgba(0, 229, 255, 0.15);
+    transform: scale(1.08);
+    box-shadow: 0 0 12px rgba(0, 229, 255, 0.4);
+}
+
+.jb-btn.jb-btn-main {
+    width: 42px;
+    height: 42px;
+    font-size: 1.15rem;
+    background: linear-gradient(135deg, #ff007f, #00f0ff);
+    border: none;
+    box-shadow: 0 0 16px rgba(255, 0, 128, 0.5);
+}
+
+.jb-btn.jb-btn-main:hover {
+    transform: scale(1.12);
+    box-shadow: 0 0 24px rgba(0, 240, 255, 0.8);
+}
+
+.jukebox-track-picker-wrap {
+    flex: 1;
+    max-width: 300px;
+}
+
+.jb-track-select {
+    width: 100%;
+    background: rgba(15, 23, 42, 0.85);
+    color: var(--text-main);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    padding: 0.4rem 0.75rem;
+    font-size: 0.8rem;
+    font-family: var(--font-heading);
+    cursor: pointer;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+.jb-track-select:hover, .jb-track-select:focus {
+    border-color: var(--neon-blue);
+    box-shadow: 0 0 10px rgba(0, 229, 255, 0.3);
+}
+
+.jukebox-volume-group {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-width: 150px;
+}
+
+.jb-vol-icon {
+    font-size: 1rem;
+    user-select: none;
+}
+
+.jb-volume-slider {
+    width: 85px;
+    height: 6px;
+    -webkit-appearance: none;
+    appearance: none;
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 3px;
+    outline: none;
+    cursor: pointer;
+}
+
+.jb-volume-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: var(--neon-blue);
+    box-shadow: 0 0 8px var(--neon-blue);
+    cursor: pointer;
+}
+
+.jb-vol-val {
+    font-size: 0.75rem;
+    font-family: var(--font-heading);
+    font-weight: 700;
+    color: var(--text-muted);
+    min-width: 32px;
+}
+
+.jukebox-iframe-holder {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    opacity: 0;
+    pointer-events: none;
+    overflow: hidden;
+}
+
+/* ==========================================================================
+   BANNIÈRES DYNAMIQUES PAR MODE DE JEU
+   ========================================================================== */
+
+.mode-banner-container {
+    margin-bottom: 1rem;
+    width: 100%;
+}
+
+.mode-banner-banner {
+    display: none; /* Rendu visible selon le data-mode sur body */
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    padding: 0.75rem 1.5rem;
+    border-radius: var(--radius-md);
+    animation: fadeInBanner 0.4s ease;
+}
+
+.mode-banner-banner.active {
+    display: flex;
+}
+
+@keyframes fadeInBanner {
+    from { opacity: 0; transform: translateY(-8px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* 1. Mode Rainbow Road (Noël) */
+body[data-mode="gp_pure"] #banner-rainbow,
+body[data-mode="gp_strategy"] #banner-rainbow,
+body:not([data-mode]) #banner-rainbow {
+    display: flex;
+    background: linear-gradient(90deg, rgba(239, 68, 68, 0.25), rgba(250, 204, 21, 0.3), rgba(34, 197, 94, 0.25), rgba(59, 130, 246, 0.3), rgba(168, 85, 247, 0.25));
+    border: 2px solid transparent;
+    border-image: linear-gradient(90deg, #ef4444, #facc15, #22c55e, #3b82f6, #a855f7) 1;
+    box-shadow: 0 0 25px rgba(250, 204, 21, 0.45);
+    border-radius: 20px;
+}
+
+.banner-star {
+    font-size: 1.6rem;
+    animation: starSpin 3s infinite ease-in-out;
+}
+
+@keyframes starSpin {
+    0%, 100% { transform: scale(1) rotate(0deg); }
+    50% { transform: scale(1.3) rotate(180deg); }
+}
+
+.banner-text {
+    font-family: var(--font-heading);
+    font-weight: 900;
+    font-size: 1.15rem;
+    letter-spacing: 0.08em;
+    background: linear-gradient(90deg, #facc15, #22c55e, #38bdf8, #f43f5e);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: 0 0 15px rgba(250, 204, 21, 0.5);
+}
+
+.banner-boost-arrows {
+    font-size: 1.4rem;
+    letter-spacing: 0.15em;
+    animation: boostArrows 1s infinite alternate ease-in-out;
+}
+
+@keyframes boostArrows {
+    from { transform: translateX(0); }
+    to { transform: translateX(10px); }
+}
+
+/* 2. Mode Tokyo Drift / Boss Tomica */
+body[data-mode="boss_tomica"] #banner-tokyo {
+    display: flex;
+    background: linear-gradient(90deg, rgba(255, 0, 128, 0.35), rgba(10, 5, 25, 0.95), rgba(0, 240, 255, 0.35));
+    border: 2px solid var(--neon-blue);
+    box-shadow: 0 0 30px rgba(0, 240, 255, 0.6), inset 0 0 25px rgba(255, 0, 128, 0.4);
+    clip-path: polygon(14px 0, 100% 0, 100% calc(100% - 14px), calc(100% - 14px) 100%, 0 100%, 0 14px);
+}
+
+.kanji-neon {
+    font-size: 1.5rem;
+    font-weight: 900;
+    color: #ff007f;
+    text-shadow: 0 0 10px #ff007f, 0 0 25px #ff007f, 0 0 50px #ff007f;
+    letter-spacing: 0.25em;
+    font-family: 'Chakra Petch', sans-serif;
+}
+
+.miku-badge {
+    background: linear-gradient(90deg, #00f0ff, #39ff14);
+    color: #000;
+    font-family: var(--font-heading);
+    font-weight: 900;
+    font-size: 0.95rem;
+    padding: 0.35rem 1.4rem;
+    border-radius: var(--radius-full);
+    box-shadow: 0 0 25px rgba(0, 240, 255, 0.8);
+    animation: mikuPulse 1.5s infinite alternate ease-in-out;
+}
+
+@keyframes mikuPulse {
+    from { box-shadow: 0 0 15px rgba(0, 240, 255, 0.5); transform: scale(0.97); }
+    to { box-shadow: 0 0 35px rgba(57, 255, 20, 0.9); transform: scale(1.04); }
+}
+
+/* 3. Mode Survie Mad Max / Punk */
+body[data-mode="survival"] #banner-madmax {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    background: rgba(25, 8, 8, 0.95);
+    border: 3px solid #ff4500;
+    box-shadow: 0 0 35px rgba(255, 69, 0, 0.7);
+    padding: 0.75rem 1rem;
+}
+
+.hazard-tape {
+    width: 100%;
+    height: 14px;
+    background: repeating-linear-gradient(45deg, #facc15, #facc15 14px, #000 14px, #000 28px);
+    border-radius: 2px;
+    box-shadow: 0 0 10px rgba(250, 204, 21, 0.7);
+}
+
+.madmax-title {
+    font-family: var(--font-heading);
+    font-weight: 900;
+    font-size: 1.25rem;
+    color: #facc15;
+    text-shadow: 0 0 20px #ff4500, 0 0 30px #000;
+    letter-spacing: 0.12em;
+    text-align: center;
+}
+
+/* 4. Mode F1 Apex */
+body[data-mode="f1_apex"] #banner-f1 {
+    display: flex;
+    background: rgba(12, 12, 18, 0.98);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-top: 3px solid #e10600;
+    box-shadow: 0 0 30px rgba(225, 6, 0, 0.4);
+    border-radius: 4px;
+}
+
+.f1-rpm-bar {
+    display: flex;
+    align-items: center;
+    gap: 1.2rem;
+    width: 100%;
+    justify-content: center;
+}
+
+.rpm-label {
+    font-family: var(--font-heading);
+    font-size: 0.85rem;
+    font-weight: 800;
+    color: #cbd5e1;
+    letter-spacing: 0.1em;
+}
+
+.rpm-lights-cluster {
+    display: flex;
+    gap: 7px;
+}
+
+.rpm-led {
+    width: 14px;
+    height: 20px;
+    border-radius: 3px;
+    opacity: 0.35;
+    transition: opacity 0.15s, box-shadow 0.15s;
+}
+
+.rpm-led.green { background: #22c55e; }
+.rpm-led.yellow { background: #facc15; }
+.rpm-led.red { background: #ef4444; }
+.rpm-led.blue { background: #3b82f6; }
+
+.rpm-led.active {
+    opacity: 1;
+}
+.rpm-led.green.active { box-shadow: 0 0 12px #22c55e; }
+.rpm-led.yellow.active { box-shadow: 0 0 12px #facc15; }
+.rpm-led.red.active { box-shadow: 0 0 15px #ef4444; }
+.rpm-led.blue.active { box-shadow: 0 0 16px #3b82f6; }
+
+.drs-status {
+    font-family: var(--font-heading);
+    font-weight: 900;
+    font-size: 0.85rem;
+    padding: 0.25rem 0.85rem;
+    background: #22c55e;
+    color: #000;
+    border-radius: 4px;
+    letter-spacing: 0.1em;
+    animation: drsBlink 1s infinite alternate;
+}
+
+@keyframes drsBlink {
+    from { opacity: 0.75; }
+    to { opacity: 1; box-shadow: 0 0 14px #22c55e; }
+}
+
+/* 5. Mode Chaos Total */
+body[data-mode="chaos_unlimited"] #banner-chaos {
+    display: flex;
+    background: linear-gradient(135deg, #a855f7, #ec4899, #eab308);
+    border: 3px solid #000;
+    box-shadow: 6px 6px 0px #000, 0 0 30px rgba(168, 85, 247, 0.7);
+    transform: rotate(-0.8deg);
+    border-radius: 18px;
+}
+
+.chaos-icon {
+    font-size: 1.8rem;
+    animation: comicWobble 0.8s infinite alternate ease-in-out;
+}
+
+.chaos-title {
+    font-family: var(--font-heading);
+    font-weight: 900;
+    font-size: 1.25rem;
+    color: #fff;
+    text-shadow: 2px 2px 0 #000, -2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000, 0 0 15px #fff;
+    letter-spacing: 0.08em;
+}
+
+@keyframes comicWobble {
+    from { transform: rotate(-8deg) scale(0.95); }
+    to { transform: rotate(8deg) scale(1.15); }
+}
+
+/* 6. Mode Boss Majorette (Cocorico Le Mans) */
+body[data-mode="boss_majorette"] #banner-majorette {
+    display: flex;
+    background: linear-gradient(90deg, rgba(0, 85, 165, 0.4), rgba(15, 25, 45, 0.95), rgba(239, 65, 53, 0.4));
+    border: 2px solid #d4af37;
+    box-shadow: 0 0 30px rgba(212, 175, 55, 0.4);
+    border-radius: 16px;
+}
+
+.tricolor-badge {
+    background: #0055a5;
+    color: #fff;
+    padding: 0.3rem 0.85rem;
+    border-radius: 4px;
+    font-family: var(--font-heading);
+    font-weight: 900;
+    font-size: 0.85rem;
+    letter-spacing: 0.05em;
+    border: 1px solid #ffffff;
+}
+
+.majorette-title {
+    font-family: var(--font-heading);
+    font-weight: 900;
+    font-size: 1.15rem;
+    color: #f8fafc;
+    letter-spacing: 0.08em;
+    text-shadow: 0 0 12px rgba(212, 175, 55, 0.5);
+}
+
+.laurel-badge {
+    color: #d4af37;
+    font-weight: 800;
+    font-size: 0.95rem;
+    letter-spacing: 0.05em;
+}
+
+/* 7. Mode Coupe des Reliques (Outrun Synthwave) */
+body[data-mode="relic_cup"] #banner-relic {
+    display: flex;
+    background: linear-gradient(90deg, rgba(255, 0, 128, 0.3), rgba(18, 5, 36, 0.95), rgba(0, 240, 255, 0.3));
+    border: 2px solid #ff007f;
+    box-shadow: 0 0 30px rgba(255, 0, 128, 0.6), inset 0 0 20px rgba(0, 240, 255, 0.3);
+    border-radius: 8px;
+}
+
+.relic-pixel {
+    font-family: 'Chakra Petch', monospace;
+    font-weight: 900;
+    color: #00f0ff;
+    font-size: 1rem;
+    text-shadow: 0 0 10px #00f0ff;
+}
+
+.relic-title {
+    font-family: var(--font-heading);
+    font-weight: 900;
+    font-size: 1.15rem;
+    color: #fff;
+    letter-spacing: 0.1em;
+    text-shadow: 0 0 10px #ff007f, 0 0 25px #ff007f;
+}
+
+.relic-tag {
+    background: #ff007f;
+    color: #fff;
+    font-weight: 900;
+    font-size: 0.85rem;
+    padding: 0.25rem 0.75rem;
+    border-radius: 4px;
+    letter-spacing: 0.08em;
+    animation: arcadeBlink 1s infinite alternate;
+}
+
+@keyframes arcadeBlink {
+    from { opacity: 0.7; }
+    to { opacity: 1; box-shadow: 0 0 15px #ff007f; }
+}
+
+/* ==========================================================================
+   NOUVEAU : HUD DYNAMIQUE DES RÈGLES OFFICIELLES DU MODE (#mode-rules-hud)
+   ========================================================================== */
+
+.mode-rules-hud {
+    background: rgba(15, 23, 42, 0.88);
+    backdrop-filter: blur(16px);
+    border: 1.5px solid rgba(255, 255, 255, 0.15);
+    border-radius: var(--radius-lg);
+    padding: 1.25rem 1.5rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 10px 35px rgba(0, 0, 0, 0.5);
+    transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    position: relative;
+    overflow: hidden;
+}
+
+.mode-rules-hud::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, #facc15, #22c55e, #00f0ff, #ff007f);
+}
+
+.mode-hud-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-bottom: 1rem;
+    padding-bottom: 0.85rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.mode-hud-title-wrap {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.mode-hud-main-icon {
+    font-size: 2.2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 52px;
+    height: 52px;
+    border-radius: 14px;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    transition: transform 0.3s ease;
+}
+
+.mode-hud-titles .mode-hud-title {
+    font-family: var(--font-heading);
+    font-size: 1.25rem;
+    font-weight: 900;
+    color: #ffffff;
+    margin-bottom: 0.25rem;
+    letter-spacing: 0.03em;
+}
+
+.mode-hud-badges {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.mode-badge-type {
+    background: rgba(0, 229, 255, 0.15);
+    border: 1px solid rgba(0, 229, 255, 0.4);
+    color: #38bdf8;
+    font-size: 0.75rem;
+    font-weight: 800;
+    padding: 0.2rem 0.65rem;
+    border-radius: var(--radius-full);
+    letter-spacing: 0.04em;
+    font-family: var(--font-heading);
+}
+
+.mode-badge-special {
+    background: rgba(250, 204, 21, 0.15);
+    border: 1px solid rgba(250, 204, 21, 0.4);
+    color: #fde047;
+    font-size: 0.75rem;
+    font-weight: 800;
+    padding: 0.2rem 0.65rem;
+    border-radius: var(--radius-full);
+    letter-spacing: 0.04em;
+    font-family: var(--font-heading);
+}
+
+.mode-hud-meta {
+    display: flex;
+    gap: 0.75rem;
+    align-items: center;
+}
+
+.mode-hud-players, .mode-hud-loot {
+    background: rgba(255, 255, 255, 0.08);
+    padding: 0.35rem 0.85rem;
+    border-radius: var(--radius-sm);
+    font-family: var(--font-heading);
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: #e2e8f0;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.mode-hud-loot {
+    background: rgba(234, 179, 8, 0.15);
+    border-color: rgba(234, 179, 8, 0.4);
+    color: #fef08a;
+}
+
+.mode-rules-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 0.85rem;
+    margin-bottom: 0.85rem;
+}
+
+.mode-rule-item {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: var(--radius-md);
+    padding: 0.75rem 1rem;
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    transition: all 0.2s ease;
+}
+
+.mode-rule-item:hover {
+    background: rgba(255, 255, 255, 0.08);
+    transform: translateY(-2px);
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+.mode-rule-item .rule-icon {
+    font-size: 1.4rem;
+    line-height: 1;
+    flex-shrink: 0;
+    transition: transform 0.2s;
+}
+
+.mode-rule-item .rule-text {
+    font-size: 0.85rem;
+    color: #cbd5e1;
+    line-height: 1.45;
+}
+
+.mode-hud-footer {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    padding-top: 0.65rem;
+    border-top: 1px dashed rgba(255, 255, 255, 0.1);
+    font-size: 0.82rem;
+}
+
+.mode-tip-icon {
+    font-family: var(--font-heading);
+    font-weight: 900;
+    color: #facc15;
+    letter-spacing: 0.04em;
+    flex-shrink: 0;
+}
+
+.mode-tip-text {
+    color: #94a3b8;
+    font-style: italic;
+}
+
+/* ==========================================================================
+   MÉTAMORPHOSE PROFONDE : STYLE, FORMES, ICÔNES & ANIMATIONS PAR MODE
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   1. GRAND PRIX DE NOËL (Pure Vitesse & Stratégie)
+   Ambiance : Arcade Festive, Étoiles dorées, Bords très ronds et joyeux
+   -------------------------------------------------------------------------- */
+body[data-mode="gp_pure"],
+body[data-mode="gp_strategy"],
+body:not([data-mode]) {
+    --mode-accent: #facc15;
+}
+
+body[data-mode="gp_pure"] .track-lane,
+body[data-mode="gp_strategy"] .track-lane,
+body[data-mode="gp_pure"] .car-preview-card,
+body[data-mode="gp_strategy"] .car-preview-card,
+body[data-mode="gp_pure"] .mode-rules-hud,
+body[data-mode="gp_strategy"] .mode-rules-hud {
+    border-radius: 26px !important;
+    border: 2px solid transparent;
+    border-image: linear-gradient(135deg, #ef4444, #facc15, #22c55e, #38bdf8, #a855f7) 1;
+    box-shadow: 0 10px 30px rgba(250, 204, 21, 0.25), inset 0 0 20px rgba(255, 255, 255, 0.05);
+    background: rgba(15, 23, 42, 0.85);
+}
+
+body[data-mode="gp_pure"] .mode-hud-main-icon,
+body[data-mode="gp_strategy"] .mode-hud-main-icon {
+    font-size: 2.5rem;
+    animation: marioFloat 3s infinite ease-in-out;
+    border-radius: 50% !important;
+    box-shadow: 0 0 20px rgba(250, 204, 21, 0.5);
+}
+
+@keyframes marioFloat {
+    0%, 100% { transform: translateY(0) rotate(0deg); }
+    50% { transform: translateY(-6px) rotate(5deg); }
+}
+
+body[data-mode="gp_pure"] .rule-icon,
+body[data-mode="gp_strategy"] .rule-icon {
+    font-size: 1.6rem;
+    animation: marioWobble 2s infinite ease-in-out;
+}
+
+@keyframes marioWobble {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.2); }
+}
+
+body[data-mode="gp_pure"] .btn-primary,
+body[data-mode="gp_strategy"] .btn-primary {
+    border-radius: 50px !important;
+    background: linear-gradient(135deg, #ef4444, #f59e0b, #10b981, #3b82f6, #8b5cf6) !important;
+    background-size: 300% 300% !important;
+    animation: rainbowButtonFlow 4s ease infinite !important;
+    box-shadow: 0 8px 25px rgba(239, 68, 68, 0.45) !important;
+    font-weight: 900;
+}
+
+/* --------------------------------------------------------------------------
+   2. BOSS FIGHT TOMICA (Tokyo Underground Drift & Hatsune Miku)
+   Ambiance : Cyberpunk, Shinjuku pluie nocturne, néon cyan/magenta, angles mecha
+   -------------------------------------------------------------------------- */
+body[data-mode="boss_tomica"] {
+    --mode-accent: #00f3ff;
+}
+
+body[data-mode="boss_tomica"] .track-lane,
+body[data-mode="boss_tomica"] .car-preview-card,
+body[data-mode="boss_tomica"] .mode-rules-hud,
+body[data-mode="boss_tomica"] .paddock-card,
+body[data-mode="boss_tomica"] .bet-card {
+    border-radius: 0 !important;
+    clip-path: polygon(14px 0, 100% 0, 100% calc(100% - 14px), calc(100% - 14px) 100%, 0 100%, 0 14px) !important;
+    border: 1.5px solid #00f3ff !important;
+    box-shadow: 0 0 25px rgba(0, 243, 255, 0.4), inset 0 0 20px rgba(255, 0, 128, 0.25) !important;
+    background: rgba(8, 8, 20, 0.92) !important;
+}
+
+body[data-mode="boss_tomica"] .mode-rules-hud::before {
+    background: linear-gradient(90deg, #ff007f, #00f3ff, #39ff14);
+}
+
+body[data-mode="boss_tomica"] .mode-hud-main-icon {
+    border-radius: 0 !important;
+    clip-path: polygon(8px 0, 100% 0, calc(100% - 8px) 100%, 0 100%);
+    background: linear-gradient(135deg, rgba(255, 0, 127, 0.3), rgba(0, 243, 255, 0.3)) !important;
+    border-color: #00f3ff !important;
+    box-shadow: 0 0 20px rgba(0, 243, 255, 0.7);
+    animation: tokyoGlitch 2.5s infinite steps(2);
+}
+
+@keyframes tokyoGlitch {
+    0%, 90%, 100% { transform: translate(0, 0); filter: drop-shadow(0 0 8px #00f3ff); }
+    92% { transform: translate(-3px, 2px); filter: drop-shadow(0 0 12px #ff007f); }
+    96% { transform: translate(3px, -1px); filter: drop-shadow(0 0 14px #00f3ff); }
+}
+
+body[data-mode="boss_tomica"] .rule-icon {
+    font-size: 1.25rem;
+    filter: drop-shadow(0 0 8px #00f3ff);
+}
+
+body[data-mode="boss_tomica"] .btn-primary {
+    border-radius: 0 !important;
+    clip-path: polygon(10px 0, 100% 0, calc(100% - 10px) 100%, 0 100%) !important;
+    background: linear-gradient(135deg, #ff007f, #00f3ff) !important;
+    border: none !important;
+    box-shadow: 0 0 30px rgba(255, 0, 128, 0.7) !important;
+    letter-spacing: 0.12em;
+    font-family: 'Chakra Petch', sans-serif !important;
+}
+
+body[data-mode="boss_tomica"] .lane-tag {
+    clip-path: polygon(6px 0, 100% 0, calc(100% - 6px) 100%, 0 100%);
+    border-radius: 0 !important;
+}
+
+/* --------------------------------------------------------------------------
+   3. SURVIE ULTIME : MORT SUBITE (Mad Max Fury Road / Wasteland / Punk)
+   Ambiance : Désert de rouille, rayures jaunes/noires de danger, rivets, alertes
+   -------------------------------------------------------------------------- */
+body[data-mode="survival"] {
+    --mode-accent: #ff4500;
+}
+
+body[data-mode="survival"] .track-lane,
+body[data-mode="survival"] .car-preview-card,
+body[data-mode="survival"] .mode-rules-hud,
+body[data-mode="survival"] .paddock-card,
+body[data-mode="survival"] .bet-card {
+    border-radius: 4px !important;
+    border: 3px solid #ff4500 !important;
+    box-shadow: 0 0 35px rgba(255, 69, 0, 0.65), inset 0 0 30px rgba(0, 0, 0, 0.95) !important;
+    background: repeating-linear-gradient(45deg, rgba(255, 69, 0, 0.12), rgba(255, 69, 0, 0.12) 12px, rgba(20, 8, 8, 0.95) 12px, rgba(20, 8, 8, 0.95) 24px) !important;
+}
+
+body[data-mode="survival"] .mode-rules-hud::before {
+    height: 6px;
+    background: repeating-linear-gradient(45deg, #facc15, #facc15 12px, #000 12px, #000 24px);
+}
+
+body[data-mode="survival"] .mode-hud-main-icon {
+    font-size: 2.4rem;
+    border-radius: 6px !important;
+    border: 2px solid #ff4500 !important;
+    background: #000 !important;
+    box-shadow: 0 0 25px rgba(255, 69, 0, 0.8);
+    animation: dangerPulse 1.2s infinite alternate ease-in-out;
+}
+
+@keyframes dangerPulse {
+    from { transform: scale(1); box-shadow: 0 0 15px rgba(255, 69, 0, 0.5); }
+    to { transform: scale(1.15); box-shadow: 0 0 35px rgba(255, 69, 0, 0.9); }
+}
+
+body[data-mode="survival"] .rule-icon {
+    font-size: 1.8rem;
+    filter: drop-shadow(0 0 6px #ff4500);
+}
+
+body[data-mode="survival"] .btn-primary {
+    border-radius: 4px !important;
+    background: repeating-linear-gradient(45deg, #dc2626, #dc2626 12px, #991b1b 12px, #991b1b 24px) !important;
+    border: 2px solid #facc15 !important;
+    color: #fff !important;
+    box-shadow: 0 0 30px rgba(220, 38, 38, 0.8) !important;
+    text-transform: uppercase;
+    font-weight: 900;
+}
+
+/* --------------------------------------------------------------------------
+   4. APEX CHALLENGE : 100% FORMULE 1 (Monaco Telemetry Pro)
+   Ambiance : Fibre de carbone, bordures titane, chrono au millième, feux FIA
+   -------------------------------------------------------------------------- */
+body[data-mode="f1_apex"] {
+    --mode-accent: #e10600;
+}
+
+body[data-mode="f1_apex"] .track-lane,
+body[data-mode="f1_apex"] .car-preview-card,
+body[data-mode="f1_apex"] .mode-rules-hud,
+body[data-mode="f1_apex"] .paddock-card {
+    border-radius: 4px !important;
+    border: 1px solid rgba(255, 255, 255, 0.25) !important;
+    border-top: 3px solid #e10600 !important;
+    background: repeating-linear-gradient(45deg, #0d0d12 0, #0d0d12 2px, #15151e 2px, #15151e 4px) !important;
+    box-shadow: 0 6px 25px rgba(0, 0, 0, 0.85) !important;
+}
+
+body[data-mode="f1_apex"] .mode-rules-hud::before {
+    background: #e10600;
+    height: 4px;
+}
+
+body[data-mode="f1_apex"] .mode-hud-main-icon {
+    border-radius: 4px !important;
+    border: 1px solid #e10600 !important;
+    background: #111 !important;
+    box-shadow: 0 0 15px rgba(225, 6, 0, 0.4);
+}
+
+body[data-mode="f1_apex"] .rule-icon {
+    font-size: 1.3rem;
+}
+
+body[data-mode="f1_apex"] .btn-primary {
+    border-radius: 4px !important;
+    background: linear-gradient(135deg, #e10600, #990000) !important;
+    border: 1px solid #ff4d4d !important;
+    box-shadow: 0 0 25px rgba(225, 6, 0, 0.6) !important;
+    letter-spacing: 0.08em;
+}
+
+/* --------------------------------------------------------------------------
+   5. CHAOS TOTAL : ITEMS & PIÈGES ILLIMITÉS (Wacky Races & Comics)
+   Ambiance : Cartoon déjanté, cartes asymétriques inclinées, icônes géantes
+   -------------------------------------------------------------------------- */
+body[data-mode="chaos_unlimited"] {
+    --mode-accent: #76ff03;
+}
+
+body[data-mode="chaos_unlimited"] .mode-rules-hud {
+    border-radius: 20px !important;
+    border: 3px solid #000 !important;
+    box-shadow: 8px 8px 0px #76ff03, 12px 12px 0px #000 !important;
+    background: rgba(30, 10, 50, 0.95) !important;
+    transform: rotate(-0.5deg);
+}
+
+body[data-mode="chaos_unlimited"] .track-lane:nth-child(1) {
+    transform: rotate(-1.5deg);
+}
+body[data-mode="chaos_unlimited"] .track-lane:nth-child(2) {
+    transform: rotate(1.8deg);
+}
+body[data-mode="chaos_unlimited"] .track-lane:nth-child(3) {
+    transform: rotate(-1.2deg);
+}
+body[data-mode="chaos_unlimited"] .track-lane:nth-child(4) {
+    transform: rotate(1.5deg);
+}
+
+body[data-mode="chaos_unlimited"] .track-lane {
+    border-radius: 18px !important;
+    border: 3px solid #000 !important;
+    box-shadow: 6px 6px 0px #eab308, 9px 9px 0px #000 !important;
+    transition: transform 0.2s ease !important;
+}
+
+body[data-mode="chaos_unlimited"] .track-lane:hover {
+    transform: scale(1.04) rotate(0deg) !important;
+}
+
+body[data-mode="chaos_unlimited"] .mode-hud-main-icon {
+    font-size: 2.8rem;
+    animation: comicWobble 0.8s infinite alternate ease-in-out;
+    border: 3px solid #000 !important;
+    box-shadow: 4px 4px 0px #000;
+}
+
+body[data-mode="chaos_unlimited"] .rule-icon {
+    font-size: 2rem;
+    animation: comicBounce 1.2s infinite ease-in-out;
+}
+
+@keyframes comicBounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-5px) scale(1.2); }
+}
+
+body[data-mode="chaos_unlimited"] .btn-primary {
+    border-radius: 18px !important;
+    background: #76ff03 !important;
+    color: #000 !important;
+    border: 3px solid #000 !important;
+    box-shadow: 5px 5px 0px #000 !important;
+    font-weight: 900 !important;
+    letter-spacing: 0.05em;
+}
+
+/* --------------------------------------------------------------------------
+   6. DÉFI COCORICO : LE GANG MAJORETTE (24H du Mans Vintage)
+   Ambiance : Prestige automobile classique, liseré tricolore, dorures Le Mans
+   -------------------------------------------------------------------------- */
+body[data-mode="boss_majorette"] {
+    --mode-accent: #d4af37;
+}
+
+body[data-mode="boss_majorette"] .track-lane,
+body[data-mode="boss_majorette"] .car-preview-card,
+body[data-mode="boss_majorette"] .mode-rules-hud {
+    border-radius: 16px !important;
+    border: 2px solid #d4af37 !important;
+    border-top: 5px solid !important;
+    border-image: linear-gradient(to right, #0055a5 33%, #ffffff 33%, #ffffff 66%, #ef4135 66%) 1 !important;
+    box-shadow: 0 0 30px rgba(212, 175, 55, 0.4), inset 0 0 20px rgba(0, 85, 165, 0.15) !important;
+    background: rgba(12, 20, 35, 0.92) !important;
+}
+
+body[data-mode="boss_majorette"] .mode-hud-main-icon {
+    border-radius: 50% !important;
+    border: 2px solid #d4af37 !important;
+    box-shadow: 0 0 20px rgba(212, 175, 55, 0.6);
+    background: #0055a5 !important;
+}
+
+body[data-mode="boss_majorette"] .btn-primary {
+    border-radius: 8px !important;
+    background: linear-gradient(135deg, #0055a5, #1e3a8a) !important;
+    border: 2px solid #d4af37 !important;
+    box-shadow: 0 0 20px rgba(212, 175, 55, 0.4) !important;
+    color: #fff !important;
+    letter-spacing: 0.05em;
+}
+
+/* --------------------------------------------------------------------------
+   7. COUPE DES RELIQUES (Nostalgie 80s / Synthwave Outrun)
+   Ambiance : Synthwave néon rose/cyan, grille 3D, pixels et cassettes
+   -------------------------------------------------------------------------- */
+body[data-mode="relic_cup"] {
+    --mode-accent: #ff007f;
+}
+
+body[data-mode="relic_cup"] .track-lane,
+body[data-mode="relic_cup"] .car-preview-card,
+body[data-mode="relic_cup"] .mode-rules-hud {
+    border-radius: 8px !important;
+    border: 2px solid #ff007f !important;
+    box-shadow: 0 0 30px rgba(255, 0, 127, 0.55), inset 0 0 20px rgba(0, 240, 255, 0.25) !important;
+    background: linear-gradient(180deg, rgba(16, 6, 28, 0.95), rgba(32, 10, 52, 0.95)) !important;
+}
+
+body[data-mode="relic_cup"] .mode-rules-hud::before {
+    background: linear-gradient(90deg, #ff007f, #00f0ff, #facc15);
+}
+
+body[data-mode="relic_cup"] .mode-hud-main-icon {
+    border-radius: 6px !important;
+    border: 2px solid #00f0ff !important;
+    box-shadow: 0 0 20px rgba(0, 240, 255, 0.7);
+    background: #ff007f !important;
+    font-size: 2.2rem;
+}
+
+body[data-mode="relic_cup"] .rule-icon {
+    font-size: 1.5rem;
+    filter: drop-shadow(0 0 6px #ff007f);
+}
+
+body[data-mode="relic_cup"] .btn-primary {
+    border-radius: 6px !important;
+    background: linear-gradient(135deg, #ff007f, #8b5cf6) !important;
+    border: 2px solid #00f0ff !important;
+    box-shadow: 0 0 25px rgba(255, 0, 127, 0.7) !important;
+    font-family: 'Chakra Petch', sans-serif !important;
+    letter-spacing: 0.1em;
+}
+
+/* Feedback instantané au clic sur n'importe quel bouton interactif */
+button:active, .btn:active, .nav-btn:active, select:active {
+    transform: scale(0.96) !important;
+}
+
+/* ==========================================================================
+   NAVIGATION (TABS)
+   ========================================================================== */
+
+.nav-bar {
+    display: flex;
+    justify-content: center;
+    background: rgba(14, 20, 36, 0.85);
+    backdrop-filter: blur(14px);
+    border-bottom: 1px solid var(--border-color);
+    padding: 0.5rem 1rem;
+    gap: 0.5rem;
+    overflow-x: auto;
+    white-space: nowrap;
+}
+
+.nav-btn {
+    background: transparent;
+    border: 1px solid transparent;
+    color: var(--text-muted);
+    font-family: var(--font-heading);
+    font-size: 0.95rem;
+    font-weight: 600;
+    padding: 0.6rem 1.2rem;
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.nav-btn:hover {
+    color: var(--text-main);
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.nav-btn.active {
+    background: linear-gradient(135deg, rgba(0, 229, 255, 0.2), rgba(0, 229, 255, 0.05));
+    border-color: var(--neon-blue);
+    color: var(--neon-blue);
+    box-shadow: 0 0 18px rgba(0, 229, 255, 0.35);
+}
+
+/* Morphing des Onglets selon le Mode */
+body[data-mode="gp_pure"] .nav-btn,
+body[data-mode="gp_strategy"] .nav-btn {
+    border-radius: 50px;
+}
+body[data-mode="gp_pure"] .nav-btn.active,
+body[data-mode="gp_strategy"] .nav-btn.active {
+    background: linear-gradient(135deg, rgba(239, 68, 68, 0.3), rgba(250, 204, 21, 0.3));
+    border-color: #facc15;
+    color: #fef08a;
+    box-shadow: 0 0 18px rgba(250, 204, 21, 0.5);
+}
+
+body[data-mode="boss_tomica"] .nav-btn {
+    border-radius: 0;
+    clip-path: polygon(8px 0, 100% 0, calc(100% - 8px) 100%, 0 100%);
+    font-family: 'Chakra Petch', sans-serif;
+}
+body[data-mode="boss_tomica"] .nav-btn.active {
+    background: linear-gradient(135deg, rgba(255, 0, 128, 0.35), rgba(0, 240, 255, 0.25));
+    border-color: #00f3ff;
+    color: #00f3ff;
+    box-shadow: 0 0 20px rgba(0, 243, 255, 0.6);
+}
+
+body[data-mode="survival"] .nav-btn {
+    border-radius: 4px;
+    border: 1px solid #441111;
+    text-transform: uppercase;
+    font-weight: 800;
+}
+body[data-mode="survival"] .nav-btn.active {
+    background: repeating-linear-gradient(45deg, rgba(220, 38, 38, 0.3), rgba(220, 38, 38, 0.3) 10px, rgba(20, 8, 8, 0.8) 10px, rgba(20, 8, 8, 0.8) 20px);
+    border-color: #ff4500;
+    color: #facc15;
+    box-shadow: 0 0 20px rgba(255, 69, 0, 0.6);
+}
+
+body[data-mode="f1_apex"] .nav-btn {
+    border-radius: 3px;
+    border-bottom: 2px solid transparent;
+    font-family: var(--font-heading);
+}
+body[data-mode="f1_apex"] .nav-btn.active {
+    background: rgba(225, 6, 0, 0.18);
+    border-color: #e10600;
+    border-bottom: 3px solid #e10600;
+    color: #fff;
+    box-shadow: 0 4px 15px rgba(225, 6, 0, 0.4);
+}
+
+body[data-mode="chaos_unlimited"] .nav-btn {
+    border-radius: 14px;
+    border: 2px solid #000;
+}
+body[data-mode="chaos_unlimited"] .nav-btn.active {
+    background: #76ff03;
+    color: #000;
+    font-weight: 900;
+    box-shadow: 4px 4px 0px #000;
+    transform: rotate(-1deg);
+}
+
+body[data-mode="boss_majorette"] .nav-btn {
+    border-radius: 8px;
+    border: 1px solid rgba(212, 175, 55, 0.3);
+}
+body[data-mode="boss_majorette"] .nav-btn.active {
+    background: rgba(0, 85, 165, 0.25);
+    border-color: #d4af37;
+    color: #fde047;
+    box-shadow: 0 0 15px rgba(212, 175, 55, 0.4);
+}
+
+body[data-mode="relic_cup"] .nav-btn {
+    border-radius: 4px;
+    border: 1px solid rgba(255, 0, 127, 0.3);
+    font-family: 'Chakra Petch', sans-serif;
+}
+body[data-mode="relic_cup"] .nav-btn.active {
+    background: linear-gradient(135deg, rgba(255, 0, 128, 0.3), rgba(0, 240, 255, 0.2));
+    border-color: #ff007f;
+    color: #00f0ff;
+    box-shadow: 0 0 18px rgba(255, 0, 128, 0.6);
+}
+
+/* ==========================================================================
+   CONTENEUR PRINCIPAL & CARTE GÉNÉRIQUE
+   ========================================================================== */
+
+.main-container {
+    max-width: 1300px;
+    margin: 2rem auto;
+    padding: 0 1.5rem 4rem 1.5rem;
+}
+
+.tab-pane {
+    display: none;
+    animation: fadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.tab-pane.active {
+    display: block;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.card {
+    background: rgba(13, 19, 32, 0.94);
+    backdrop-filter: blur(3px);
+    -webkit-backdrop-filter: blur(3px);
+    border: 1px solid rgba(0, 229, 255, 0.25);
+    border-radius: var(--radius-lg);
+    padding: 1.75rem;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.65), 0 0 20px rgba(0, 229, 255, 0.08);
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.card:hover {
+    border-color: rgba(0, 229, 255, 0.4);
+    box-shadow: 0 14px 45px rgba(0, 0, 0, 0.75), 0 0 25px rgba(0, 229, 255, 0.15);
+}
+
+.card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, rgba(0, 229, 255, 0.6), transparent);
+}
+
+/* ==========================================================================
+   BOUTONS & BADGES
+   ========================================================================== */
+
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    font-family: var(--font-heading);
+    font-size: 0.95rem;
+    font-weight: 700;
+    padding: 0.7rem 1.4rem;
+    border-radius: var(--radius-md);
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    user-select: none;
+}
+
+.btn:active {
+    transform: scale(0.97);
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #00e5ff, #0099ff);
+    color: #05101a;
+    box-shadow: 0 4px 15px rgba(0, 229, 255, 0.35);
+}
+
+.btn-primary:hover {
+    box-shadow: 0 6px 22px rgba(0, 229, 255, 0.6);
+    filter: brightness(1.1);
+}
+
+.btn-secondary {
+    background: var(--bg-surface);
+    color: var(--text-main);
+    border: 1px solid var(--border-color);
+}
+
+.btn-secondary:hover {
+    background: #27354f;
+    border-color: var(--text-muted);
+}
+
+.btn-warning {
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+    color: #1a0f02;
+    box-shadow: 0 4px 15px rgba(245, 158, 11, 0.35);
+}
+
+.btn-warning:hover {
+    box-shadow: 0 6px 22px rgba(245, 158, 11, 0.6);
+    filter: brightness(1.1);
+}
+
+.btn-danger {
+    background: linear-gradient(135deg, #ef4444, #b91c1c);
+    color: #fff;
+    box-shadow: 0 4px 15px rgba(239, 68, 68, 0.35);
+}
+
+.btn-danger:hover {
+    box-shadow: 0 6px 22px rgba(239, 68, 68, 0.6);
+    filter: brightness(1.1);
+}
+
+.btn-success {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: #022013;
+    box-shadow: 0 4px 15px rgba(16, 185, 129, 0.35);
+}
+
+.btn-success:hover {
+    box-shadow: 0 6px 22px rgba(16, 185, 129, 0.6);
+    filter: brightness(1.1);
+}
+
+.btn-lg {
+    padding: 1rem 2rem;
+    font-size: 1.1rem;
+}
+
+.btn-sm {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.8rem;
+}
+
+.badge {
+    display: inline-block;
+    padding: 0.25rem 0.7rem;
+    border-radius: var(--radius-full);
+    font-family: var(--font-heading);
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    background: var(--bg-surface);
+    color: var(--text-muted);
+    border: 1px solid var(--border-color);
+}
+
+.badge.ready {
+    background: rgba(16, 185, 129, 0.15);
+    color: #34d399;
+    border-color: rgba(16, 185, 129, 0.4);
+    box-shadow: 0 0 10px rgba(16, 185, 129, 0.2);
+}
+
+.badge.racing {
+    background: rgba(239, 68, 68, 0.15);
+    color: #f87171;
+    border-color: rgba(239, 68, 68, 0.4);
+    box-shadow: 0 0 10px rgba(239, 68, 68, 0.2);
+    animation: blink 1s infinite alternate;
+}
+
+@keyframes blink {
+    from { opacity: 0.7; }
+    to { opacity: 1; }
+}
+
+/* ==========================================================================
+   ONGLET 1 : RÉGIE & COURSE
+   ========================================================================== */
+
+.regie-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    padding: 1.25rem 1.75rem;
+    margin-bottom: 1.75rem;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.mode-select-box {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex: 1;
+}
+
+.mode-select-box label {
+    font-family: var(--font-heading);
+    font-weight: 700;
+    font-size: 0.9rem;
+    color: var(--text-muted);
+}
+
+.mode-select-box select,
+.car-picker {
+    background: var(--bg-surface);
+    color: #fff;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    padding: 0.65rem 1rem;
+    font-family: var(--font-body);
+    font-size: 0.95rem;
+    cursor: pointer;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+.mode-select-box select:focus,
+.car-picker:focus {
+    border-color: var(--neon-blue);
+    box-shadow: 0 0 10px rgba(0, 229, 255, 0.25);
+}
+
+/* Grille des 4 Voies */
+.rainbow-lanes-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.25rem;
+    margin-bottom: 2rem;
+}
+
+.track-lane {
+    background: var(--bg-card);
+    border-radius: var(--radius-lg);
+    border: 2px solid var(--border-color);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    transition: transform 0.25s, box-shadow 0.25s;
+}
+
+.track-lane:hover {
+    transform: translateY(-4px);
+}
+
+/* Couleurs par Voie */
+.track-lane.lane-1 {
+    border-color: var(--lane-1-yellow);
+    box-shadow: 0 8px 24px var(--lane-1-bg);
+}
+.track-lane.lane-1 .lane-header {
+    background: linear-gradient(135deg, rgba(250, 204, 21, 0.3), rgba(250, 204, 21, 0.1));
+    border-bottom: 2px solid var(--lane-1-yellow);
+    color: var(--lane-1-yellow);
+}
+
+.track-lane.lane-2 {
+    border-color: var(--lane-2-green);
+    box-shadow: 0 8px 24px var(--lane-2-bg);
+}
+.track-lane.lane-2 .lane-header {
+    background: linear-gradient(135deg, rgba(34, 197, 94, 0.3), rgba(34, 197, 94, 0.1));
+    border-bottom: 2px solid var(--lane-2-green);
+    color: var(--lane-2-green);
+}
+
+.track-lane.lane-3 {
+    border-color: var(--lane-3-red);
+    box-shadow: 0 8px 24px var(--lane-3-bg);
+}
+.track-lane.lane-3 .lane-header {
+    background: linear-gradient(135deg, rgba(239, 68, 68, 0.3), rgba(239, 68, 68, 0.1));
+    border-bottom: 2px solid var(--lane-3-red);
+    color: var(--lane-3-red);
+}
+
+.track-lane.lane-4 {
+    border-color: var(--lane-4-blue);
+    box-shadow: 0 8px 24px var(--lane-4-bg);
+}
+.track-lane.lane-4 .lane-header {
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.3), rgba(59, 130, 246, 0.1));
+    border-bottom: 2px solid var(--lane-4-blue);
+    color: var(--lane-4-blue);
+}
+
+.lane-header {
+    padding: 0.75rem 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-family: var(--font-heading);
+    font-weight: 700;
+}
+
+.lane-tag {
+    font-size: 0.85rem;
+    padding: 0.2rem 0.5rem;
+    border-radius: var(--radius-sm);
+    background: rgba(0, 0, 0, 0.4);
+}
+
+.lane-name {
+    font-size: 0.8rem;
+    letter-spacing: 0.08em;
+}
+
+.lane-content {
+    padding: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    flex: 1;
+}
+
+.lane-content .car-picker {
+    width: 100%;
+}
+
+.car-preview-card {
+    background: rgba(0, 0, 0, 0.35);
+    border-radius: var(--radius-md);
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    flex: 1;
+}
+
+.car-alias {
+    font-size: 1.05rem;
+    color: #fff;
+    line-height: 1.2;
+}
+
+.car-real {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+}
+
+.lane-stat, .lane-odds {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    display: flex;
+    justify-content: space-between;
+    margin-top: 0.2rem;
+}
+
+.lane-odds strong {
+    color: var(--neon-yellow);
+    font-family: var(--font-heading);
+    font-size: 1.05rem;
+}
+
+/* Contrôles de course */
+.race-controls-bar {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+}
+
+/* Photo finish panel */
+.finish-panel {
+    background: linear-gradient(180deg, var(--bg-card) 0%, rgba(18, 25, 41, 0.9) 100%);
+    border: 2px solid var(--neon-blue);
+    box-shadow: 0 0 30px rgba(0, 229, 255, 0.15);
+    text-align: center;
+}
+
+.finish-panel h3 {
+    color: var(--neon-blue);
+    font-size: 1.4rem;
+    margin-bottom: 0.5rem;
+}
+
+.finish-panel p {
+    color: var(--text-muted);
+    margin-bottom: 1.5rem;
+}
+
+.finish-selectors-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.25rem;
+    margin-bottom: 2rem;
+}
+
+.finish-slot {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.rank-badge {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-heading);
+    font-weight: 800;
+    font-size: 1.1rem;
+    color: #000;
+}
+
+.rank-badge.gold {
+    background: linear-gradient(135deg, #facc15, #ca8a04);
+    box-shadow: 0 0 15px rgba(250, 204, 21, 0.5);
+}
+
+.rank-badge.silver {
+    background: linear-gradient(135deg, #e2e8f0, #94a3b8);
+    box-shadow: 0 0 15px rgba(226, 232, 240, 0.4);
+}
+
+.rank-badge.bronze {
+    background: linear-gradient(135deg, #d97706, #78350f);
+    color: #fff;
+    box-shadow: 0 0 15px rgba(217, 119, 6, 0.4);
+}
+
+.rank-badge.zinc {
+    background: linear-gradient(135deg, #475569, #1e293b);
+    color: #94a3b8;
+    border: 1px solid #334155;
+}
+
+.finish-slot select {
+    width: 100%;
+    background: var(--bg-dark);
+    color: #fff;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    padding: 0.5rem;
+    font-size: 0.85rem;
+    outline: none;
+}
+
+/* ==========================================================================
+   ONGLET 2 : DRAFT SCANNER & PADDOCK
+   ========================================================================== */
+
+.draft-hero-card {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.draft-hero-card h2 {
+    font-size: 1.6rem;
+    margin-bottom: 0.5rem;
+    color: #fff;
+}
+
+.draft-hero-card p {
+    color: var(--text-muted);
+    margin-bottom: 1.5rem;
+}
+
+.scanner-input-group {
+    display: flex;
+    justify-content: center;
+    gap: 0.75rem;
+    max-width: 500px;
+    margin: 0 auto;
+}
+
+#draft-code-input {
+    background: var(--bg-surface);
+    border: 2px solid var(--border-color);
+    border-radius: var(--radius-md);
+    color: #fff;
+    font-family: var(--font-heading);
+    font-size: 1.5rem;
+    font-weight: 700;
+    text-align: center;
+    padding: 0.5rem 1rem;
+    width: 160px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    outline: none;
+    transition: all 0.25s;
+}
+
+#draft-code-input:focus {
+    border-color: var(--neon-blue);
+    box-shadow: 0 0 20px rgba(0, 229, 255, 0.35);
+}
+
+/* Reveal Card */
+.reveal-card {
+    margin-bottom: 2.5rem;
+    border: 2px solid var(--neon-blue);
+    background: linear-gradient(180deg, rgba(0, 229, 255, 0.05) 0%, var(--bg-card) 40%);
+    box-shadow: 0 10px 40px rgba(0, 229, 255, 0.2);
+    animation: revealPulse 0.5s ease-out;
+}
+
+@keyframes revealPulse {
+    0% { transform: scale(0.96); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+.reveal-header {
+    margin-bottom: 1.5rem;
+}
+
+.reveal-tags {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+}
+
+.badge-code {
+    background: var(--neon-blue);
+    color: #05101a;
+    font-size: 0.95rem;
+}
+
+.badge-cat {
+    background: rgba(255, 255, 255, 0.1);
+    color: #e2e8f0;
+}
+
+.reveal-header h2 {
+    font-size: 1.8rem;
+    color: #fff;
+}
+
+.reveal-header h3 {
+    font-size: 1.1rem;
+    color: var(--neon-yellow);
+    font-weight: 600;
+    margin-bottom: 0.3rem;
+}
+
+.team-sub {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+}
+
+.stats-bars-container {
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+    background: rgba(0, 0, 0, 0.3);
+    padding: 1.25rem;
+    border-radius: var(--radius-md);
+    margin-bottom: 1.5rem;
+}
+
+.stat-row {
+    display: grid;
+    grid-template-columns: 220px 1fr 70px;
+    align-items: center;
+    gap: 1rem;
+    font-size: 0.9rem;
+}
+
+.progress-bar {
+    height: 12px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: var(--radius-full);
+    overflow: hidden;
+    position: relative;
+}
+
+.bar-fill {
+    height: 100%;
+    border-radius: var(--radius-full);
+    transition: width 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.bar-fill.red { background: linear-gradient(90deg, #ef4444, #f87171); }
+.bar-fill.blue { background: linear-gradient(90deg, #3b82f6, #60a5fa); }
+.bar-fill.yellow { background: linear-gradient(90deg, #f59e0b, #fbbf24); }
+.bar-fill.purple { background: linear-gradient(90deg, #a855f7, #c084fc); }
+.bar-fill.green { background: linear-gradient(90deg, #10b981, #34d399); }
+
+.stat-row strong {
+    font-family: var(--font-heading);
+    text-align: right;
+    color: #fff;
+}
+
+.car-quote {
+    border-left: 3px solid var(--neon-blue);
+    padding-left: 1rem;
+    font-style: italic;
+    color: #cbd5e1;
+    margin-bottom: 1rem;
+    font-size: 1.05rem;
+}
+
+.car-lore {
+    color: var(--text-muted);
+    font-size: 0.95rem;
+    margin-bottom: 1.5rem;
+    line-height: 1.6;
+}
+
+.reveal-actions {
+    text-align: center;
+}
+
+/* Paddock 6 places */
+.my-paddock-section {
+    margin-top: 3rem;
+}
+
+.paddock-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.25rem;
+}
+
+.paddock-slots-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.25rem;
+}
+
+.paddock-slot {
+    background: var(--bg-card);
+    border: 2px dashed var(--border-color);
+    border-radius: var(--radius-lg);
+    padding: 1.5rem;
+    min-height: 180px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    transition: all 0.25s;
+    position: relative;
+}
+
+.paddock-slot.empty {
+    color: var(--text-dim);
+}
+
+.paddock-slot.empty span {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+    opacity: 0.5;
+}
+
+.paddock-slot.filled {
+    border-style: solid;
+    border-color: var(--border-color);
+    background: linear-gradient(180deg, var(--bg-card) 0%, rgba(24, 34, 56, 0.8) 100%);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    align-items: flex-start;
+    text-align: left;
+}
+
+.paddock-slot.filled:hover {
+    border-color: var(--neon-blue);
+    transform: translateY(-2px);
+}
+
+.paddock-car-code {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background: var(--bg-surface);
+    color: var(--neon-blue);
+    padding: 0.15rem 0.5rem;
+    border-radius: var(--radius-sm);
+    font-family: var(--font-heading);
+    font-weight: 700;
+    font-size: 0.8rem;
+    border: 1px solid var(--border-color);
+}
+
+.paddock-slot.filled h4 {
+    font-size: 1.1rem;
+    color: #fff;
+    margin-top: 0.5rem;
+    margin-bottom: 0.2rem;
+    padding-right: 2.5rem;
+}
+
+.paddock-slot.filled p {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    margin-bottom: 0.75rem;
+}
+
+.paddock-stat-mini {
+    display: flex;
+    gap: 1rem;
+    font-size: 0.8rem;
+    color: var(--neon-yellow);
+    font-family: var(--font-heading);
+    margin-bottom: 1rem;
+}
+
+.btn-remove-slot {
+    background: transparent;
+    border: 1px solid rgba(239, 68, 68, 0.4);
+    color: #f87171;
+    font-size: 0.75rem;
+    padding: 0.3rem 0.6rem;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    margin-top: auto;
+    transition: all 0.2s;
+}
+
+.btn-remove-slot:hover {
+    background: rgba(239, 68, 68, 0.2);
+    border-color: #ef4444;
+}
+
+/* ==========================================================================
+   ONGLET 3 : PARIS EN DIRECT
+   ========================================================================== */
+
+.bets-hero {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.my-wallet-banner {
+    background: rgba(245, 158, 11, 0.15);
+    border: 1px solid var(--neon-yellow);
+    border-radius: var(--radius-full);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.5rem 1.5rem;
+    margin-top: 1rem;
+}
+
+.my-wallet-banner span {
+    font-size: 0.85rem;
+    color: #fde68a;
+    font-weight: 700;
+}
+
+.my-wallet-banner strong {
+    font-family: var(--font-heading);
+    font-size: 1.4rem;
+    color: #fff;
+}
+
+.live-betting-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.25rem;
+    margin-bottom: 2rem;
+}
+
+.bet-card {
+    background: var(--bg-card);
+    border-radius: var(--radius-lg);
+    border: 2px solid var(--border-color);
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    text-align: center;
+    transition: all 0.25s;
+}
+
+.bet-card.lane-1 { border-color: var(--lane-1-yellow); }
+.bet-card.lane-2 { border-color: var(--lane-2-green); }
+.bet-card.lane-3 { border-color: var(--lane-3-red); }
+.bet-card.lane-4 { border-color: var(--lane-4-blue); }
+
+.bet-odds-badge {
+    background: rgba(0, 0, 0, 0.4);
+    border-radius: var(--radius-md);
+    padding: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.bet-odds-badge span {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    display: block;
+}
+
+.bet-odds-badge strong {
+    font-family: var(--font-heading);
+    font-size: 1.8rem;
+    color: var(--neon-yellow);
+}
+
+.bet-quick-btns {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.5rem;
+}
+
+.btn-bet-coin {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    color: #fff;
+    padding: 0.5rem;
+    font-family: var(--font-heading);
+    font-size: 0.85rem;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-bet-coin:hover {
+    border-color: var(--neon-yellow);
+    background: rgba(245, 158, 11, 0.15);
+}
+
+.active-bets-card h3 {
+    margin-bottom: 1rem;
+    font-size: 1.1rem;
+}
+
+.bets-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.bets-list li {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    padding: 0.75rem 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.9rem;
+}
+
+.bets-list .empty-msg {
+    color: var(--text-dim);
+    text-align: center;
+    justify-content: center;
+    background: transparent;
+    border: 1px dashed var(--border-color);
+}
+
+/* ==========================================================================
+   ONGLET 4 : PIÈGES & CHAOS
+   ========================================================================== */
+
+.shop-hero {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.traps-shop-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2.5rem;
+}
+
+.trap-card {
+    display: flex;
+    flex-direction: column;
+    transition: transform 0.25s, box-shadow 0.25s;
+}
+
+.trap-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+}
+
+.trap-card.highlight {
+    border-color: var(--neon-pink);
+    box-shadow: 0 0 20px rgba(255, 42, 133, 0.2);
+}
+
+.trap-icon {
+    font-size: 2.8rem;
+    margin-bottom: 0.75rem;
+}
+
+.trap-card h3 {
+    font-size: 1.2rem;
+    margin-bottom: 0.5rem;
+    color: #fff;
+}
+
+.trap-desc {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    margin-bottom: 1.5rem;
+    flex: 1;
+    line-height: 1.5;
+}
+
+.trap-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-top: 1px solid var(--border-color);
+    padding-top: 1rem;
+}
+
+.trap-price {
+    font-family: var(--font-heading);
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--neon-yellow);
+}
+
+/* Roue du chaos */
+.wheel-box {
+    text-align: center;
+    border: 2px dashed var(--neon-pink);
+    background: linear-gradient(180deg, rgba(255, 42, 133, 0.05) 0%, var(--bg-card) 100%);
+}
+
+.wheel-box h3 {
+    color: var(--neon-pink);
+    font-size: 1.3rem;
+    margin-bottom: 0.5rem;
+}
+
+.wheel-box p {
+    color: var(--text-muted);
+    margin-bottom: 1.5rem;
+}
+
+.chaos-result {
+    margin-top: 1.5rem;
+    background: rgba(0, 0, 0, 0.4);
+    border: 2px solid var(--neon-pink);
+    border-radius: var(--radius-md);
+    padding: 1.5rem;
+    animation: bounceIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes bounceIn {
+    0% { transform: scale(0.85); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+.chaos-result h4 {
+    color: var(--neon-pink);
+    font-size: 1.4rem;
+    margin-bottom: 0.5rem;
+}
+
+.chaos-result p {
+    color: #fff;
+    font-size: 1.05rem;
+    margin-bottom: 0;
+}
+
+/* ==========================================================================
+   ONGLET 5 : TAUNT BOX
+   ========================================================================== */
+
+.taunt-hero {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.taunts-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 1.25rem;
+}
+
+.taunt-btn {
+    background: linear-gradient(180deg, var(--bg-surface) 0%, var(--bg-card) 100%);
+    border: 2px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    padding: 1.5rem 1rem;
+    color: #fff;
+    font-family: var(--font-heading);
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    min-height: 110px;
+}
+
+.taunt-btn:hover {
+    border-color: var(--neon-blue);
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(0, 229, 255, 0.25);
+}
+
+.taunt-btn:active {
+    transform: translateY(2px) scale(0.96);
+    box-shadow: 0 2px 8px rgba(0, 229, 255, 0.4);
+    background: rgba(0, 229, 255, 0.15);
+}
+
+/* ==========================================================================
+   ONGLET 6 : CLASSEMENTS
+   ========================================================================== */
+
+.standings-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.standings-toggle {
+    display: flex;
+    gap: 0.5rem;
+    background: var(--bg-card);
+    padding: 0.3rem;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border-color);
+}
+
+.standings-toggle .btn {
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+}
+
+.standings-toggle .btn.active {
+    background: var(--bg-surface);
+    color: var(--neon-blue);
+    border-radius: var(--radius-sm);
+}
+
+.standings-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1rem;
+}
+
+.standings-table th {
+    text-align: left;
+    padding: 0.85rem 1rem;
+    font-family: var(--font-heading);
+    font-size: 0.85rem;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    border-bottom: 2px solid var(--border-color);
+}
+
+.standings-table td {
+    padding: 1rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    font-size: 0.95rem;
+}
+
+.standings-table tr:hover {
+    background: rgba(255, 255, 255, 0.02);
+}
+
+.rank-cell {
+    font-family: var(--font-heading);
+    font-weight: 800;
+    font-size: 1.1rem;
+    width: 60px;
+}
+
+.rank-cell.top-1 { color: #facc15; }
+.rank-cell.top-2 { color: #e2e8f0; }
+.rank-cell.top-3 { color: #d97706; }
+
+.team-entry, .car-entry {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.team-entry img {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 1px solid var(--border-color);
+}
+
+.pts-cell {
+    font-family: var(--font-heading);
+    font-weight: 800;
+    font-size: 1.15rem;
+    color: var(--neon-blue);
+}
+
+/* ==========================================================================
+   MODAL DE SÉLECTION D'ÉCURIE
+   ========================================================================== */
+
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.85);
+    backdrop-filter: blur(8px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    padding: 1.5rem;
+    animation: fadeIn 0.2s ease-out;
+}
+
+.modal-box {
+    max-width: 900px;
+    width: 100%;
+    max-height: 85vh;
+    overflow-y: auto;
+    border: 2px solid var(--neon-blue);
+}
+
+.modal-box h2 {
+    color: var(--neon-blue);
+    font-size: 1.5rem;
+    margin-bottom: 0.3rem;
+}
+
+.modal-box p {
+    color: var(--text-muted);
+    margin-bottom: 1.5rem;
+}
+
+.teams-pick-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.team-pick-card {
+    background: var(--bg-surface);
+    border: 1.5px solid var(--border-color);
+    border-radius: var(--radius-md);
+    padding: 0.85rem;
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.team-pick-card:hover {
+    border-color: var(--neon-blue);
+    background: var(--bg-card-hover);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0, 229, 255, 0.2);
+}
+
+.team-pick-card.active {
+    border-color: var(--neon-green);
+    background: rgba(16, 185, 129, 0.1);
+}
+
+.team-pick-card img {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 1.5px solid var(--border-color);
+}
+
+.team-pick-card .team-meta strong {
+    display: block;
+    font-size: 0.95rem;
+    font-family: var(--font-heading);
+    color: #fff;
+}
+
+.team-pick-card .team-meta span {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+}
+
+.modal-close {
+    width: 100%;
+}
+
+/* ==========================================================================
+   RESPONSIVE DESIGN (TABLETTES & MOBILES)
+   ========================================================================== */
+
+@media (max-width: 1024px) {
+    .rainbow-lanes-grid,
+    .live-betting-grid,
+    .finish-selectors-row {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    .paddock-slots-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 680px) {
+    .app-header {
+        flex-direction: column;
+        gap: 1rem;
+        padding: 1rem;
+        align-items: stretch;
+    }
+    .header-right {
+        justify-content: space-between;
+    }
+    .rainbow-lanes-grid,
+    .live-betting-grid,
+    .finish-selectors-row,
+    .paddock-slots-grid {
+        grid-template-columns: 1fr;
+    }
+    .stat-row {
+        grid-template-columns: 1fr;
+        gap: 0.3rem;
+    }
+    .stat-row strong {
+        text-align: left;
+    }
+}
+
+/* ==========================================================================
+   PIED DE PAGE & BOUTON COMMISSAIRE (ADMIN 1806)
+   ========================================================================== */
+
+.app-footer {
+    background: rgba(10, 15, 28, 0.92);
+    backdrop-filter: blur(14px);
+    border-top: 1px solid rgba(255, 255, 255, 0.12);
+    padding: 1.25rem 2rem;
+    margin-top: 3rem;
+    position: relative;
+    z-index: 90;
+}
+
+.footer-inner {
+    max-width: 1300px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.footer-brand {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    font-family: var(--font-heading);
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    font-weight: 600;
+}
+
+.footer-flag {
+    font-size: 1.2rem;
+}
+
+.btn-admin-pill {
+    background: linear-gradient(135deg, rgba(239, 68, 68, 0.2), rgba(245, 158, 11, 0.25));
+    border: 1.5px solid #f59e0b;
+    border-radius: var(--radius-full);
+    color: #fef08a;
+    font-family: var(--font-heading);
+    font-size: 0.85rem;
+    font-weight: 800;
+    padding: 0.6rem 1.4rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    transition: all 0.25s ease;
+    box-shadow: 0 0 15px rgba(245, 158, 11, 0.3);
+    letter-spacing: 0.05em;
+}
+
+.btn-admin-pill:hover {
+    background: linear-gradient(135deg, rgba(239, 68, 68, 0.4), rgba(245, 158, 11, 0.45));
+    border-color: #facc15;
+    color: #fff;
+    transform: translateY(-2px);
+    box-shadow: 0 0 25px rgba(245, 158, 11, 0.6);
+}
+
+/* Bouton Flottant Permanent Commissaire (100% visible en bas à droite) */
+.btn-floating-admin {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    z-index: 9999;
+    background: linear-gradient(135deg, #f59e0b, #dc2626);
+    color: #ffffff;
+    border: 2px solid #fde047;
+    border-radius: var(--radius-full);
+    padding: 0.75rem 1.4rem;
+    font-family: var(--font-heading);
+    font-size: 0.85rem;
+    font-weight: 900;
+    letter-spacing: 0.05em;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    box-shadow: 0 4px 25px rgba(245, 158, 11, 0.6), 0 0 15px rgba(0, 0, 0, 0.8);
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    animation: floatingGlow 3s infinite ease-in-out;
+}
+
+@keyframes floatingGlow {
+    0%, 100% {
+        box-shadow: 0 4px 25px rgba(245, 158, 11, 0.6), 0 0 15px rgba(0, 0, 0, 0.8);
+        border-color: #fde047;
+    }
+    50% {
+        box-shadow: 0 6px 35px rgba(239, 68, 68, 0.85), 0 0 25px rgba(253, 224, 71, 0.7);
+        border-color: #ffffff;
+    }
+}
+
+.btn-floating-admin:hover {
+    transform: scale(1.08) translateY(-3px);
+    box-shadow: 0 8px 35px rgba(245, 158, 11, 0.9);
+    background: linear-gradient(135deg, #facc15, #ef4444);
+    color: #000;
+}
+
+.floating-admin-icon {
+    font-size: 1.15rem;
+}
+
+.floating-admin-text {
+    font-weight: 900;
+    letter-spacing: 0.06em;
+}
+
+/* ==========================================================================
+   MODAL COMMISSAIRE DE COURSE (ADMINISTRATION)
+   ========================================================================== */
+
+.admin-modal-box {
+    max-width: 900px;
+    width: 95%;
+    max-height: 90vh;
+    overflow-y: auto;
+    border: 2px solid #f59e0b;
+    box-shadow: 0 0 45px rgba(245, 158, 11, 0.5), inset 0 0 25px rgba(0, 0, 0, 0.8);
+    background: rgba(12, 18, 32, 0.98);
+}
+
+/* Écran de verrouillage PIN */
+.admin-lock-screen {
+    text-align: center;
+    padding: 1.5rem 0.5rem;
+}
+
+.admin-huge-icon {
+    font-size: 3.5rem;
+    display: inline-block;
+    margin-bottom: 0.5rem;
+    animation: lockPulse 2s infinite ease-in-out;
+}
+
+@keyframes lockPulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.1); filter: drop-shadow(0 0 15px #f59e0b); }
+}
+
+.admin-lock-header h2 {
+    color: #facc15;
+    font-size: 1.5rem;
+    margin-bottom: 0.4rem;
+}
+
+.admin-lock-header p {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    max-width: 500px;
+    margin: 0 auto 1.5rem auto;
+}
+
+.admin-pin-group {
+    max-width: 320px;
+    margin: 0 auto 1.5rem auto;
+}
+
+.admin-pin-group label {
+    display: block;
+    font-family: var(--font-heading);
+    font-size: 0.8rem;
+    color: #94a3b8;
+    margin-bottom: 0.5rem;
+    font-weight: 700;
+}
+
+.admin-pin-row {
+    display: flex;
+    gap: 0.5rem;
+}
+
+#admin-pin-input {
+    background: #000;
+    color: #facc15;
+    border: 2px solid #f59e0b;
+    border-radius: var(--radius-md);
+    font-family: var(--font-heading);
+    font-size: 1.8rem;
+    font-weight: 900;
+    text-align: center;
+    letter-spacing: 0.35em;
+    padding: 0.4rem 0.75rem;
+    width: 140px;
+    outline: none;
+    transition: all 0.2s;
+}
+
+#admin-pin-input:focus {
+    box-shadow: 0 0 20px rgba(245, 158, 11, 0.6);
+    border-color: #facc15;
+}
+
+.admin-pin-error {
+    color: #ef4444;
+    font-weight: 800;
+    font-size: 0.85rem;
+    margin-top: 0.6rem;
+    font-family: var(--font-heading);
+}
+
+.admin-pin-error.shake {
+    animation: shakeErr 0.35s ease;
+}
+
+@keyframes shakeErr {
+    0%, 100% { transform: translateX(0); }
+    20%, 60% { transform: translateX(-8px); }
+    40%, 80% { transform: translateX(8px); }
+}
+
+.admin-keypad {
+    display: grid;
+    grid-template-columns: repeat(3, 70px);
+    gap: 0.65rem;
+    justify-content: center;
+    margin: 0 auto 1.5rem auto;
+}
+
+.keypad-btn {
+    background: rgba(30, 41, 59, 0.85);
+    border: 1.5px solid rgba(255, 255, 255, 0.15);
+    color: #fff;
+    font-family: var(--font-heading);
+    font-size: 1.3rem;
+    font-weight: 800;
+    height: 52px;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    user-select: none;
+}
+
+.keypad-btn:hover {
+    background: rgba(245, 158, 11, 0.25);
+    border-color: #f59e0b;
+    color: #fef08a;
+    transform: scale(1.05);
+}
+
+.keypad-btn:active {
+    transform: scale(0.95);
+}
+
+/* Tableau de bord déverrouillé */
+.admin-dashboard-screen {
+    animation: fadeIn 0.3s ease;
+}
+
+.admin-dash-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid rgba(245, 158, 11, 0.3);
+}
+
+.admin-status-badge {
+    background: rgba(34, 197, 94, 0.2);
+    border: 1px solid #22c55e;
+    color: #4ade80;
+    font-size: 0.75rem;
+    font-weight: 800;
+    padding: 0.2rem 0.65rem;
+    border-radius: var(--radius-full);
+    display: inline-block;
+    margin-bottom: 0.35rem;
+    font-family: var(--font-heading);
+}
+
+.admin-dash-title h2 {
+    color: #fff;
+    font-size: 1.4rem;
+    margin: 0;
+}
+
+.admin-sections-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.25rem;
+}
+
+.admin-card {
+    background: rgba(18, 25, 41, 0.85);
+    border: 1.5px solid rgba(255, 255, 255, 0.1);
+    border-radius: var(--radius-md);
+    padding: 1.25rem;
+}
+
+.admin-card.full-width {
+    grid-column: span 2;
+}
+
+.admin-card h3 {
+    font-size: 1.1rem;
+    color: #facc15;
+    margin-bottom: 0.35rem;
+}
+
+.admin-card-desc {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    margin-bottom: 1rem;
+}
+
+.admin-buttons-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 0.75rem;
+}
+
+.admin-score-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.admin-teams-table-wrap {
+    max-height: 380px;
+    overflow-y: auto;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: var(--radius-sm);
+}
+
+.admin-teams-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.85rem;
+}
+
+.admin-teams-table th {
+    background: rgba(30, 41, 59, 0.95);
+    color: #94a3b8;
+    font-family: var(--font-heading);
+    padding: 0.75rem 0.85rem;
+    text-align: left;
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.admin-teams-table td {
+    padding: 0.65rem 0.85rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    vertical-align: middle;
+}
+
+.admin-teams-table tr:hover {
+    background: rgba(255, 255, 255, 0.04);
+}
+
+.admin-team-cell {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+}
+
+.admin-team-logo {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.admin-driver-name {
+    color: var(--text-muted);
+    font-size: 0.8rem;
+}
+
+.admin-pts-input {
+    width: 70px;
+    background: #000;
+    color: #facc15;
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    border-radius: 4px;
+    padding: 0.35rem 0.5rem;
+    font-family: var(--font-heading);
+    font-size: 0.95rem;
+    font-weight: 800;
+    text-align: center;
+    outline: none;
+}
+
+.admin-pts-input:focus {
+    border-color: #f59e0b;
+    box-shadow: 0 0 10px rgba(245, 158, 11, 0.5);
+}
+
+.admin-quick-pts {
+    display: flex;
+    gap: 0.3rem;
+}
+
+.admin-quick-pts .btn {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.75rem;
+}
+
+.admin-coins-val {
+    font-weight: 800;
+    color: #fef08a;
+    font-family: var(--font-heading);
+}
+
+@media (max-width: 768px) {
+    .admin-sections-grid {
+        grid-template-columns: 1fr;
+    }
+    .admin-card.full-width {
+        grid-column: span 1;
+    }
+}
+
+/* ==========================================================================
+   TROPHÉES, BARÈME DE POINTS & CÉRÉMONIE FINALE
+   ========================================================================== */
+
+.btn-ceremony-pulse {
+    background: linear-gradient(135deg, #f59e0b, #ef4444);
+    color: #fff !important;
+    border: 1.5px solid #fde047;
+    font-weight: 900;
+    box-shadow: 0 0 15px rgba(245, 158, 11, 0.5);
+    animation: ceremonyPulse 2s infinite ease-in-out;
+}
+
+@keyframes ceremonyPulse {
+    0%, 100% {
+        transform: scale(1);
+        box-shadow: 0 0 15px rgba(245, 158, 11, 0.5);
+    }
+    50% {
+        transform: scale(1.05);
+        box-shadow: 0 0 25px rgba(239, 68, 68, 0.8), 0 0 10px #facc15;
+    }
+}
+
+.panel-header-flex {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.panel-sub-tag {
+    font-size: 0.8rem;
+    color: #facc15;
+    background: rgba(245, 158, 11, 0.15);
+    border: 1px solid rgba(245, 158, 11, 0.4);
+    padding: 0.2rem 0.6rem;
+    border-radius: var(--radius-full);
+    font-family: var(--font-heading);
+}
+
+/* En-tête des Trophées */
+.trophies-header-banner {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+    background: linear-gradient(135deg, rgba(30, 41, 59, 0.9), rgba(15, 23, 42, 0.95));
+    border: 2px solid rgba(245, 158, 11, 0.4);
+    border-radius: var(--radius-md);
+    padding: 1.25rem 1.5rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+}
+
+.trophies-header-banner h3 {
+    color: #facc15;
+    font-size: 1.3rem;
+    margin-bottom: 0.35rem;
+}
+
+.trophies-desc {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    max-width: 650px;
+}
+
+/* Grille des 6 Trophées */
+.trophies-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
+    gap: 1.25rem;
+}
+
+.trophy-card {
+    background: rgba(18, 25, 41, 0.85);
+    border-radius: var(--radius-md);
+    padding: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.25s ease;
+    border: 2px solid rgba(255, 255, 255, 0.1);
+}
+
+.trophy-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+}
+
+.trophy-card.gold-theme {
+    border-color: #f59e0b;
+    box-shadow: inset 0 0 20px rgba(245, 158, 11, 0.15), 0 0 20px rgba(245, 158, 11, 0.2);
+}
+
+.trophy-card.silver-theme {
+    border-color: #38bdf8;
+    box-shadow: inset 0 0 20px rgba(56, 189, 248, 0.15);
+}
+
+.trophy-card.emerald-theme {
+    border-color: #10b981;
+    box-shadow: inset 0 0 20px rgba(16, 185, 129, 0.15);
+}
+
+.trophy-card.purple-theme {
+    border-color: #a855f7;
+    box-shadow: inset 0 0 20px rgba(168, 85, 247, 0.15);
+}
+
+.trophy-card.bronze-theme {
+    border-color: #f97316;
+    box-shadow: inset 0 0 20px rgba(249, 115, 22, 0.15);
+}
+
+.trophy-card.blue-theme {
+    border-color: #3b82f6;
+    box-shadow: inset 0 0 20px rgba(59, 130, 246, 0.15);
+}
+
+.trophy-badge {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    font-size: 1.8rem;
+    filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.5));
+}
+
+.trophy-card h4 {
+    font-size: 1.1rem;
+    color: #fff;
+    margin-bottom: 0.35rem;
+    padding-right: 40px;
+}
+
+.trophy-rule-desc {
+    color: var(--text-muted);
+    font-size: 0.82rem;
+    margin-bottom: 1rem;
+    line-height: 1.4;
+}
+
+.trophy-winner-box {
+    background: rgba(0, 0, 0, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: var(--radius-sm);
+    padding: 0.75rem;
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+}
+
+.trophy-winner-logo {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #facc15;
+}
+
+.trophy-winner-details strong {
+    display: block;
+    color: #fef08a;
+    font-size: 0.95rem;
+}
+
+.trophy-winner-sub {
+    font-size: 0.8rem;
+    color: #94a3b8;
+}
+
+.trophy-stat-pill {
+    display: inline-block;
+    margin-top: 0.3rem;
+    background: rgba(245, 158, 11, 0.2);
+    border: 1px solid #f59e0b;
+    color: #fde047;
+    font-size: 0.75rem;
+    font-weight: 800;
+    padding: 0.15rem 0.5rem;
+    border-radius: var(--radius-full);
+}
+
+/* Panneau du Barème de Points */
+.points-rule-header {
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.points-rule-header h3 {
+    color: #facc15;
+    font-size: 1.3rem;
+    margin-bottom: 0.35rem;
+}
+
+.points-rule-header p {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+}
+
+.points-rules-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.25rem;
+}
+
+.rule-card {
+    padding: 1.25rem;
+    border-radius: var(--radius-md);
+    background: rgba(18, 25, 41, 0.85);
+    border: 1.5px solid rgba(255, 255, 255, 0.12);
+}
+
+.rule-card.highlight-blue { border-color: rgba(56, 189, 248, 0.6); }
+.rule-card.highlight-gold { border-color: rgba(245, 158, 11, 0.6); }
+.rule-card.highlight-emerald { border-color: rgba(16, 185, 129, 0.6); }
+.rule-card.highlight-purple { border-color: rgba(168, 85, 247, 0.6); }
+
+.rule-card-icon {
+    font-size: 2.2rem;
+    margin-bottom: 0.5rem;
+}
+
+.rule-card h4 {
+    font-size: 1.05rem;
+    color: #fff;
+    margin-bottom: 0.6rem;
+}
+
+.rule-card p {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    line-height: 1.45;
+}
+
+.points-scale-list {
+    list-style: none;
+    padding: 0;
+    margin: 0.85rem 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+}
+
+.points-scale-list li {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(0, 0, 0, 0.4);
+    padding: 0.4rem 0.65rem;
+    border-radius: 6px;
+    font-size: 0.85rem;
+}
+
+.scale-pos.p1 { color: #fde047; font-weight: 800; }
+.scale-pos.p2 { color: #cbd5e1; font-weight: 800; }
+.scale-pos.p3 { color: #f97316; font-weight: 800; }
+.scale-pos.p4 { color: #94a3b8; font-weight: 700; }
+
+.scale-pts {
+    font-family: var(--font-heading);
+    color: #4ade80;
+    font-size: 0.95rem;
+}
+
+.rule-badge-note {
+    font-size: 0.75rem;
+    color: #38bdf8;
+    background: rgba(56, 189, 248, 0.12);
+    border: 1px solid rgba(56, 189, 248, 0.3);
+    padding: 0.35rem 0.55rem;
+    border-radius: 4px;
+    margin-top: 0.6rem;
+}
+
+.rule-calc-box {
+    background: rgba(0, 0, 0, 0.6);
+    border: 1px dashed #f59e0b;
+    padding: 0.65rem;
+    border-radius: 6px;
+    color: #fef08a;
+    font-size: 0.82rem;
+    margin: 0.8rem 0;
+    text-align: center;
+}
+
+.points-bullet-list {
+    margin: 0.75rem 0 0 1.25rem;
+    padding: 0;
+    font-size: 0.82rem;
+    color: var(--text-muted);
+    display: flex;
+    flex-direction: column;
+    gap: 0.45rem;
+}
+
+.points-bullet-list strong {
+    color: #fff;
+}
+
+/* ==========================================================================
+   MODAL DE CÉRÉMONIE FINALE & PODIUM
+   ========================================================================== */
+
+.ceremony-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.92);
+    backdrop-filter: blur(12px);
+    z-index: 10000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow-y: auto;
+    padding: 1.5rem;
+}
+
+.ceremony-confetti-canvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    pointer-events: none;
+    z-index: 10001;
+}
+
+.ceremony-modal-box {
+    position: relative;
+    z-index: 10002;
+    max-width: 950px;
+    width: 96%;
+    max-height: 92vh;
+    overflow-y: auto;
+    background: linear-gradient(135deg, rgba(15, 23, 42, 0.98), rgba(2, 6, 23, 0.98));
+    border: 2px solid #facc15;
+    box-shadow: 0 0 60px rgba(245, 158, 11, 0.6), inset 0 0 35px rgba(0, 0, 0, 0.9);
+    border-radius: var(--radius-lg);
+    padding: 2rem;
+    text-align: center;
+    animation: zoomPodium 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes zoomPodium {
+    0% { transform: scale(0.85); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+.ceremony-header {
+    margin-bottom: 2rem;
+}
+
+.ceremony-trophy-spin {
+    font-size: 3.8rem;
+    display: inline-block;
+    animation: trophySpin 3s infinite ease-in-out;
+}
+
+@keyframes trophySpin {
+    0%, 100% { transform: translateY(0) rotate(0deg); }
+    50% { transform: translateY(-8px) rotate(8deg); filter: drop-shadow(0 0 25px #facc15); }
+}
+
+.ceremony-header h2 {
+    color: #facc15;
+    font-size: 1.6rem;
+    margin: 0.5rem 0 0.25rem 0;
+    letter-spacing: 0.05em;
+}
+
+.ceremony-header p {
+    color: var(--text-muted);
+    font-size: 0.95rem;
+}
+
+/* Scène du Podium 3 Piliers */
+.podium-stage-container {
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+    gap: 1.5rem;
+    margin: 2rem auto;
+    max-width: 720px;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+}
+
+.podium-step {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.podium-crown-icon {
+    font-size: 2.2rem;
+    animation: crownFloat 2s infinite ease-in-out;
+    margin-bottom: -5px;
+}
+
+@keyframes crownFloat {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-6px); }
+}
+
+.podium-driver-card {
+    background: rgba(30, 41, 59, 0.9);
+    border: 1.5px solid rgba(255, 255, 255, 0.15);
+    border-radius: var(--radius-md);
+    padding: 1rem 0.75rem;
+    width: 100%;
+    margin-bottom: 0.75rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+    transition: all 0.3s;
+}
+
+.podium-driver-card.card-gold {
+    background: linear-gradient(135deg, rgba(30, 41, 59, 0.95), rgba(80, 50, 10, 0.95));
+    border: 2px solid #facc15;
+    box-shadow: 0 0 25px rgba(245, 158, 11, 0.5);
+    transform: scale(1.05);
+}
+
+.podium-badge {
+    font-size: 0.75rem;
+    font-weight: 800;
+    padding: 0.2rem 0.5rem;
+    border-radius: var(--radius-full);
+    margin-bottom: 0.5rem;
+    font-family: var(--font-heading);
+}
+
+.medal-gold { background: #facc15; color: #000; }
+.medal-silver { background: #cbd5e1; color: #000; }
+.medal-bronze { background: #f97316; color: #fff; }
+
+.podium-avatar {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-bottom: 0.5rem;
+    border: 2px solid #fff;
+}
+
+.avatar-gold {
+    width: 76px;
+    height: 76px;
+    border: 3px solid #fde047;
+    box-shadow: 0 0 15px #facc15;
+}
+
+.podium-driver-card h4 {
+    font-size: 0.95rem;
+    margin: 0;
+    color: #fff;
+}
+
+.podium-pilot {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    margin-top: 0.15rem;
+}
+
+.podium-pts {
+    font-size: 1rem;
+    color: #38bdf8;
+    margin-top: 0.35rem;
+    font-family: var(--font-heading);
+}
+
+.pts-gold {
+    color: #facc15;
+    font-size: 1.2rem;
+}
+
+/* Piliers du podium */
+.podium-pillar {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 8px 8px 0 0;
+    box-shadow: inset 0 0 15px rgba(0, 0, 0, 0.6);
+    font-family: var(--font-heading);
+    font-size: 2rem;
+    font-weight: 900;
+}
+
+.pillar-gold {
+    height: 160px;
+    background: linear-gradient(180deg, #facc15, #b45309);
+    color: #000;
+    border: 2px solid #fef08a;
+    border-bottom: none;
+}
+
+.pillar-silver {
+    height: 110px;
+    background: linear-gradient(180deg, #cbd5e1, #475569);
+    color: #000;
+    border: 2px solid #e2e8f0;
+    border-bottom: none;
+}
+
+.pillar-bronze {
+    height: 75px;
+    background: linear-gradient(180deg, #ea580c, #7c2d12);
+    color: #fff;
+    border: 2px solid #fb923c;
+    border-bottom: none;
+}
+
+.pillar-rank {
+    filter: drop-shadow(0 2px 5px rgba(0, 0, 0, 0.5));
+}
+
+/* Récompenses d'honneur de la cérémonie */
+.ceremony-awards-section {
+    text-align: left;
+    margin-top: 1.5rem;
+}
+
+.ceremony-awards-section h3 {
+    text-align: center;
+    color: #facc15;
+    font-size: 1.15rem;
+    margin-bottom: 1rem;
+}
+
+.ceremony-awards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 1rem;
+}
+
+.ceremony-award-item {
+    background: rgba(18, 25, 41, 0.9);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: var(--radius-sm);
+    padding: 0.85rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.ceremony-award-icon {
+    font-size: 2rem;
+}
+
+.ceremony-award-info strong {
+    display: block;
+    color: #fef08a;
+    font-size: 0.9rem;
+}
+
+.ceremony-award-winner {
+    color: #fff;
+    font-weight: 700;
+    font-size: 0.85rem;
+}
+
+.ceremony-award-detail {
+    color: var(--text-muted);
+    font-size: 0.78rem;
+}
+
+.ceremony-footer-actions {
+    margin-top: 2rem;
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+}
+
+@media (max-width: 650px) {
+    .podium-stage-container {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    .podium-pillar {
+        height: 40px !important;
+        font-size: 1.2rem;
+    }
+    .podium-step.step-1 {
+        order: -1;
+    }
+}
+
+/* ==========================================================================
+   TROPHÉES "PLOT TWIST" (SURPRISES, MEMES & COUPS DE THÉÂTRE)
+   ========================================================================== */
+
+.plot-twist-banner {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+    background: linear-gradient(135deg, rgba(153, 27, 27, 0.85), rgba(88, 28, 135, 0.9));
+    border: 2px solid #ef4444;
+    border-radius: var(--radius-md);
+    padding: 1.2rem 1.5rem;
+    margin: 1.5rem 0 1rem 0;
+    box-shadow: 0 0 30px rgba(239, 68, 68, 0.4), inset 0 0 20px rgba(0, 0, 0, 0.5);
+    animation: plotTwistPulse 3s infinite ease-in-out;
+}
+
+@keyframes plotTwistPulse {
+    0%, 100% {
+        border-color: #ef4444;
+        box-shadow: 0 0 25px rgba(239, 68, 68, 0.4);
+    }
+    50% {
+        border-color: #facc15;
+        box-shadow: 0 0 40px rgba(245, 158, 11, 0.7), 0 0 15px rgba(239, 68, 68, 0.8);
+    }
+}
+
+.plot-twist-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    text-align: left;
+}
+
+.plot-twist-icon {
+    font-size: 2.4rem;
+    animation: sirenWobble 1s infinite alternate;
+}
+
+@keyframes sirenWobble {
+    0% { transform: scale(1) rotate(-10deg); }
+    100% { transform: scale(1.15) rotate(10deg); filter: drop-shadow(0 0 12px #ef4444); }
+}
+
+.plot-twist-header h4 {
+    margin: 0;
+    color: #fef08a;
+    font-size: 1.15rem;
+    letter-spacing: 0.04em;
+}
+
+.plot-twist-header p {
+    margin: 0.2rem 0 0 0;
+    color: #fecaca;
+    font-size: 0.85rem;
+}
+
+.plot-twist-tag {
+    display: inline-block;
+    font-size: 0.75rem;
+    font-weight: 800;
+    color: #f87171;
+    background: rgba(0, 0, 0, 0.4);
+    padding: 0.2rem 0.55rem;
+    border-radius: var(--radius-full);
+    border: 1px solid rgba(248, 113, 113, 0.4);
+    margin-bottom: 0.35rem;
+}
+
+.btn-plot-twist {
+    background: linear-gradient(135deg, #ef4444, #9333ea);
+    color: #ffffff !important;
+    border: 2px solid #fde047;
+    font-weight: 900;
+    letter-spacing: 0.05em;
+    padding: 0.65rem 1.25rem;
+    border-radius: var(--radius-full);
+    cursor: pointer;
+    box-shadow: 0 4px 20px rgba(239, 68, 68, 0.6);
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.btn-plot-twist:hover {
+    transform: scale(1.08) translateY(-2px);
+    box-shadow: 0 6px 30px rgba(245, 158, 11, 0.8), 0 0 15px rgba(239, 68, 68, 0.9);
+    background: linear-gradient(135deg, #f59e0b, #ef4444);
+    color: #000 !important;
+}
+
+.plot-twist-cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.25rem;
+}
+
+.plot-twist-card {
+    background: linear-gradient(135deg, rgba(24, 15, 38, 0.95), rgba(12, 18, 32, 0.95));
+    border: 2px solid #c084fc;
+    border-radius: var(--radius-md);
+    padding: 1.25rem;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    box-shadow: 0 4px 25px rgba(192, 132, 252, 0.25);
+    animation: plotTwistCardPop 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+    transition: all 0.25s ease;
+}
+
+@keyframes plotTwistCardPop {
+    0% { transform: scale(0.7) translateY(20px); opacity: 0; }
+    50% { transform: scale(1.05) translateY(-5px); }
+    100% { transform: scale(1) translateY(0); opacity: 1; }
+}
+
+.plot-twist-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 35px rgba(192, 132, 252, 0.45);
+    border-color: #facc15;
+}
+
+.plot-twist-card-badge {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: rgba(168, 85, 247, 0.25);
+    border: 1px solid #c084fc;
+    color: #f3e8ff;
+    font-size: 0.72rem;
+    font-weight: 800;
+    padding: 0.15rem 0.5rem;
+    border-radius: var(--radius-full);
+}
+
+.plot-twist-icon-large {
+    font-size: 2.8rem;
+    margin-bottom: 0.35rem;
+    display: inline-block;
+    filter: drop-shadow(0 0 10px rgba(250, 204, 21, 0.6));
+}
+
+.plot-twist-card h4 {
+    color: #facc15;
+    font-size: 1.15rem;
+    margin: 0.25rem 0 0.4rem 0;
+}
+
+.plot-twist-quote {
+    background: rgba(0, 0, 0, 0.4);
+    border-left: 3px solid #ef4444;
+    padding: 0.4rem 0.6rem;
+    font-style: italic;
+    font-size: 0.8rem;
+    color: #e2e8f0;
+    margin: 0.4rem 0 0.85rem 0;
+    border-radius: 0 4px 4px 0;
+}
+
+.plot-twist-desc {
+    color: var(--text-muted);
+    font-size: 0.82rem;
+    line-height: 1.4;
+    margin-bottom: 1rem;
+}
+
+.plot-twist-winner {
+    background: rgba(0, 0, 0, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: var(--radius-sm);
+    padding: 0.65rem 0.85rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.plot-twist-winner-logo {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #ef4444;
+}
+
+.plot-twist-winner-info strong {
+    display: block;
+    color: #fff;
+    font-size: 0.95rem;
+}
+
+.plot-twist-winner-info span {
+    color: #cbd5e1;
+    font-size: 0.8rem;
+}
+
+/* Bandeau d'aide élégant en protocole file:// */
+.file-protocol-banner {
+    position: fixed;
+    top: 15px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 99999;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 12px 24px;
+    background: rgba(15, 23, 42, 0.95);
+    border: 1px solid rgba(245, 158, 11, 0.6);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7), 0 0 20px rgba(245, 158, 11, 0.25);
+    backdrop-filter: blur(16px);
+    border-radius: 50px;
+    color: #fff;
+    font-family: var(--font-body);
+    font-size: 0.9rem;
+    max-width: 90vw;
+    animation: slideDownBanner 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes slideDownBanner {
+    from { opacity: 0; transform: translate(-50%, -30px); }
+    to { opacity: 1; transform: translate(-50%, 0); }
+}
+
+.file-protocol-banner .banner-icon {
+    font-size: 1.5rem;
+    animation: pulseIcon 1.5s infinite alternate;
+}
+
+@keyframes pulseIcon {
+    from { transform: scale(1); }
+    to { transform: scale(1.18); }
+}
+
+.file-protocol-banner .banner-text {
+    line-height: 1.35;
+}
+
+.file-protocol-banner .banner-text strong {
+    color: #f59e0b;
+    font-weight: 700;
+}
+
+.file-protocol-banner .banner-btn-close {
+    background: rgba(255, 255, 255, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: #fff;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.file-protocol-banner .banner-btn-close:hover {
+    background: #f59e0b;
+    color: #000;
+    border-color: #f59e0b;
+}
+
+/* ==========================================================================
+   BOUTON MOBILE & MODALE QR CODE WI-FI
+   ========================================================================== */
+.mobile-connect-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.25), rgba(6, 95, 70, 0.35));
+    border: 1px solid rgba(16, 185, 129, 0.6);
+    color: #6ee7b7;
+    font-family: var(--font-heading);
+    font-size: 0.85rem;
+    font-weight: 700;
+    padding: 0.45rem 0.85rem;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: all 0.25s ease;
+}
+
+.mobile-connect-btn:hover {
+    background: rgba(16, 185, 129, 0.45);
+    border-color: #10b981;
+    box-shadow: 0 0 15px rgba(16, 185, 129, 0.5);
+    transform: translateY(-1px);
+}
+
+.mobile-modal-box {
+    max-width: 480px;
+    width: 92%;
+    text-align: center;
+    background: rgba(13, 19, 33, 0.98);
+    border: 2px solid var(--neon-blue);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.9), 0 0 30px rgba(0, 229, 255, 0.25);
+    padding: 1.5rem;
+}
+
+.modal-header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding-bottom: 0.75rem;
+}
+
+.modal-header-row h2 {
+    font-size: 1.25rem;
+    color: #fff;
+    margin: 0;
+}
+
+.mob-connect-desc {
+    font-size: 0.9rem;
+    color: #cbd5e1;
+    margin-bottom: 1.25rem;
+    line-height: 1.4;
+}
+
+.qr-code-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+}
+
+.qr-code-box {
+    width: 210px;
+    height: 210px;
+    background: #ffffff;
+    padding: 12px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.6);
+    border: 3px solid #38bdf8;
+}
+
+.qr-img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    border-radius: 4px;
+}
+
+.qr-instruction {
+    font-size: 0.85rem;
+    color: #38bdf8;
+    font-weight: 600;
+}
+
+.direct-link-box {
+    background: rgba(0, 0, 0, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: var(--radius-sm);
+    padding: 0.85rem;
+    margin-bottom: 1.25rem;
+    text-align: left;
+}
+
+.direct-link-label {
+    display: block;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+}
+
+.direct-link-input-group {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.direct-link-input-group input {
+    flex: 1;
+    background: var(--bg-dark);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #38bdf8;
+    font-family: monospace;
+    font-size: 0.95rem;
+    font-weight: bold;
+    padding: 0.5rem 0.75rem;
+    border-radius: var(--radius-sm);
+    outline: none;
+}
+
+.mob-modal-actions {
+    margin-top: 1rem;
+}
+
+/* ==========================================================================
+   TABLEAU DE BORD ÉCURIE MOBILE DÉDIÉ (VUE UTILITAIRE)
+   ========================================================================== */
+.mobile-team-summary-card {
+    display: none; /* Révélé en portrait / smartphone */
+    background: linear-gradient(135deg, rgba(30, 41, 59, 0.95), rgba(15, 23, 42, 0.98));
+    border: 2px solid var(--neon-blue);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5), 0 0 20px rgba(0, 229, 255, 0.15);
+    margin-bottom: 1.25rem;
+    padding: 1rem;
+    border-radius: var(--radius-md);
+}
+
+.mob-team-header {
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+    margin-bottom: 0.85rem;
+}
+
+.mob-team-avatar {
+    width: 54px;
+    height: 54px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid var(--neon-blue);
+    box-shadow: 0 0 10px rgba(0, 229, 255, 0.4);
+    flex-shrink: 0;
+}
+
+.mob-team-details {
+    flex: 1;
+    min-width: 0;
+}
+
+.mob-team-subtitle {
+    display: block;
+    font-size: 0.68rem;
+    letter-spacing: 0.08em;
+    color: var(--neon-blue);
+    font-weight: 700;
+}
+
+.mob-team-details h2 {
+    font-size: 1.15rem;
+    color: #fff;
+    margin: 0.1rem 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.mob-team-pilot {
+    font-size: 0.8rem;
+    color: #cbd5e1;
+}
+
+.mob-team-stats-strip {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0.5rem;
+    background: rgba(0, 0, 0, 0.35);
+    border-radius: var(--radius-sm);
+    padding: 0.6rem 0.4rem;
+    text-align: center;
+}
+
+.mob-stat-box {
+    display: flex;
+    flex-direction: column;
+}
+
+.mob-stat-val {
+    font-family: var(--font-heading);
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: #facc15;
+}
+
+.mob-stat-lbl {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+}
+
+/* ==========================================================================
+   BARRE DE NAVIGATION TACTILE MOBILE (BOTTOM NAV)
+   ========================================================================== */
+.mobile-bottom-nav {
+    display: none; /* Masqué sur écran TV et PC grand format */
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100vw;
+    background: rgba(10, 15, 28, 0.98);
+    border-top: 1px solid rgba(0, 229, 255, 0.35);
+    box-shadow: 0 -8px 30px rgba(0, 0, 0, 0.85);
+    backdrop-filter: blur(10px);
+    z-index: 9999;
+    justify-content: space-around;
+    align-items: center;
+    padding: 0.4rem 0.2rem calc(env(safe-area-inset-bottom, 0px) + 0.45rem) 0.2rem;
+}
+
+.mobile-nav-btn {
+    flex: 1;
+    background: none;
+    border: none;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    color: #94a3b8;
+    padding: 0.4rem 0;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-family: var(--font-body);
+    touch-action: manipulation;
+    min-height: 48px;
+}
+
+.mobile-nav-btn .mob-nav-icon {
+    font-size: 1.35rem;
+    transition: transform 0.2s ease;
+}
+
+.mobile-nav-btn .mob-nav-label {
+    font-size: 0.68rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+}
+
+.mobile-nav-btn.active {
+    color: #38bdf8;
+}
+
+.mobile-nav-btn.active .mob-nav-icon {
+    transform: scale(1.15);
+    filter: drop-shadow(0 0 8px rgba(56, 189, 248, 0.7));
+}
+
+/* ==========================================================================
+   RESPONSIVE DESIGN : MODE PORTRAIT SMARTPHONE & PAYSAGE TV / PC
+   ========================================================================== */
+
+/* 1. RÈGLES APPLIQUÉES EN MODE PORTRAIT OU SUR SMARTPHONE (< 860px) OU EN MODE SIMULATION */
+@media (orientation: portrait), (max-width: 860px) {
+    /* Optimisation Batterie & Fluidité : Cacher la vidéo lourde sur smartphone */
+    .bg-video-wrapper {
+        opacity: 0 !important;
+        pointer-events: none !important;
+        visibility: hidden !important;
+    }
+
+    /* Le fond animé Canvas/Néon prend le relais avec fluidité 60 FPS */
+    .bg-dynamic-layer {
+        background: radial-gradient(circle at 50% 30%, #151d38 0%, #060913 100%) !important;
+    }
+
+    /* Activation de la barre de navigation tactile du bas */
+    .mobile-bottom-nav {
+        display: flex !important;
+    }
+
+    /* Affichage du résumé d'écurie utilitaire */
+    .mobile-team-summary-card {
+        display: block !important;
+    }
+
+    /* Masquage de la barre d'onglets de bureau */
+    .nav-bar {
+        display: none !important;
+    }
+
+    /* Masquer le gros bouton d'administration flottant en bas pour laisser la place à la Bottom Nav */
+    .btn-floating-admin {
+        display: none !important;
+    }
+
+    /* Adapter l'en-tête pour smartphone */
+    .app-header {
+        padding: 0.6rem 0.85rem;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0.5rem;
+    }
+
+    .header-left {
+        justify-content: center;
+        text-align: center;
+    }
+
+    .header-left h1 {
+        font-size: 1.25rem;
+    }
+
+    .header-left .subtitle {
+        font-size: 0.72rem;
+    }
+
+    .header-right {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 0.4rem;
+    }
+
+    /* Masquer les boutons secondaires sur smartphone dans le header pour aérer */
+    #btn-toggle-fg-fx,
+    #btn-open-video-studio,
+    #btn-toggle-video {
+        display: none !important;
+    }
+
+    .profile-card {
+        padding: 0.35rem 0.65rem;
+        max-width: 170px;
+    }
+
+    .wallet-badge {
+        padding: 0.35rem 0.65rem;
+    }
+
+    /* Espace en bas pour ne pas masquer le contenu sous la Bottom Nav */
+    .main-container {
+        padding: 1rem 0.75rem 95px 0.75rem;
+    }
+
+    /* Grille des 4 voies de course en mode portrait : 1 ou 2 colonnes */
+    .rainbow-lanes-grid {
+        grid-template-columns: 1fr !important;
+        gap: 0.75rem;
+    }
+
+    /* Paddock des 6 bolides : 2 colonnes adaptées au tactile */
+    .paddock-slots-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 0.65rem;
+    }
+
+    /* Grille des paris : 1 colonne verticale rapide */
+    .betting-grid {
+        grid-template-columns: 1fr !important;
+        gap: 0.85rem;
+    }
+
+    /* Grille de la boutique des pièges : 1 colonne compacte */
+    .shop-grid {
+        grid-template-columns: 1fr !important;
+        gap: 0.85rem;
+    }
+
+    /* Cibles tactiles faciles (boutons min 46px) */
+    .btn {
+        min-height: 46px;
+        font-size: 0.95rem;
+    }
+
+    /* Barre de commandes de course en colonne */
+    .race-controls-bar {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .finish-selectors-row {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 0.5rem;
+    }
+}
+
+/* 2. MODE SIMULATION SMARTPHONE ACTIVABLE SUR PC */
+body.force-mobile-view {
+    max-width: 480px !important;
+    margin: 0 auto !important;
+    box-shadow: 0 0 50px rgba(0, 0, 0, 0.9), 0 0 30px rgba(0, 229, 255, 0.3);
+    border-left: 2px solid rgba(0, 229, 255, 0.4);
+    border-right: 2px solid rgba(0, 229, 255, 0.4);
+}
+
+body.force-mobile-view .bg-video-wrapper {
+    display: none !important;
+}
+
+body.force-mobile-view .mobile-bottom-nav {
+    display: flex !important;
+    max-width: 480px !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+}
+
+body.force-mobile-view .mobile-team-summary-card {
+    display: block !important;
+}
+
+body.force-mobile-view .nav-bar {
+    display: none !important;
+}
+
+body.force-mobile-view .main-container {
+    padding-bottom: 95px !important;
+}
+
+
+
+
