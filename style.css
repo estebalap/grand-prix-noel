@@ -5140,6 +5140,170 @@ body[data-mode="relic_cup"] .nav-btn.active {
     }
 }
 
+/* ==========================================================================
+   THÈMES PERSONNALISÉS PAR ÉCURIE (COULEURS, NÉONS ET AMBIANCES)
+   ========================================================================== */
+
+:root {
+    --team-primary: #00e5ff;
+    --team-secondary: #ff2a85;
+    --team-glow: rgba(0, 229, 255, 0.4);
+    --team-bg-tint: rgba(0, 229, 255, 0.05);
+}
+
+/* 1. Petite Mimine Racing (Vert Pomme & Ardoise Tactique) */
+body[data-team-id="1"] {
+    --team-primary: #84cc16;
+    --team-secondary: #334155;
+    --team-glow: rgba(132, 204, 22, 0.5);
+    --team-bg-tint: rgba(132, 204, 22, 0.08);
+}
+
+/* 2. Twingo Oasis V16 Racing (Pastel Bonbon & Rose Flashy) */
+body[data-team-id="2"] {
+    --team-primary: #ec4899;
+    --team-secondary: #F5E6A3;
+    --team-glow: rgba(236, 72, 153, 0.55);
+    --team-bg-tint: rgba(236, 72, 153, 0.1);
+}
+
+/* 3. Optic-Breuillet Racing (Jaune Visière & Carbone Noir) */
+body[data-team-id="3"] {
+    --team-primary: #eab308;
+    --team-secondary: #18181b;
+    --team-glow: rgba(234, 179, 8, 0.5);
+    --team-bg-tint: rgba(234, 179, 8, 0.08);
+}
+
+/* 4. Tata Freddy Motorsport (Orange Balatro & Violet Poker) */
+body[data-team-id="4"] {
+    --team-primary: #f97316;
+    --team-secondary: #7e22ce;
+    --team-glow: rgba(249, 115, 22, 0.55);
+    --team-bg-tint: rgba(126, 34, 206, 0.12);
+}
+
+/* 5. Super Mario Pression (Rouge Mario & Or Pression) */
+body[data-team-id="5"] {
+    --team-primary: #ef4444;
+    --team-secondary: #fbbf24;
+    --team-glow: rgba(239, 68, 68, 0.6);
+    --team-bg-tint: rgba(239, 68, 68, 0.1);
+}
+
+/* 6. Scuderia Symphonie E-Tech (Jaune E-Tech & Noir Clé de Sol) */
+body[data-team-id="6"] {
+    --team-primary: #facc15;
+    --team-secondary: #09090b;
+    --team-glow: rgba(250, 204, 21, 0.55);
+    --team-bg-tint: rgba(250, 204, 21, 0.08);
+}
+
+/* 7. Yaris 2 Invincible (Argent Increvable & Or Triforce) */
+body[data-team-id="7"] {
+    --team-primary: #f59e0b;
+    --team-secondary: #d4d4d8;
+    --team-glow: rgba(245, 158, 11, 0.5);
+    --team-bg-tint: rgba(212, 212, 216, 0.08);
+}
+
+/* 8. A4 Oil Leaking (Orange Alerte & Gris Mécanique) */
+body[data-team-id="8"] {
+    --team-primary: #ea580c;
+    --team-secondary: #64748b;
+    --team-glow: rgba(234, 88, 12, 0.55);
+    --team-bg-tint: rgba(234, 88, 12, 0.08);
+}
+
+/* 9. Titou Wyvern SRT (Bleu SRT Viper & Rouge Wyvern) */
+body[data-team-id="9"] {
+    --team-primary: #3b82f6;
+    --team-secondary: #dc2626;
+    --team-glow: rgba(59, 130, 246, 0.55);
+    --team-bg-tint: rgba(220, 38, 38, 0.08);
+}
+
+/* 10. Doom Slayer Issue GP (Rouge Sang Brut & Métal Berserk) */
+body[data-team-id="10"] {
+    --team-primary: #dc2626;
+    --team-secondary: #18181b;
+    --team-glow: rgba(220, 38, 38, 0.65);
+    --team-bg-tint: rgba(153, 27, 27, 0.15);
+}
+
+/* 11. Milo's Princess Vroom Vroom (Rose Princesse & Blanc Milo) */
+body[data-team-id="11"] {
+    --team-primary: #f472b6;
+    --team-secondary: #fdf2f8;
+    --team-glow: rgba(244, 114, 182, 0.6);
+    --team-bg-tint: rgba(244, 114, 182, 0.12);
+}
+
+/* 12. Bob's Bizarre Racing (Violet JoJo & Étoile Dorée) */
+body[data-team-id="12"] {
+    --team-primary: #a855f7;
+    --team-secondary: #facc15;
+    --team-glow: rgba(168, 85, 247, 0.6);
+    --team-bg-tint: rgba(168, 85, 247, 0.12);
+}
+
+/* 13. Jojo la Sirène Veloce (Cyan Océan & Bleu Nuit) */
+body[data-team-id="13"] {
+    --team-primary: #06b6d4;
+    --team-secondary: #0f172a;
+    --team-glow: rgba(6, 182, 212, 0.55);
+    --team-bg-tint: rgba(6, 182, 212, 0.1);
+}
+
+/* 14. Ninja-Nissan Street Racing (Rouge Nismo & Ombre Shuriken) */
+body[data-team-id="14"] {
+    --team-primary: #ef4444;
+    --team-secondary: #18181b;
+    --team-glow: rgba(239, 68, 68, 0.55);
+    --team-bg-tint: rgba(185, 28, 28, 0.1);
+}
+
+/* 15. Princess Blooming Speed (Jaune Daisy & Orange Fleur) */
+body[data-team-id="15"] {
+    --team-primary: #fbbf24;
+    --team-secondary: #f97316;
+    --team-glow: rgba(251, 191, 36, 0.6);
+    --team-bg-tint: rgba(249, 115, 22, 0.1);
+}
+
+/* Application des accents visuels d'écurie sur les éléments de l'app */
+body[data-team-id] .profile-card {
+    border-color: var(--team-primary) !important;
+    box-shadow: 0 0 15px var(--team-glow) !important;
+}
+
+body[data-team-id] .mobile-team-summary-card {
+    border-color: var(--team-primary) !important;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5), 0 0 25px var(--team-glow) !important;
+}
+
+body[data-team-id] .mobile-nav-btn.active {
+    color: var(--team-primary) !important;
+}
+
+body[data-team-id] .mobile-nav-btn.active .mob-nav-icon {
+    filter: drop-shadow(0 0 8px var(--team-glow)) !important;
+}
+
+body[data-team-id] .nav-btn.active {
+    border-color: var(--team-primary) !important;
+    box-shadow: 0 0 15px var(--team-glow) !important;
+    color: var(--team-primary) !important;
+}
+
+body[data-team-id] .bg-art-layer {
+    background-color: var(--team-bg-tint) !important;
+}
+
+body[data-team-id] .btn-primary {
+    border-color: var(--team-primary) !important;
+}
+
 
 
 
