@@ -564,25 +564,212 @@
         </section>
 
         <!-- =================================================================== -->
-        <!-- ONGLET 5 : TAUNT BOX (BRUITAGES) -->
+        <!-- ONGLET 5 : TAUNT BOX (CHAMBRAGE & RÉPLIQUES CULTES) -->
         <!-- =================================================================== -->
         <section id="tab-taunts" class="tab-pane">
             <div class="taunt-hero card">
-                <h2>📢 LA TAUNT BOX (CHAMBRAGE OFFICIEL)</h2>
-                <p>Cliquez sur un bouton pour déclencher un bruitage instantané et mettre la pression sur la grille de départ !</p>
+                <h2>📢 LA TAUNT BOX (CHAMBRAGE & RÉPLIQUES CULTES)</h2>
+                <p>Déclenchez instantanément de vraies répliques de films et jeux vidéo, rires cultes et bruitages pour intimider vos adversaires sur la ligne de départ !</p>
             </div>
 
-            <div class="taunts-grid">
-                <button class="taunt-btn" onclick="playTaunt('horn')">🎺 Klaxon Vintage</button>
-                <button class="taunt-btn" onclick="playTaunt('rev')">🏎️ Vrombissement V8 / F1</button>
-                <button class="taunt-btn" onclick="playTaunt('turbo')">💨 Pshhh Turbo Valve</button>
-                <button class="taunt-btn" onclick="playTaunt('skid')">🛞 Pneus qui crissent</button>
-                <button class="taunt-btn" onclick="playTaunt('banana')">🍌 Glissade sur Banane</button>
-                <button class="taunt-btn" onclick="playTaunt('laugh')">🤡 Rire Démoniaque Joker</button>
-                <button class="taunt-btn" onclick="playTaunt('pikachu')">⚡ Attaque Éclair Pikachu</button>
-                <button class="taunt-btn" onclick="playTaunt('siren')">🚨 Sirène Police GCPD</button>
-                <button class="taunt-btn" onclick="playTaunt('mario')">🍄 Mario : "Here We Go !"</button>
-                <button class="taunt-btn" onclick="playTaunt('crash')">💥 Gros Carambolage</button>
+            <!-- 1. UNIVERS DC & BATMAN -->
+            <div class="taunt-category-group">
+                <h3 class="taunt-cat-title">🦇 UNIVERS DC COMICS & GOTHAM (Vraies Voix Françaises)</h3>
+                <div class="taunts-grid">
+                    <button class="taunt-btn taunt-batman" onclick="playTaunt('batman_im_batman')">
+                        <span class="taunt-emoji">🦇</span>
+                        <strong>"Je suis Batman !"</strong>
+                        <span class="taunt-sub">Batman VF</span>
+                    </button>
+                    <button class="taunt-btn taunt-batman" onclick="playTaunt('batman_i_am_the_night')">
+                        <span class="taunt-emoji">🌑</span>
+                        <strong>"Je suis la nuit !"</strong>
+                        <span class="taunt-sub">Batman VF</span>
+                    </button>
+                    <button class="taunt-btn taunt-batman" onclick="playTaunt('batman_nananana')">
+                        <span class="taunt-emoji">🎶</span>
+                        <strong>"Na-na-na Batman !"</strong>
+                        <span class="taunt-sub">Batman fredonne</span>
+                    </button>
+                    <button class="taunt-btn taunt-batman" onclick="playTaunt('batman_they_never_learn')">
+                        <span class="taunt-emoji">🦇</span>
+                        <strong>"Ils n'apprennent jamais..."</strong>
+                        <span class="taunt-sub">Batman réplique</span>
+                    </button>
+                    <button class="taunt-btn taunt-joker" onclick="playTaunt('joker_laugh')">
+                        <span class="taunt-emoji">🤡</span>
+                        <strong>Rire Culte du Joker</strong>
+                        <span class="taunt-sub">Rire démoniaque VF</span>
+                    </button>
+                    <button class="taunt-btn taunt-joker" onclick="playTaunt('joker_smile')">
+                        <span class="taunt-emoji">🃏</span>
+                        <strong>"Allez, souris !"</strong>
+                        <span class="taunt-sub">Le Joker VF</span>
+                    </button>
+                    <button class="taunt-btn taunt-joker" onclick="playTaunt('joker_here_we_go')">
+                        <span class="taunt-emoji">🎪</span>
+                        <strong>"Et c'est parti !"</strong>
+                        <span class="taunt-sub">Le Joker VF</span>
+                    </button>
+                    <button class="taunt-btn taunt-superman" onclick="playTaunt('superman_up_away')">
+                        <span class="taunt-emoji">🦸</span>
+                        <strong>"Vers le ciel !"</strong>
+                        <span class="taunt-sub">Superman VF</span>
+                    </button>
+                    <button class="taunt-btn taunt-superman" onclick="playTaunt('superman_no_match')">
+                        <span class="taunt-emoji">⚡</span>
+                        <strong>"Aucun rival !"</strong>
+                        <span class="taunt-sub">Superman VF</span>
+                    </button>
+                    <button class="taunt-btn taunt-harley" onclick="playTaunt('harley_quinn')">
+                        <span class="taunt-emoji">💋</span>
+                        <strong>Rire d'Harley Quinn</strong>
+                        <span class="taunt-sub">Harley Quinn VF</span>
+                    </button>
+                    <button class="taunt-btn taunt-harley" onclick="playTaunt('harley_thats_it')">
+                        <span class="taunt-emoji">💣</span>
+                        <strong>"Oh ça y est !"</strong>
+                        <span class="taunt-sub">Harley Quinn VF</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- 2. NINTENDO & MARIO -->
+            <div class="taunt-category-group">
+                <h3 class="taunt-cat-title">🍄 NINTENDO & SUPER MARIO</h3>
+                <div class="taunts-grid">
+                    <button class="taunt-btn taunt-mario" onclick="playTaunt('mario')">
+                        <span class="taunt-emoji">🍄</span>
+                        <strong>"It's-a me, Mario !"</strong>
+                        <span class="taunt-sub">Super Mario 64</span>
+                    </button>
+                    <button class="taunt-btn taunt-mario" onclick="playTaunt('lets_go')">
+                        <span class="taunt-emoji">🏁</span>
+                        <strong>"Let's-a go !"</strong>
+                        <span class="taunt-sub">Super Mario 64</span>
+                    </button>
+                    <button class="taunt-btn taunt-mario" onclick="playTaunt('bowser')">
+                        <span class="taunt-emoji">🦖</span>
+                        <strong>Rire de Bowser</strong>
+                        <span class="taunt-sub">Super Mario 64</span>
+                    </button>
+                    <button class="taunt-btn taunt-mario" onclick="playTaunt('pipe')">
+                        <span class="taunt-emoji">🟢</span>
+                        <strong>Tuyau Vert Mario</strong>
+                        <span class="taunt-sub">Bruit mythique</span>
+                    </button>
+                    <button class="taunt-btn taunt-mario" onclick="playTaunt('galaxy_star')">
+                        <span class="taunt-emoji">⭐</span>
+                        <strong>Étoile Mario Galaxy</strong>
+                        <span class="taunt-sub">Super Mario Galaxy</span>
+                    </button>
+                    <button class="taunt-btn taunt-mario" onclick="playTaunt('galaxy_select')">
+                        <span class="taunt-emoji">🚀</span>
+                        <strong>Validation Galaxy</strong>
+                        <span class="taunt-sub">Super Mario Galaxy</span>
+                    </button>
+                    <button class="taunt-btn taunt-mario" onclick="playTaunt('coin')">
+                        <span class="taunt-emoji">🪙</span>
+                        <strong>Pièce d'Or Mario</strong>
+                        <span class="taunt-sub">Super Mario</span>
+                    </button>
+                    <button class="taunt-btn taunt-mario" onclick="playTaunt('red_coin')">
+                        <span class="taunt-emoji">🔴</span>
+                        <strong>Pièce Rouge</strong>
+                        <span class="taunt-sub">Super Mario 64</span>
+                    </button>
+                    <button class="taunt-btn taunt-mario" onclick="playTaunt('lap')">
+                        <span class="taunt-emoji">🔔</span>
+                        <strong>Dernier Tour (Lap)</strong>
+                        <span class="taunt-sub">Mario Kart Wii</span>
+                    </button>
+                    <button class="taunt-btn taunt-mario" onclick="playTaunt('goal')">
+                        <span class="taunt-emoji">🏆</span>
+                        <strong>Victoire de Course !</strong>
+                        <span class="taunt-sub">Mario Kart Wii</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- 3. ZELDA, POKÉMON & ANIMAL CROSSING -->
+            <div class="taunt-category-group">
+                <h3 class="taunt-cat-title">🗡️ ZELDA, POKÉMON & ANIMAL CROSSING</h3>
+                <div class="taunts-grid">
+                    <button class="taunt-btn taunt-zelda" onclick="playTaunt('zelda_select')">
+                        <span class="taunt-emoji">🗡️</span>
+                        <strong>Découverte d'Objet</strong>
+                        <span class="taunt-sub">Zelda: Skyward Sword</span>
+                    </button>
+                    <button class="taunt-btn taunt-zelda" onclick="playTaunt('zelda_menu')">
+                        <span class="taunt-emoji">🗺️</span>
+                        <strong>Menu Carte Zelda</strong>
+                        <span class="taunt-sub">Zelda: Skyward Sword</span>
+                    </button>
+                    <button class="taunt-btn taunt-pokemon" onclick="playTaunt('pikachu')">
+                        <span class="taunt-emoji">⚡</span>
+                        <strong>"Pika-Pikachu !"</strong>
+                        <span class="taunt-sub">Pokémon Snap VF</span>
+                    </button>
+                    <button class="taunt-btn taunt-pokemon" onclick="playTaunt('ac_bell')">
+                        <span class="taunt-emoji">🔔</span>
+                        <strong>Clochette Tom Nook</strong>
+                        <span class="taunt-sub">Animal Crossing NH</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- 4. COMBAT, ANIME & ARCADE -->
+            <div class="taunt-category-group">
+                <h3 class="taunt-cat-title">🥊 ARCADE, COMBAT & ANIME (TEKKEN, SMASH, DBZ, JOJO)</h3>
+                <div class="taunts-grid">
+                    <button class="taunt-btn taunt-dbz" onclick="playTaunt('tekken_ko')">
+                        <span class="taunt-emoji">💀</span>
+                        <strong>"K.O. !" Annonceur</strong>
+                        <span class="taunt-sub">Tekken 7</span>
+                    </button>
+                    <button class="taunt-btn taunt-dbz" onclick="playTaunt('tekken_decide')">
+                        <span class="taunt-emoji">⚔️</span>
+                        <strong>Validation d'Arène</strong>
+                        <span class="taunt-sub">Tekken 7</span>
+                    </button>
+                    <button class="taunt-btn taunt-dbz" onclick="playTaunt('smash_fixed')">
+                        <span class="taunt-emoji">🥊</span>
+                        <strong>Challenger Approaching</strong>
+                        <span class="taunt-sub">Super Smash Bros</span>
+                    </button>
+                    <button class="taunt-btn taunt-dbz" onclick="playTaunt('dbz_ok')">
+                        <span class="taunt-emoji">💥</span>
+                        <strong>Téléportation Saiyan</strong>
+                        <span class="taunt-sub">Dragon Ball Z</span>
+                    </button>
+                    <button class="taunt-btn taunt-dbz" onclick="playTaunt('jojo_jotaro')">
+                        <span class="taunt-emoji">⭐</span>
+                        <strong>"Yare Yare Daze..."</strong>
+                        <span class="taunt-sub">Jotaro Kujo (JoJo)</span>
+                    </button>
+                    <button class="taunt-btn taunt-dbz" onclick="playTaunt('jojo_dio')">
+                        <span class="taunt-emoji">🩸</span>
+                        <strong>"Kono Dio Da!"</strong>
+                        <span class="taunt-sub">Dio Brando (JoJo)</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- 5. UNIVERS LEGO -->
+            <div class="taunt-category-group">
+                <h3 class="taunt-cat-title">🧱 UNIVERS LEGO</h3>
+                <div class="taunts-grid">
+                    <button class="taunt-btn" onclick="playTaunt('lego_buy')">
+                        <span class="taunt-emoji">🪙</span>
+                        <strong>Pluie de Pièces LEGO</strong>
+                        <span class="taunt-sub">Lego Batman 3</span>
+                    </button>
+                    <button class="taunt-btn" onclick="playTaunt('lego_brick')">
+                        <span class="taunt-emoji">🧱</span>
+                        <strong>Briques qui s'assemblent</strong>
+                        <span class="taunt-sub">Lego Batman 3</span>
+                    </button>
+                </div>
             </div>
         </section>
 

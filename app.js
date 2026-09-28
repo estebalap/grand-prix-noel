@@ -368,6 +368,10 @@ function getAudioContext() {
 // -----------------------------------------------------------------------------
 function playTaunt(type) {
     window.__GPN_LAST_TAUNT_TIME = Date.now();
+    // 1. Si la clé demandée correspond directement à un son officiel (ex: batman_nananana, joker_smile, lego_buy, etc.)
+    if (REAL_SOUNDS[type]) {
+        return playRealSound(type, 0.95);
+    }
     let played = false;
 
     switch (type) {
@@ -531,141 +535,79 @@ function playInteractiveUiClick() {
     const teamId = APP_STATE.activeTeamId || 9;
     let played = false;
 
-    // 1 chance sur 5 : Joue une vraie réplique culte en solo (et RIEN d'autre, pas de clic superposé)
-    const isTauntRoll = Math.random() < 0.22;
-
+    // Clics sonores thématiques et discrets selon l'écurie active (AUCUN cri ou taunt intempestif en navigant dans les menus)
     switch (teamId) {
         case 1: { // Laurent (Petite Mimine Racing) : Batman & Gotham
-            if (isTauntRoll) {
-                playTaunt('batman');
-                return; // SORTIE IMMÉDIATE : Pas de bruit de clic, zéro doublon !
-            }
             const sounds = ['mk_click', 'mk_race_ok', 'tekken_decide'];
             played = playRealSound(sounds[Math.floor(Math.random() * sounds.length)], 0.65);
             break;
         }
         case 2: { // Nadine (Twingo Oasis V16) : Clochette Candy & Animal Crossing
-            if (isTauntRoll) {
-                playTaunt('ac_bell');
-                return;
-            }
             const sounds = ['ac_bell', 'mk_click', 'coin'];
             played = playRealSound(sounds[Math.floor(Math.random() * sounds.length)], 0.65);
             break;
         }
         case 3: { // Isabelle (Optic-Breuillet Racing) : Smash Bros & Triforce
-            if (isTauntRoll) {
-                playTaunt('smash');
-                return;
-            }
             const sounds = ['smash_fixed', 'tekken_decide', 'mk_click'];
             played = playRealSound(sounds[Math.floor(Math.random() * sounds.length)], 0.7);
             break;
         }
         case 4: { // Frédéric (Tata Freddy Motorsport - Balatro & Vegas) : Pièces & Jetons
-            if (isTauntRoll) {
-                playTaunt('coins');
-                return;
-            }
             const sounds = ['coin', 'red_coin', 'lego_buy', 'points'];
             played = playRealSound(sounds[Math.floor(Math.random() * sounds.length)], 0.7);
             break;
         }
-        case 5: { // Mario (Super Mario Pression) : Voix cultes Mario & Bowser
-            if (isTauntRoll) {
-                playTaunt('mario');
-                return;
-            }
+        case 5: { // Mario (Super Mario Pression) : Sons Nintendo & Tuyau
             const sounds = ['mk_click', 'coin', 'race_ok', 'pipe'];
             played = playRealSound(sounds[Math.floor(Math.random() * sounds.length)], 0.75);
             break;
         }
         case 6: { // Lucine (Scuderia Symphonie E-Tech) : Étoiles Mario Galaxy
-            if (isTauntRoll) {
-                playTaunt('galaxy');
-                return;
-            }
             const sounds = ['galaxy_star', 'galaxy_select', 'points', 'lap'];
             played = playRealSound(sounds[Math.floor(Math.random() * sounds.length)], 0.7);
             break;
         }
         case 7: { // Fanny (Yaris 2 Invincible - Zelda & Cupcakes) : Sons cultes Zelda
-            if (isTauntRoll) {
-                playTaunt('zelda');
-                return;
-            }
             const sounds = ['zelda_select', 'zelda_menu', 'smash_fixed'];
             played = playRealSound(sounds[Math.floor(Math.random() * sounds.length)], 0.7);
             break;
         }
         case 8: { // Ludwig (A4 Oil Leaking - Samus Metroid) : Tekken & DBZ
-            if (isTauntRoll) {
-                playTaunt('tekken');
-                return;
-            }
             const sounds = ['tekken_decide', 'dbz_ok', 'smash_fixed'];
             played = playRealSound(sounds[Math.floor(Math.random() * sounds.length)], 0.7);
             break;
         }
-        case 9: { // Esteban (Titou Wyvern SRT - V8 Dodge & DBZ) : DBZ & Batman
-            if (isTauntRoll) {
-                playTaunt(Math.random() < 0.5 ? 'dbz' : 'batman');
-                return;
-            }
+        case 9: { // Esteban (Titou Wyvern SRT - V8 Dodge & DBZ) : DBZ & Mario Kart
             const sounds = ['dbz_ok', 'mk_click', 'tekken_decide'];
             played = playRealSound(sounds[Math.floor(Math.random() * sounds.length)], 0.7);
             break;
         }
-        case 10: { // Diego (Doom Slayer Issue GP) : K.O. Tekken & Bowser
-            if (isTauntRoll) {
-                playTaunt(Math.random() < 0.5 ? 'tekken' : 'bowser');
-                return;
-            }
+        case 10: { // Diego (Doom Slayer Issue GP) : K.O. Tekken & Smash
             const sounds = ['tekken_ko', 'tekken_decide', 'smash_fixed'];
             played = playRealSound(sounds[Math.floor(Math.random() * sounds.length)], 0.75);
             break;
         }
-        case 11: { // Gabrielle (Milo's Princess - Peach & Milo) : Pikachu & Animal Crossing
-            if (isTauntRoll) {
-                playTaunt('pikachu');
-                return;
-            }
+        case 11: { // Gabrielle (Milo's Princess - Peach & Milo) : Clochette & Mario
             const sounds = ['ac_bell', 'mk_click', 'points'];
             played = playRealSound(sounds[Math.floor(Math.random() * sounds.length)], 0.75);
             break;
         }
-        case 12: { // Thom / Bob (Bob's Bizarre Racing - JoJo) : Jotaro & Dio
-            if (isTauntRoll) {
-                playTaunt('jojo');
-                return;
-            }
+        case 12: { // Thom / Bob (Bob's Bizarre Racing - JoJo) : Arcade & Tekken
             const sounds = ['tekken_decide', 'smash_fixed', 'dbz_ok'];
             played = playRealSound(sounds[Math.floor(Math.random() * sounds.length)], 0.75);
             break;
         }
         case 13: { // Jonah (Jojo la Sirène Veloce) : DBZ & Mario Galaxy
-            if (isTauntRoll) {
-                playTaunt('galaxy');
-                return;
-            }
             const sounds = ['mk_click', 'dbz_ok', 'lap'];
             played = playRealSound(sounds[Math.floor(Math.random() * sounds.length)], 0.7);
             break;
         }
-        case 14: { // Janis (Ninja-Nissan Street Racing) : Répliques du Joker & Rires
-            if (isTauntRoll) {
-                playTaunt('joker');
-                return;
-            }
+        case 14: { // Janis (Ninja-Nissan Street Racing) : Arcade & Drift
             const sounds = ['mk_click', 'tekken_decide', 'dbz_ok'];
             played = playRealSound(sounds[Math.floor(Math.random() * sounds.length)], 0.7);
             break;
         }
-        case 15: { // Élie (Princess Blooming Speed) : Daisy, Mario 64 & Pikachu
-            if (isTauntRoll) {
-                playTaunt(Math.random() < 0.5 ? 'mario' : 'pikachu');
-                return;
-            }
+        case 15: { // Élie (Princess Blooming Speed) : Pièces & Étoiles
             const sounds = ['red_coin', 'mk_click', 'points'];
             played = playRealSound(sounds[Math.floor(Math.random() * sounds.length)], 0.75);
             break;

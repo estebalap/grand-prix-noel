@@ -2968,20 +2968,38 @@ body[data-mode="relic_cup"] .nav-btn.active {
     margin-bottom: 2rem;
 }
 
+.taunt-category-group {
+    margin-bottom: 2.5rem;
+}
+
+.taunt-cat-title {
+    color: var(--neon-blue);
+    font-family: var(--font-heading);
+    font-size: 1.15rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1.5px solid rgba(0, 229, 255, 0.2);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    letter-spacing: 0.5px;
+}
+
 .taunts-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-    gap: 1.25rem;
+    grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+    gap: 1.1rem;
 }
 
 .taunt-btn {
     background: linear-gradient(180deg, var(--bg-surface) 0%, var(--bg-card) 100%);
     border: 2px solid var(--border-color);
     border-radius: var(--radius-lg);
-    padding: 1.5rem 1rem;
+    padding: 1.25rem 0.85rem;
     color: #fff;
     font-family: var(--font-heading);
-    font-size: 1rem;
+    font-size: 0.95rem;
     font-weight: 700;
     cursor: pointer;
     transition: all 0.15s cubic-bezier(0.16, 1, 0.3, 1);
@@ -2990,8 +3008,22 @@ body[data-mode="relic_cup"] .nav-btn.active {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 0.5rem;
-    min-height: 110px;
+    gap: 0.35rem;
+    min-height: 105px;
+    text-align: center;
+}
+
+.taunt-emoji {
+    font-size: 2rem;
+    line-height: 1;
+    margin-bottom: 0.2rem;
+}
+
+.taunt-sub {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    font-weight: 400;
+    font-family: var(--font-body);
 }
 
 .taunt-btn:hover {
@@ -3005,6 +3037,14 @@ body[data-mode="relic_cup"] .nav-btn.active {
     box-shadow: 0 2px 8px rgba(0, 229, 255, 0.4);
     background: rgba(0, 229, 255, 0.15);
 }
+
+.taunt-btn.taunt-batman:hover { border-color: #ffd700; box-shadow: 0 8px 25px rgba(255, 215, 0, 0.3); }
+.taunt-btn.taunt-joker:hover { border-color: #a855f7; box-shadow: 0 8px 25px rgba(168, 85, 247, 0.3); }
+.taunt-btn.taunt-superman:hover { border-color: #3b82f6; box-shadow: 0 8px 25px rgba(59, 130, 246, 0.3); }
+.taunt-btn.taunt-mario:hover { border-color: #ef4444; box-shadow: 0 8px 25px rgba(239, 68, 68, 0.3); }
+.taunt-btn.taunt-zelda:hover { border-color: #10b981; box-shadow: 0 8px 25px rgba(16, 185, 129, 0.3); }
+.taunt-btn.taunt-pokemon:hover { border-color: #facc15; box-shadow: 0 8px 25px rgba(250, 204, 21, 0.3); }
+.taunt-btn.taunt-dbz:hover { border-color: #ff5722; box-shadow: 0 8px 25px rgba(255, 87, 34, 0.3); }
 
 /* ==========================================================================
    ONGLET 6 : CLASSEMENTS
