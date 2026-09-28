@@ -80,8 +80,190 @@ const CHAOS_EVENTS = [
 ];
 
 // =============================================================================
-// 2. SYNTHÉTISEUR AUDIO WEB AUDIO API (Effets sonores natifs sans mp3)
+// 2. MOTEUR AUDIO HYBRIDE : SONS RÉELS EXTRAITS (MARIO KART, SM64...) & SYNTHÉ
 // =============================================================================
+const REAL_SOUNDS = {
+    click: 'sounds/mk_click.wav',
+    countdown: 'sounds/mk_countdown.wav',
+    go: 'sounds/mk_go.wav',
+    race_ok: 'sounds/mk_race_ok.wav',
+    roulette: 'sounds/mk_roulette.wav',
+    roulette_stop: 'sounds/mk_roulette_stop.wav',
+    goal: 'sounds/mk_goal.wav',
+    lap: 'sounds/mk_lap.wav',
+    rank_up: 'sounds/mk_rank_up.wav',
+    points: 'sounds/mk_points.wav',
+    coin: 'sounds/mario_coin.wav',
+    mario: 'sounds/sm64_its_a_me_mario.wav',
+    lets_go: 'sounds/sm64_lets_a_go.wav',
+    bowser: 'sounds/sm64_bowser_laugh.wav',
+    pipe: 'sounds/sm64_pipe.wav',
+    red_coin: 'sounds/sm64_red_coin.wav',
+    pikachu: 'sounds/pokemon_pikachu.wav',
+    smash_fixed: 'sounds/smash_fixed.wav',
+    smash_cancel: 'sounds/smash_cancel.wav',
+    tekken_decide: 'sounds/tekken_decide.wav',
+    tekken_ko: 'sounds/tekken_ko.wav',
+    dbz_ok: 'sounds/dbz_ok.wav',
+    ac_bell: 'sounds/ac_bell.wav',
+    batman_im_batman: 'sounds/batman_im_batman.wav',
+    batman_i_am_the_night: 'sounds/batman_i_am_the_night.wav',
+    joker_laugh: 'sounds/joker_laugh.wav',
+    superman_up_away: 'sounds/superman_up_away.wav',
+    harley_quinn: 'sounds/harley_quinn.wav',
+    lego_brick: 'sounds/lego_brick.wav',
+    lego_buy: 'sounds/lego_buy.wav',
+    jojo_jotaro: 'sounds/jojo_jotaro.wav',
+    jojo_dio: 'sounds/jojo_dio.wav'
+};
+
+const AUDIO_CACHE = {};
+
+function playRealSound(key, volume = 0.7) {
+    try {
+        const src = REAL_SOUNDS[key];
+        if (!src) return false;
+        if (!AUDIO_CACHE[key]) {
+            AUDIO_CACHE[key] = new Audio(src);
+            AUDIO_CACHE[key].preload = 'auto';
+        }
+        const snd = AUDIO_CACHE[key].cloneNode();
+        snd.volume = Math.max(0, Math.min(1, volume));
+        const playPromise = snd.play();
+        if (playPromise !== undefined) {
+            playPromise.catch(() => {
+                // Silently catch autoplay restrictions
+            });
+        }
+        return true;
+    } catch (e) {
+        return false;
+    }
+}
+
+// -----------------------------------------------------------------------------
+// SONS SIGNATURES PAR BOLIDE (LORE, BATMAN, JOKER, JDM, V8...)
+// -----------------------------------------------------------------------------
+function playCarSound(carCode) {
+    if (!carCode) return;
+    const car = APP_STATE.cars.find(c => c.code === carCode);
+    if (!car) return;
+
+    // 1. Bolides Univers Batman & Joker
+    if (car.category_folder === '01_Univers_Batman' || carCode.startsWith('B')) {
+        const lowerAlias = (car.alias || '').toLowerCase();
+        const lowerName = (car.real_name || '').toLowerCase();
+        if (carCode === 'B18' || lowerAlias.includes('joker') || lowerName.includes('joker')) {
+            playRealSound('joker_laugh', 0.85);
+        } else if (lowerAlias.includes('superman') || lowerName.includes('superman')) {
+            playRealSound('superman_up_away', 0.85);
+        } else if (lowerAlias.includes('harley') || lowerName.includes('harley')) {
+            playRealSound('harley_quinn', 0.85);
+        } else {
+            // Alterne aléatoirement entre "Je suis Batman !" et "Je suis la nuit !"
+            const rand = Math.random() > 0.5 ? 'batman_im_batman' : 'batman_i_am_the_night';
+            playRealSound(rand, 0.9);
+        }
+        return;
+    }
+
+    // 2. Bolides JDM & Asiatiques (Drift, Turbo blow-off)
+    if (car.category_folder === '02_JDM_et_Asiatiques' || carCode.startsWith('J')) {
+        playTaunt('turbo');
+        setTimeout(() => playTaunt('skid'), 200);
+        return;
+    }
+
+    // 3. Muscle Cars Américaines (Gros V8)
+    if (car.category_folder === '03_Americaines_et_Muscle_Cars' || carCode.startsWith('M') || carCode.startsWith('AM')) {
+        playTaunt('rev');
+        return;
+    }
+
+    // 4. Supercars & Exotiques (Vitesse & Télémétrie)
+    if (car.category_folder === '04_Supercars_et_Exotiques' || carCode.startsWith('S') || carCode.startsWith('EX')) {
+        playRealSound('tekken_decide', 0.6);
+        setTimeout(() => playTaunt('rev'), 150);
+        return;
+    }
+
+    // 5. Bolides Françaises / Cocorico
+    if (car.category_folder === '05_Francaises_et_Europeennes' || carCode.startsWith('F') || carCode.startsWith('FR')) {
+        playTaunt('horn');
+        return;
+    }
+
+    // 6. Reliques Vintage d'Enfance
+    if (car.category_folder === '06_Reliques_Enfance' || carCode.startsWith('R') || carCode.startsWith('RL')) {
+        playRealSound('red_coin', 0.75);
+        return;
+    }
+
+    // Par défaut : bruit de validation de course
+    playRealSound('race_ok', 0.6);
+}
+
+// -----------------------------------------------------------------------------
+// SONS SIGNATURES PAR ÉCURIE / PILOTE DE LA FAMILLE (LORE DES 15 ÉCURIES)
+// -----------------------------------------------------------------------------
+function playTeamSignatureSound(teamId) {
+    const id = parseInt(teamId, 10);
+    switch (id) {
+        case 1: // Laurent (Petite Mimine Racing) -> Rugissement V8 pur
+            playTaunt('rev');
+            break;
+        case 2: // Nadine (Twingo Oasis V16) -> Klaxon Twingo & Clochette Candy Crush
+            playTaunt('horn');
+            setTimeout(() => playRealSound('ac_bell', 0.6), 350);
+            break;
+        case 3: // Isabelle (Optic-Breuillet Racing) -> Précision Smash Bros
+            playRealSound('smash_fixed', 0.8);
+            break;
+        case 4: // Frédéric (Tata Freddy Motorsport - Balatro & Poker) -> Cascade de pièces d'or
+            playRealSound('coin', 0.8);
+            setTimeout(() => playRealSound('coin', 0.8), 120);
+            break;
+        case 5: // Mario (Super Mario Pression) -> Voix culte : "It's-a me, Mario !"
+            playRealSound('mario', 0.9);
+            break;
+        case 6: // Lucine (Scuderia Symphonie E-Tech) -> Carillon musical étoilé
+            playRealSound('points', 0.8);
+            break;
+        case 7: // Fanny (Yaris 2 Invincible - Zelda & Cupcakes) -> Smash Bros confirmation
+            playRealSound('smash_fixed', 0.8);
+            break;
+        case 8: // Ludwig (A4 Oil Leaking - Samus Metroid) -> Déclic armure Tekken
+            playRealSound('tekken_decide', 0.75);
+            break;
+        case 9: // Esteban (Titou Wyvern SRT - Dodge V8 & MH) -> DBZ Teleport + V8
+            playRealSound('dbz_ok', 0.7);
+            setTimeout(() => playTaunt('rev'), 200);
+            break;
+        case 10: // Diego (Doom Slayer Issue GP - You Died) -> K.O. lourd Tekken 7
+            playRealSound('tekken_ko', 0.9);
+            break;
+        case 11: // Gabrielle (Milo's Princess - Peach & Milo) -> Clochettes féeriques Animal Crossing
+            playRealSound('ac_bell', 0.85);
+            break;
+        case 12: // Thom / Bob (Bob's Bizarre Racing - Yare Yare Daze) -> Vraie voix de Jotaro Kujo !
+            playRealSound('jojo_jotaro', 0.9);
+            break;
+        case 13: // Jonah (Jojo la Sirène Veloce - Batterie & Sirène) -> Sirène d'intervention
+            playTaunt('siren');
+            break;
+        case 14: // Janis (Ninja-Nissan Street Racing - Tokyo Drift) -> Soupape Turbo & Dérapage
+            playTaunt('turbo');
+            setTimeout(() => playTaunt('skid'), 250);
+            break;
+        case 15: // Élie (Princess Blooming Speed - Daisy) -> "Let's-a go !" Mario 64
+            playRealSound('lets_go', 0.9);
+            break;
+        default:
+            playRealSound('race_ok', 0.6);
+            break;
+    }
+}
+
 function getAudioContext() {
     if (!APP_STATE.audioCtx) {
         const AudioContext = window.AudioContext || window.webkitAudioContext;
@@ -196,7 +378,8 @@ function playTaunt(type) {
             break;
         }
         case 'laugh': {
-            // Rire sarcastique
+            if (playRealSound('bowser', 0.8)) break;
+            // Rire sarcastique de secours
             [0, 0.12, 0.24, 0.36, 0.48].forEach((delay, idx) => {
                 const osc = ctx.createOscillator();
                 const gain = ctx.createGain();
@@ -212,7 +395,8 @@ function playTaunt(type) {
             break;
         }
         case 'pikachu': {
-            // Éclair Pikachu
+            if (playRealSound('pikachu', 0.85)) break;
+            // Éclair Pikachu de secours
             const osc = ctx.createOscillator();
             const gain = ctx.createGain();
             osc.type = 'sawtooth';
@@ -245,7 +429,8 @@ function playTaunt(type) {
             break;
         }
         case 'mario': {
-            // Victoire Mario (Arpège 1-UP)
+            if (playRealSound('mario', 0.85)) break;
+            // Victoire Mario de secours (Arpège 1-UP)
             const notes = [330, 392, 659, 523, 587, 784];
             notes.forEach((freq, idx) => {
                 const osc = ctx.createOscillator();
@@ -288,7 +473,8 @@ function playTaunt(type) {
             break;
         }
         case 'coin': {
-            // Bruit de pièce d'or
+            if (playRealSound('coin', 0.75)) break;
+            // Bruit de pièce d'or de secours
             const osc = ctx.createOscillator();
             const gain = ctx.createGain();
             osc.type = 'sine';
@@ -311,8 +497,25 @@ function playTaunt(type) {
 // CLICS SONORES INTERACTIFS ADAPTÉS AU MODE DE JEU (WEB AUDIO API)
 // -----------------------------------------------------------------------------
 function initUiClickSounds() {
+    // Débloquer l'audio au premier toucher sur iPhone / smartphone
+    const unlockAudio = () => {
+        const ctx = getAudioContext();
+        if (ctx) {
+            const buf = ctx.createBuffer(1, 1, 22050);
+            const src = ctx.createBufferSource();
+            src.buffer = buf;
+            src.connect(ctx.destination);
+            src.start(0);
+            if (ctx.state === 'suspended') ctx.resume();
+        }
+        window.removeEventListener('touchstart', unlockAudio, true);
+        window.removeEventListener('touchend', unlockAudio, true);
+    };
+    window.addEventListener('touchstart', unlockAudio, true);
+    window.addEventListener('touchend', unlockAudio, true);
+
     document.addEventListener('click', (e) => {
-        const target = e.target.closest('button, .btn, .nav-btn, select, .car-picker, .team-item-card, .radio-btn, .bet-card, .item-card, .profile-card, .wallet-badge');
+        const target = e.target.closest('button, .btn, .nav-btn, .mobile-nav-btn, select, .car-picker, .team-item-card, .radio-btn, .bet-card, .item-card, .profile-card, .wallet-badge');
         if (!target) return;
         if (target.disabled || target.classList.contains('disabled')) return;
         playModeUiClick(APP_STATE.activeMode);
@@ -321,6 +524,22 @@ function initUiClickSounds() {
 
 function playModeUiClick(mode) {
     try {
+        let played = false;
+        if (mode === 'gp_pure' || mode === 'gp_strategy') {
+            played = playRealSound('click', 0.55);
+        } else if (mode === 'boss_tomica') {
+            played = playRealSound('tekken_decide', 0.55);
+        } else if (mode === 'survival') {
+            played = playRealSound('smash_fixed', 0.55);
+        } else if (mode === 'relic_cup') {
+            played = playRealSound('sm64_red_coin', 0.55);
+        } else if (mode === 'chaos_unlimited') {
+            played = playRealSound('dbz_ok', 0.55);
+        } else {
+            played = playRealSound('click', 0.55);
+        }
+        if (played) return;
+
         const ctx = getAudioContext();
         if (!ctx) return;
         const now = ctx.currentTime;
@@ -830,9 +1049,23 @@ function getActiveTeam() {
     return APP_STATE.teams.find(t => t.id === APP_STATE.activeTeamId) || APP_STATE.teams[0];
 }
 
+function applyTeamTheme(team) {
+    if (!team) return;
+    document.body.setAttribute('data-team-id', team.id);
+    const root = document.documentElement;
+    const c1 = (team.colors && team.colors[0]) || '#00e5ff';
+    const c2 = (team.colors && team.colors[1]) || '#ff2a85';
+    root.style.setProperty('--team-primary', c1);
+    root.style.setProperty('--team-secondary', c2);
+    root.style.setProperty('--team-glow', `${c1}66`);
+    root.style.setProperty('--neon-blue', c1);
+}
+
 function updateActiveTeamHeader() {
     const team = getActiveTeam();
     if (!team) return;
+
+    applyTeamTheme(team);
 
     const logoEl = document.getElementById('active-team-logo');
     const nameEl = document.getElementById('active-team-name');
@@ -885,12 +1118,16 @@ window.openTeamModal = function() {
     if (modal) {
         modal.style.display = 'flex';
         renderTeamPickerList();
+        playRealSound('pipe', 0.6); // Bruit de tuyau vert Mario 64
     }
 };
 
 window.closeTeamModal = function() {
     const modal = document.getElementById('team-modal');
-    if (modal) modal.style.display = 'none';
+    if (modal) {
+        modal.style.display = 'none';
+        playRealSound('smash_cancel', 0.5); // Bruit de fermeture Smash Bros
+    }
 };
 
 function initTeamModal() {
@@ -935,6 +1172,7 @@ function renderTeamPickerList() {
             renderMyPaddock();
             saveLocalStorage();
             window.closeTeamModal();
+            playTeamSignatureSound(team.id); // Joue le son signature exclusif de l'écurie sélectionnée !
         });
         pickList.appendChild(card);
     });
@@ -963,7 +1201,7 @@ function initDraftScanner() {
         }
 
         currentScannedCar = car;
-        playTaunt('rev');
+        playCarSound(car.code); // Son signature spécifique du bolide (Batman, Joker, JDM, V8...)
 
         // Mise à jour de la carte de révélation
         document.getElementById('reveal-code').textContent = car.code;
@@ -1015,7 +1253,7 @@ function initDraftScanner() {
             paddock.push(currentScannedCar.code);
             saveLocalStorage();
             renderMyPaddock();
-            playTaunt('coin');
+            playRealSound('lego_brick', 0.85); // Bruit d'emboîtement Lego officiel
             alert(`🏎️ ${currentScannedCar.alias} (${currentScannedCar.code}) ajoutée avec succès à votre paddock ! (${paddock.length}/6)`);
         });
     }
@@ -1050,6 +1288,8 @@ function renderMyPaddock() {
 
             if (car) {
                 slotEl.className = 'paddock-slot filled';
+                slotEl.style.cursor = 'pointer';
+                slotEl.title = `Cliquer pour écouter ${car.alias}`;
                 slotEl.innerHTML = `
                     <span class="paddock-car-code">${car.code}</span>
                     <h4>${car.alias}</h4>
@@ -1060,6 +1300,10 @@ function renderMyPaddock() {
                     </div>
                     <button class="btn-remove-slot" onclick="removeCarFromPaddock('${car.code}')">Retirer du Paddock</button>
                 `;
+                slotEl.addEventListener('click', (e) => {
+                    if (e.target.closest('.btn-remove-slot')) return;
+                    playCarSound(car.code);
+                });
             }
         } else {
             slotEl.className = 'paddock-slot empty';
@@ -1114,6 +1358,7 @@ function setLaneCar(laneIndex, carCode) {
     updateLaneCard(laneIndex + 1, carCode);
     calculateOdds();
     updateLiveBettingUI();
+    if (carCode) playCarSound(carCode);
 }
 
 function updateLaneCard(laneNum, carCode) {
@@ -1242,12 +1487,21 @@ function triggerRaceStart() {
     const badge = document.getElementById('race-status-badge');
     if (badge) {
         badge.className = 'badge racing';
-        badge.textContent = 'COURSE EN COURS ! 🏁';
+        badge.textContent = 'PRÉPARATION AU DÉPART...';
     }
 
-    playTaunt('rev');
-    setTimeout(() => playTaunt('skid'), 1200);
-    setTimeout(() => playTaunt('crash'), 2500);
+    playRealSound('countdown', 0.9); // 3-2-1 officiel Lakitu Mario Kart
+    setTimeout(() => {
+        if (badge) {
+            badge.className = 'badge racing';
+            badge.textContent = 'COURSE EN COURS ! 🏁';
+        }
+        playRealSound('go', 0.9); // GO! officiel Mario Kart
+        playTaunt('rev');
+    }, 2800);
+
+    setTimeout(() => playTaunt('skid'), 4200);
+    setTimeout(() => playTaunt('crash'), 5500);
 }
 
 // =============================================================================
@@ -1483,16 +1737,23 @@ function initChaosWheel() {
 
     if (btnSpin) {
         btnSpin.addEventListener('click', () => {
-            playTaunt('laugh');
-            const randomEvent = CHAOS_EVENTS[Math.floor(Math.random() * CHAOS_EVENTS.length)];
+            playRealSound('roulette', 0.85);
+            btnSpin.disabled = true;
+            setTimeout(() => {
+                playRealSound('roulette_stop', 0.85);
+                setTimeout(() => playRealSound('bowser', 0.8), 200);
+                btnSpin.disabled = false;
 
-            if (titleEl) titleEl.textContent = randomEvent.title;
-            if (descEl) descEl.textContent = randomEvent.desc;
+                const randomEvent = CHAOS_EVENTS[Math.floor(Math.random() * CHAOS_EVENTS.length)];
 
-            if (resultBox) {
-                resultBox.style.display = 'block';
-                resultBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-            }
+                if (titleEl) titleEl.textContent = randomEvent.title;
+                if (descEl) descEl.textContent = randomEvent.desc;
+
+                if (resultBox) {
+                    resultBox.style.display = 'block';
+                    resultBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                }
+            }, 750);
         });
     }
 }
