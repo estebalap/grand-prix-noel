@@ -704,11 +704,31 @@ function initMobileConnectModal() {
         if (!url) return;
         if (directUrlInput) directUrlInput.value = url;
         if (qrImg) {
-            qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(url)}&color=0b1329&bgcolor=ffffff`;
+            if (url.includes('github.io')) {
+                qrImg.src = 'qrcode.png';
+            } else {
+                qrImg.onerror = function() {
+                    this.src = `https://quickchart.io/qr?text=${encodeURIComponent(url)}&size=250`;
+                };
+                qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(url)}&color=0b1329&bgcolor=ffffff`;
+            }
         }
     }
 
     function checkServerInfo() {
+        // Si l'application est consultée en ligne (GitHub Pages, Vercel, domaine personnalisé)
+        const isOnlineWeb = window.location.hostname && 
+                            window.location.hostname !== 'localhost' && 
+                            window.location.hostname !== '127.0.0.1' && 
+                            !window.location.hostname.startsWith('192.168.') && 
+                            !window.location.hostname.startsWith('10.');
+
+        if (isOnlineWeb) {
+            const cleanUrl = window.location.origin + window.location.pathname;
+            updateModalUrl(cleanUrl);
+            return;
+        }
+
         fetch('tunnel_url.txt?t=' + Date.now())
             .then(res => {
                 if (res.ok) return res.text();
@@ -734,9 +754,8 @@ function initMobileConnectModal() {
                         }
                     })
                     .catch(() => {
-                        const port = window.location.port || '8000';
-                        const host = (window.location.hostname && window.location.hostname !== 'localhost') ? window.location.hostname : '192.168.50.82';
-                        updateModalUrl(`http://${host}:${port}`);
+                        // Adresse officielle permanente en ligne
+                        updateModalUrl('https://estebalap.github.io/grand-prix-noel/');
                     });
             });
     }
