@@ -366,8 +366,20 @@ function getAudioContext() {
 // -----------------------------------------------------------------------------
 // VRAIES RÉPLIQUES & SONS CULTES (PAS DE BIP SYNTHÉTIQUE, 100% SONS OFFICIELS)
 // -----------------------------------------------------------------------------
+let lastTauntCallTime = 0;
+let lastTauntKey = '';
+
 function playTaunt(type) {
-    window.__GPN_LAST_TAUNT_TIME = Date.now();
+    if (!type) return false;
+    const now = Date.now();
+    // Évite tout double déclenchement accidentel (ex: pointerdown ultra-rapide suivi du click synthétique du navigateur)
+    if (now - lastTauntCallTime < 250 && lastTauntKey === type) {
+        return false;
+    }
+    lastTauntCallTime = now;
+    lastTauntKey = type;
+    window.__GPN_LAST_TAUNT_TIME = now;
+
     // 1. Si la clé demandée correspond directement à un son officiel (ex: batman_nananana, joker_smile, lego_buy, etc.)
     if (REAL_SOUNDS[type]) {
         return playRealSound(type, 0.95);
@@ -497,18 +509,31 @@ function initUiClickSounds() {
     window.addEventListener('click', unlockAudio, { once: true, capture: true, passive: true });
 
     function handleDirectTapSound(e) {
-        // 1. Si une réplique / taunt / son de bolide a été joué il y a moins de 500ms : AUCUN clic (ZÉRO doublon !)
-        if (Date.now() - (window.__GPN_LAST_TAUNT_TIME || 0) < 500) return;
+        // 1. GESTION DIRECTE DES TAUNTS (0ms de latence, ZÉRO bruit d'icône d'interface, ZÉRO doublon)
+        const tauntBtn = e.target.closest('.taunt-btn, [onclick*="playTaunt"]');
+        if (tauntBtn) {
+            const onclickAttr = tauntBtn.getAttribute('onclick') || '';
+            const match = onclickAttr.match(/playTaunt\(['"]([^'"]+)['"]\)/);
+            if (match && match[1]) {
+                playTaunt(match[1]);
+            }
+            return; // SORTIE IMMÉDIATE : Ne JAMAIS jouer de clic d'icône d'interface sur un taunt !
+        }
 
-        // 2. Protection anti-rebond ultra rapide (pointerdown + touchstart + click successifs)
+        // 2. EXCLUSION TOTALE : Si l'élément est dans l'onglet Taunt, est un bolide ou sonne lui-même : AUCUN clic d'interface
+        if (e.target.closest('.taunt-category-group, .taunts-grid, #tab-taunts, [onclick*="playCarSound"], [onclick*="playTeamSignatureSound"], .car-card, .paddock-car-card, .paddock-slot')) {
+            return;
+        }
+
+        // 3. Si une réplique / taunt a été joué il y a moins de 600ms : AUCUN clic (protection anti-chevauchement)
+        if (Date.now() - (window.__GPN_LAST_TAUNT_TIME || 0) < 600) return;
+
+        // 4. Protection anti-rebond ultra rapide (pointerdown + touchstart + click successifs)
         if (Date.now() - lastInteractiveSoundTime < 130) return;
 
-        const target = e.target.closest('button, .btn, .nav-btn, .mobile-nav-btn, select, .car-picker, .team-item-card, .radio-btn, .bet-card, .item-card, .profile-card, .wallet-badge, .tab-btn, .paddock-slot, .team-pick-card, .tab-btn-pill');
+        const target = e.target.closest('button, .btn, .nav-btn, .mobile-nav-btn, select, .car-picker, .team-item-card, .radio-btn, .bet-card, .item-card, .profile-card, .wallet-badge, .tab-btn, .team-pick-card, .tab-btn-pill');
         if (!target) return;
         if (target.disabled || target.classList.contains('disabled')) return;
-
-        // 3. Si l'élément ciblé est un bolide ou sonne lui-même : ne pas jouer de clic
-        if (target.closest('.car-card, .paddock-car-card, .paddock-slot.occupied')) return;
 
         lastInteractiveSoundTime = Date.now();
         playInteractiveUiClick();
