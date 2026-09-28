@@ -125,9 +125,19 @@ const REAL_SOUNDS = {
     ac_bell: 'sounds/ac_bell.wav',
     batman_im_batman: 'sounds/batman_im_batman.wav',
     batman_i_am_the_night: 'sounds/batman_i_am_the_night.wav',
+    batman_nananana: 'sounds/batman_nananana.wav',
+    batman_they_never_learn: 'sounds/batman_they_never_learn.wav',
     joker_laugh: 'sounds/joker_laugh.wav',
+    joker_smile: 'sounds/joker_smile.wav',
+    joker_here_we_go: 'sounds/joker_here_we_go.wav',
     superman_up_away: 'sounds/superman_up_away.wav',
+    superman_no_match: 'sounds/superman_no_match.wav',
     harley_quinn: 'sounds/harley_quinn.wav',
+    harley_thats_it: 'sounds/harley_thats_it.wav',
+    zelda_select: 'sounds/zelda_select.wav',
+    zelda_menu: 'sounds/zelda_menu.wav',
+    galaxy_star: 'sounds/galaxy_star.wav',
+    galaxy_select: 'sounds/galaxy_select.wav',
     lego_brick: 'sounds/lego_brick.wav',
     lego_buy: 'sounds/lego_buy.wav',
     jojo_jotaro: 'sounds/jojo_jotaro.wav',
@@ -136,22 +146,43 @@ const REAL_SOUNDS = {
 
 const AUDIO_CACHE = {};
 const AUDIO_BUFFERS = {};
+const FETCHED_AUDIO_PROMISES = new Map();
 
 function preloadAudioBuffers() {
     const ctx = getAudioContext();
-    if (!ctx) return;
+    if (ctx && ctx.state === 'suspended') {
+        ctx.resume().catch(() => {});
+    }
+
     Object.entries(REAL_SOUNDS).forEach(([key, path]) => {
+        // Pré-chargement immédiat dans le cache HTML5 Audio
+        if (!AUDIO_CACHE[key]) {
+            try {
+                const a = new Audio();
+                a.preload = 'auto';
+                a.src = path;
+                AUDIO_CACHE[key] = a;
+            } catch (e) {}
+        }
+
+        // Pré-décodage Web Audio API (0ms de latence, polyphonique et instantané)
         if (!AUDIO_BUFFERS[key]) {
-            fetch(path)
-                .then(r => {
-                    if (!r.ok) throw new Error(`HTTP ${r.status}`);
-                    return r.arrayBuffer();
-                })
-                .then(ab => ctx.decodeAudioData(ab))
-                .then(decoded => {
-                    AUDIO_BUFFERS[key] = decoded;
-                })
-                .catch(() => {});
+            if (!FETCHED_AUDIO_PROMISES.has(path)) {
+                FETCHED_AUDIO_PROMISES.set(path, fetch(path)
+                    .then(r => {
+                        if (!r.ok) throw new Error(`HTTP ${r.status}`);
+                        return r.arrayBuffer();
+                    })
+                    .then(ab => {
+                        const curCtx = getAudioContext();
+                        return curCtx ? curCtx.decodeAudioData(ab) : null;
+                    })
+                    .catch(() => null)
+                );
+            }
+            FETCHED_AUDIO_PROMISES.get(path).then(decoded => {
+                if (decoded) AUDIO_BUFFERS[key] = decoded;
+            }).catch(() => {});
         }
     });
 }
@@ -159,6 +190,9 @@ function preloadAudioBuffers() {
 function playRealSound(key, volume = 0.7) {
     try {
         const ctx = getAudioContext();
+        if (ctx && ctx.state === 'suspended') {
+            ctx.resume().catch(() => {});
+        }
 
         // MÉTHODE 1 : Web Audio API Buffer (Ultra rapide, 0ms de latence, polyphonique et 100% supporté sur iPhone)
         if (ctx && AUDIO_BUFFERS[key]) {
@@ -172,7 +206,7 @@ function playRealSound(key, volume = 0.7) {
             return true;
         }
 
-        // MÉTHODE 2 : HTML5 Audio standard (Sans cloneNode qui bloque sur iOS Safari)
+        // MÉTHODE 2 : HTML5 Audio standard préchargé (Sans cloneNode qui bloque sur iOS Safari)
         const src = REAL_SOUNDS[key];
         if (src) {
             let audio = AUDIO_CACHE[key];
@@ -200,6 +234,7 @@ function playRealSound(key, volume = 0.7) {
 // -----------------------------------------------------------------------------
 function playCarSound(carCode) {
     if (!carCode) return;
+    window.__GPN_LAST_TAUNT_TIME = Date.now();
     const car = APP_STATE.cars.find(c => c.code === carCode);
     if (!car) return;
 
@@ -208,112 +243,111 @@ function playCarSound(carCode) {
         const lowerAlias = (car.alias || '').toLowerCase();
         const lowerName = (car.real_name || '').toLowerCase();
         if (carCode === 'B18' || lowerAlias.includes('joker') || lowerName.includes('joker')) {
-            playRealSound('joker_laugh', 0.85);
+            const jokerQuotes = ['joker_laugh', 'joker_smile', 'joker_here_we_go'];
+            playRealSound(jokerQuotes[Math.floor(Math.random() * jokerQuotes.length)], 0.95);
         } else if (lowerAlias.includes('superman') || lowerName.includes('superman')) {
-            playRealSound('superman_up_away', 0.85);
+            const superQuotes = ['superman_up_away', 'superman_no_match'];
+            playRealSound(superQuotes[Math.floor(Math.random() * superQuotes.length)], 0.95);
         } else if (lowerAlias.includes('harley') || lowerName.includes('harley')) {
-            playRealSound('harley_quinn', 0.85);
+            const harleyQuotes = ['harley_quinn', 'harley_thats_it'];
+            playRealSound(harleyQuotes[Math.floor(Math.random() * harleyQuotes.length)], 0.9);
         } else {
-            // Alterne aléatoirement entre "Je suis Batman !" et "Je suis la nuit !"
-            const rand = Math.random() > 0.5 ? 'batman_im_batman' : 'batman_i_am_the_night';
-            playRealSound(rand, 0.9);
+            // Répliques françaises cultes de Batman
+            const batmanQuotes = ['batman_im_batman', 'batman_i_am_the_night', 'batman_nananana', 'batman_they_never_learn'];
+            playRealSound(batmanQuotes[Math.floor(Math.random() * batmanQuotes.length)], 0.95);
         }
         return;
     }
 
-    // 2. Bolides JDM & Asiatiques (Drift, Turbo blow-off)
+    // 2. Bolides JDM & Asiatiques (Tokyo Drift / Tekken / DBZ)
     if (car.category_folder === '02_JDM_et_Asiatiques' || carCode.startsWith('J')) {
-        playTaunt('turbo');
-        setTimeout(() => playTaunt('skid'), 200);
+        const jdmSounds = ['tekken_decide', 'dbz_ok', 'galaxy_star'];
+        playRealSound(jdmSounds[Math.floor(Math.random() * jdmSounds.length)], 0.85);
         return;
     }
 
-    // 3. Muscle Cars Américaines (Gros V8)
+    // 3. Muscle Cars Américaines
     if (car.category_folder === '03_Americaines_et_Muscle_Cars' || carCode.startsWith('M') || carCode.startsWith('AM')) {
-        playTaunt('rev');
+        playRealSound('tekken_decide', 0.85);
         return;
     }
 
-    // 4. Supercars & Exotiques (Vitesse & Télémétrie)
+    // 4. Supercars & Exotiques
     if (car.category_folder === '04_Supercars_et_Exotiques' || carCode.startsWith('S') || carCode.startsWith('EX')) {
-        playRealSound('tekken_decide', 0.6);
-        setTimeout(() => playTaunt('rev'), 150);
+        playRealSound('galaxy_star', 0.85);
         return;
     }
 
     // 5. Bolides Françaises / Cocorico
     if (car.category_folder === '05_Francaises_et_Europeennes' || carCode.startsWith('F') || carCode.startsWith('FR')) {
-        playTaunt('horn');
+        playRealSound('ac_bell', 0.85);
         return;
     }
 
     // 6. Reliques Vintage d'Enfance
     if (car.category_folder === '06_Reliques_Enfance' || carCode.startsWith('R') || carCode.startsWith('RL')) {
-        playRealSound('red_coin', 0.75);
+        playRealSound('red_coin', 0.85);
         return;
     }
 
-    // Par défaut : bruit de validation de course
-    playRealSound('race_ok', 0.6);
+    // Par défaut : son arcade de confirmation
+    playRealSound('race_ok', 0.7);
 }
 
 // -----------------------------------------------------------------------------
 // SONS SIGNATURES PAR ÉCURIE / PILOTE DE LA FAMILLE (LORE DES 15 ÉCURIES)
 // -----------------------------------------------------------------------------
 function playTeamSignatureSound(teamId) {
+    window.__GPN_LAST_TAUNT_TIME = Date.now();
     const id = parseInt(teamId, 10);
     switch (id) {
-        case 1: // Laurent (Petite Mimine Racing) -> Rugissement V8 pur
-            playTaunt('rev');
+        case 1: // Laurent (Petite Mimine Racing) -> Réplique Batman culte
+            playRealSound('batman_im_batman', 0.95);
             break;
-        case 2: // Nadine (Twingo Oasis V16) -> Klaxon Twingo & Clochette Candy Crush
-            playTaunt('horn');
-            setTimeout(() => playRealSound('ac_bell', 0.6), 350);
-            break;
-        case 3: // Isabelle (Optic-Breuillet Racing) -> Précision Smash Bros
-            playRealSound('smash_fixed', 0.8);
-            break;
-        case 4: // Frédéric (Tata Freddy Motorsport - Balatro & Poker) -> Cascade de pièces d'or
-            playRealSound('coin', 0.8);
-            setTimeout(() => playRealSound('coin', 0.8), 120);
-            break;
-        case 5: // Mario (Super Mario Pression) -> Voix culte : "It's-a me, Mario !"
-            playRealSound('mario', 0.9);
-            break;
-        case 6: // Lucine (Scuderia Symphonie E-Tech) -> Carillon musical étoilé
-            playRealSound('points', 0.8);
-            break;
-        case 7: // Fanny (Yaris 2 Invincible - Zelda & Cupcakes) -> Smash Bros confirmation
-            playRealSound('smash_fixed', 0.8);
-            break;
-        case 8: // Ludwig (A4 Oil Leaking - Samus Metroid) -> Déclic armure Tekken
-            playRealSound('tekken_decide', 0.75);
-            break;
-        case 9: // Esteban (Titou Wyvern SRT - Dodge V8 & MH) -> DBZ Teleport + V8
-            playRealSound('dbz_ok', 0.7);
-            setTimeout(() => playTaunt('rev'), 200);
-            break;
-        case 10: // Diego (Doom Slayer Issue GP - You Died) -> K.O. lourd Tekken 7
-            playRealSound('tekken_ko', 0.9);
-            break;
-        case 11: // Gabrielle (Milo's Princess - Peach & Milo) -> Clochettes féeriques Animal Crossing
+        case 2: // Nadine (Twingo Oasis V16) -> Clochette féerique Animal Crossing
             playRealSound('ac_bell', 0.85);
             break;
-        case 12: // Thom / Bob (Bob's Bizarre Racing - Yare Yare Daze) -> Vraie voix de Jotaro Kujo !
-            playRealSound('jojo_jotaro', 0.9);
+        case 3: // Isabelle (Optic-Breuillet Racing) -> Smash Bros & Précision
+            playRealSound('smash_fixed', 0.85);
             break;
-        case 13: // Jonah (Jojo la Sirène Veloce - Batterie & Sirène) -> Sirène d'intervention
-            playTaunt('siren');
+        case 4: // Frédéric (Tata Freddy Motorsport - Balatro & Vegas) -> Pluie de pièces d'or LEGO
+            playRealSound('lego_buy', 0.85);
             break;
-        case 14: // Janis (Ninja-Nissan Street Racing - Tokyo Drift) -> Soupape Turbo & Dérapage
-            playTaunt('turbo');
-            setTimeout(() => playTaunt('skid'), 250);
+        case 5: // Mario (Super Mario Pression) -> Voix culte : "It's-a me, Mario !"
+            playRealSound('mario', 0.95);
+            break;
+        case 6: // Lucine (Scuderia Symphonie E-Tech) -> Étoile Super Mario Galaxy
+            playRealSound('galaxy_star', 0.85);
+            break;
+        case 7: // Fanny (Yaris 2 Invincible - Zelda & Cupcakes) -> Découverte d'objet Zelda
+            playRealSound('zelda_select', 0.85);
+            break;
+        case 8: // Ludwig (A4 Oil Leaking - Samus Metroid) -> Impact Tekken
+            playRealSound('tekken_decide', 0.8);
+            break;
+        case 9: // Esteban (Titou Wyvern SRT - Dodge V8 & DBZ) -> Téléportation Saiyan DBZ
+            playRealSound('dbz_ok', 0.85);
+            break;
+        case 10: // Diego (Doom Slayer Issue GP - You Died) -> K.O. Tekken 7
+            playRealSound('tekken_ko', 0.95);
+            break;
+        case 11: // Gabrielle (Milo's Princess - Peach & Milo) -> Voix Pikachu
+            playRealSound('pikachu', 0.9);
+            break;
+        case 12: // Thom / Bob (Bob's Bizarre Racing - JoJo) -> "Yare Yare Daze..." de Jotaro Kujo
+            playRealSound('jojo_jotaro', 0.95);
+            break;
+        case 13: // Jonah (Jojo la Sirène Veloce) -> Mario Kart Lap
+            playRealSound('lap', 0.85);
+            break;
+        case 14: // Janis (Ninja-Nissan Street Racing) -> Rire culte du Joker
+            playRealSound('joker_laugh', 0.95);
             break;
         case 15: // Élie (Princess Blooming Speed - Daisy) -> "Let's-a go !" Mario 64
-            playRealSound('lets_go', 0.9);
+            playRealSound('lets_go', 0.95);
             break;
         default:
-            playRealSound('race_ok', 0.6);
+            playRealSound('race_ok', 0.7);
             break;
     }
 }
@@ -324,364 +358,321 @@ function getAudioContext() {
         APP_STATE.audioCtx = new AudioContext();
     }
     if (APP_STATE.audioCtx.state === 'suspended') {
-        APP_STATE.audioCtx.resume();
+        APP_STATE.audioCtx.resume().catch(() => {});
     }
     return APP_STATE.audioCtx;
 }
 
+// -----------------------------------------------------------------------------
+// VRAIES RÉPLIQUES & SONS CULTES (PAS DE BIP SYNTHÉTIQUE, 100% SONS OFFICIELS)
+// -----------------------------------------------------------------------------
 function playTaunt(type) {
-    const ctx = getAudioContext();
-    const now = ctx.currentTime;
+    window.__GPN_LAST_TAUNT_TIME = Date.now();
+    let played = false;
 
     switch (type) {
-        case 'horn': {
-            // Klaxon bitonal classique
-            [440, 554].forEach(freq => {
-                const osc = ctx.createOscillator();
-                const gain = ctx.createGain();
-                osc.type = 'sawtooth';
-                osc.frequency.setValueAtTime(freq, now);
-                gain.gain.setValueAtTime(0.15, now);
-                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.5);
-                osc.connect(gain);
-                gain.connect(ctx.destination);
-                osc.start(now);
-                osc.stop(now + 0.5);
-            });
+        case 'batman': {
+            const list = ['batman_im_batman', 'batman_i_am_the_night', 'batman_nananana', 'batman_they_never_learn'];
+            played = playRealSound(list[Math.floor(Math.random() * list.length)], 0.95);
             break;
         }
-        case 'rev': {
-            // Vrombissement V8
-            const osc = ctx.createOscillator();
-            const gain = ctx.createGain();
-            const filter = ctx.createBiquadFilter();
-            filter.type = 'lowpass';
-            filter.frequency.setValueAtTime(300, now);
-            filter.frequency.exponentialRampToValueAtTime(1800, now + 0.6);
-            filter.frequency.exponentialRampToValueAtTime(400, now + 1.1);
-
-            osc.type = 'sawtooth';
-            osc.frequency.setValueAtTime(80, now);
-            osc.frequency.exponentialRampToValueAtTime(260, now + 0.6);
-            osc.frequency.exponentialRampToValueAtTime(100, now + 1.1);
-
-            gain.gain.setValueAtTime(0.25, now);
-            gain.gain.exponentialRampToValueAtTime(0.001, now + 1.1);
-
-            osc.connect(filter);
-            filter.connect(gain);
-            gain.connect(ctx.destination);
-            osc.start(now);
-            osc.stop(now + 1.1);
-            break;
-        }
-        case 'turbo': {
-            // Soupape Turbo Valve (Décharge d'air)
-            const bufferSize = ctx.sampleRate * 0.4;
-            const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
-            const data = buffer.getChannelData(0);
-            for (let i = 0; i < bufferSize; i++) {
-                data[i] = Math.random() * 2 - 1;
-            }
-            const noise = ctx.createBufferSource();
-            noise.buffer = buffer;
-            const filter = ctx.createBiquadFilter();
-            filter.type = 'bandpass';
-            filter.frequency.setValueAtTime(2500, now);
-            filter.frequency.exponentialRampToValueAtTime(600, now + 0.4);
-
-            const gain = ctx.createGain();
-            gain.gain.setValueAtTime(0.3, now);
-            gain.gain.exponentialRampToValueAtTime(0.001, now + 0.4);
-
-            noise.connect(filter);
-            filter.connect(gain);
-            gain.connect(ctx.destination);
-            noise.start(now);
-            break;
-        }
-        case 'skid': {
-            // Pneus qui crissent
-            const osc = ctx.createOscillator();
-            const gain = ctx.createGain();
-            osc.type = 'triangle';
-            osc.frequency.setValueAtTime(1200, now);
-            osc.frequency.linearRampToValueAtTime(800, now + 0.3);
-            osc.frequency.linearRampToValueAtTime(1400, now + 0.6);
-            gain.gain.setValueAtTime(0.15, now);
-            gain.gain.exponentialRampToValueAtTime(0.001, now + 0.7);
-            osc.connect(gain);
-            gain.connect(ctx.destination);
-            osc.start(now);
-            osc.stop(now + 0.7);
-            break;
-        }
-        case 'banana': {
-            // Glissade Mario Kart (Slide down)
-            const osc = ctx.createOscillator();
-            const gain = ctx.createGain();
-            osc.type = 'sine';
-            osc.frequency.setValueAtTime(650, now);
-            osc.frequency.exponentialRampToValueAtTime(120, now + 0.5);
-            gain.gain.setValueAtTime(0.2, now);
-            gain.gain.exponentialRampToValueAtTime(0.001, now + 0.5);
-            osc.connect(gain);
-            gain.connect(ctx.destination);
-            osc.start(now);
-            osc.stop(now + 0.5);
-            break;
-        }
-        case 'laugh': {
-            if (playRealSound('bowser', 0.8)) break;
-            // Rire sarcastique de secours
-            [0, 0.12, 0.24, 0.36, 0.48].forEach((delay, idx) => {
-                const osc = ctx.createOscillator();
-                const gain = ctx.createGain();
-                osc.type = 'triangle';
-                osc.frequency.setValueAtTime(450 - idx * 20, now + delay);
-                gain.gain.setValueAtTime(0.2, now + delay);
-                gain.gain.exponentialRampToValueAtTime(0.001, now + delay + 0.09);
-                osc.connect(gain);
-                gain.connect(ctx.destination);
-                osc.start(now + delay);
-                osc.stop(now + delay + 0.1);
-            });
-            break;
-        }
-        case 'pikachu': {
-            if (playRealSound('pikachu', 0.85)) break;
-            // Éclair Pikachu de secours
-            const osc = ctx.createOscillator();
-            const gain = ctx.createGain();
-            osc.type = 'sawtooth';
-            osc.frequency.setValueAtTime(800, now);
-            osc.frequency.exponentialRampToValueAtTime(3200, now + 0.15);
-            osc.frequency.exponentialRampToValueAtTime(1200, now + 0.35);
-            gain.gain.setValueAtTime(0.2, now);
-            gain.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
-            osc.connect(gain);
-            gain.connect(ctx.destination);
-            osc.start(now);
-            osc.stop(now + 0.35);
-            break;
-        }
-        case 'siren': {
-            // Sirène de police
-            const osc = ctx.createOscillator();
-            const gain = ctx.createGain();
-            osc.type = 'square';
-            osc.frequency.setValueAtTime(550, now);
-            osc.frequency.setValueAtTime(750, now + 0.25);
-            osc.frequency.setValueAtTime(550, now + 0.5);
-            osc.frequency.setValueAtTime(750, now + 0.75);
-            gain.gain.setValueAtTime(0.12, now);
-            gain.gain.exponentialRampToValueAtTime(0.001, now + 1.0);
-            osc.connect(gain);
-            gain.connect(ctx.destination);
-            osc.start(now);
-            osc.stop(now + 1.0);
+        case 'joker': {
+            const list = ['joker_laugh', 'joker_smile', 'joker_here_we_go'];
+            played = playRealSound(list[Math.floor(Math.random() * list.length)], 0.95);
             break;
         }
         case 'mario': {
-            if (playRealSound('mario', 0.85)) break;
-            // Victoire Mario de secours (Arpège 1-UP)
-            const notes = [330, 392, 659, 523, 587, 784];
-            notes.forEach((freq, idx) => {
-                const osc = ctx.createOscillator();
-                const gain = ctx.createGain();
-                const start = now + idx * 0.08;
-                osc.type = 'square';
-                osc.frequency.setValueAtTime(freq, start);
-                gain.gain.setValueAtTime(0.12, start);
-                gain.gain.exponentialRampToValueAtTime(0.001, start + 0.12);
-                osc.connect(gain);
-                gain.connect(ctx.destination);
-                osc.start(start);
-                osc.stop(start + 0.12);
-            });
+            const list = ['sm64_its_a_me_mario', 'sm64_lets_a_go', 'pipe'];
+            played = playRealSound(list[Math.floor(Math.random() * list.length)], 0.95);
             break;
         }
-        case 'crash': {
-            // Carambolage
-            const bufferSize = ctx.sampleRate * 0.5;
-            const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
-            const data = buffer.getChannelData(0);
-            for (let i = 0; i < bufferSize; i++) {
-                data[i] = Math.random() * 2 - 1;
-            }
-            const noise = ctx.createBufferSource();
-            noise.buffer = buffer;
-            const filter = ctx.createBiquadFilter();
-            filter.type = 'lowpass';
-            filter.frequency.setValueAtTime(800, now);
-            filter.frequency.exponentialRampToValueAtTime(80, now + 0.5);
-
-            const gain = ctx.createGain();
-            gain.gain.setValueAtTime(0.4, now);
-            gain.gain.exponentialRampToValueAtTime(0.001, now + 0.5);
-
-            noise.connect(filter);
-            filter.connect(gain);
-            gain.connect(ctx.destination);
-            noise.start(now);
+        case 'bowser': {
+            played = playRealSound('bowser', 0.9);
             break;
         }
-        case 'coin': {
-            if (playRealSound('coin', 0.75)) break;
-            // Bruit de pièce d'or de secours
-            const osc = ctx.createOscillator();
-            const gain = ctx.createGain();
-            osc.type = 'sine';
-            osc.frequency.setValueAtTime(987, now);
-            osc.frequency.setValueAtTime(1318, now + 0.08);
-            gain.gain.setValueAtTime(0.2, now);
-            gain.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
-            osc.connect(gain);
-            gain.connect(ctx.destination);
-            osc.start(now);
-            osc.stop(now + 0.35);
+        case 'pikachu': {
+            played = playRealSound('pikachu', 0.9);
             break;
         }
-        default:
-            break;
-    }
-}
-
-// -----------------------------------------------------------------------------
-// CLICS SONORES INTERACTIFS ADAPTÉS À L'ÉCURIE & ALÉATOIRES
-// -----------------------------------------------------------------------------
-function initUiClickSounds() {
-    // Débloquer l'audio et précharger les buffers au premier toucher sur iPhone / smartphone
-    const unlockAudio = () => {
-        const ctx = getAudioContext();
-        if (ctx) {
-            const buf = ctx.createBuffer(1, 1, 22050);
-            const src = ctx.createBufferSource();
-            src.buffer = buf;
-            src.connect(ctx.destination);
-            src.start(0);
-            if (ctx.state === 'suspended') ctx.resume();
-        }
-        preloadAudioBuffers();
-    };
-    window.addEventListener('touchstart', unlockAudio, { once: true, capture: true });
-    window.addEventListener('touchend', unlockAudio, { once: true, capture: true });
-    window.addEventListener('click', unlockAudio, { once: true, capture: true });
-
-    document.addEventListener('click', (e) => {
-        const target = e.target.closest('button, .btn, .nav-btn, .mobile-nav-btn, select, .car-picker, .team-item-card, .radio-btn, .bet-card, .item-card, .profile-card, .wallet-badge, .tab-btn, .paddock-slot');
-        if (!target) return;
-        if (target.disabled || target.classList.contains('disabled')) return;
-        playInteractiveUiClick();
-    }, true);
-}
-
-function playInteractiveUiClick() {
-    const teamId = APP_STATE.activeTeamId || 9;
-    let played = false;
-
-    // SONS ADAPTÉS À L'ÉCURIE ACTIVE + VARIATIONS ALÉATOIRES
-    switch (teamId) {
-        case 1: { // Laurent (Petite Mimine Racing) : V8 et clics mécaniques
-            const sounds = ['mk_click', 'mk_race_ok', 'tekken_decide'];
-            const rand = sounds[Math.floor(Math.random() * sounds.length)];
-            played = playRealSound(rand, 0.6);
-            if (Math.random() < 0.2) playTaunt('rev');
+        case 'superman': {
+            const list = ['superman_up_away', 'superman_no_match'];
+            played = playRealSound(list[Math.floor(Math.random() * list.length)], 0.95);
             break;
         }
-        case 2: { // Nadine (Twingo Oasis V16) : Clochette Candy Crush & Twingo
-            const sounds = ['ac_bell', 'mk_click', 'mario_coin'];
-            const rand = sounds[Math.floor(Math.random() * sounds.length)];
-            played = playRealSound(rand, 0.65);
-            if (Math.random() < 0.15) playTaunt('horn');
+        case 'harley': {
+            const list = ['harley_quinn', 'harley_thats_it'];
+            played = playRealSound(list[Math.floor(Math.random() * list.length)], 0.9);
             break;
         }
-        case 3: { // Isabelle (Optic-Breuillet Racing) : Laser et Smash Bros
-            const sounds = ['smash_fixed', 'tekken_decide', 'mk_click'];
-            const rand = sounds[Math.floor(Math.random() * sounds.length)];
-            played = playRealSound(rand, 0.7);
+        case 'jojo': {
+            const list = ['jojo_jotaro', 'jojo_dio'];
+            played = playRealSound(list[Math.floor(Math.random() * list.length)], 0.95);
             break;
         }
-        case 4: { // Frédéric (Tata Freddy Motorsport - Poker/Balatro) : Jetons et Pièces
-            const sounds = ['coin', 'red_coin', 'mk_click', 'points'];
-            const rand = sounds[Math.floor(Math.random() * sounds.length)];
-            played = playRealSound(rand, 0.7);
+        case 'zelda': {
+            const list = ['zelda_select', 'zelda_menu'];
+            played = playRealSound(list[Math.floor(Math.random() * list.length)], 0.85);
             break;
         }
-        case 5: { // Mario (Super Mario Pression) : Les vrais bips Mario Kart & Pièce
-            const sounds = ['mk_click', 'coin', 'mk_race_ok', 'pipe'];
-            const rand = sounds[Math.floor(Math.random() * sounds.length)];
-            played = playRealSound(rand, 0.75);
-            if (Math.random() < 0.1) playRealSound('mario', 0.85);
+        case 'galaxy': {
+            const list = ['galaxy_star', 'galaxy_select'];
+            played = playRealSound(list[Math.floor(Math.random() * list.length)], 0.85);
             break;
         }
-        case 6: { // Lucine (Scuderia Symphonie E-Tech) : Carillon musical étoilé
-            const sounds = ['points', 'mk_lap', 'red_coin', 'mk_click'];
-            const rand = sounds[Math.floor(Math.random() * sounds.length)];
-            played = playRealSound(rand, 0.7);
+        case 'dbz': {
+            played = playRealSound('dbz_ok', 0.85);
             break;
         }
-        case 7: { // Fanny (Yaris 2 Invincible - Zelda) : Smash Bros & Triforce
-            const sounds = ['smash_fixed', 'mk_click', 'ac_bell'];
-            const rand = sounds[Math.floor(Math.random() * sounds.length)];
-            played = playRealSound(rand, 0.7);
+        case 'tekken': {
+            const list = ['tekken_ko', 'tekken_decide'];
+            played = playRealSound(list[Math.floor(Math.random() * list.length)], 0.85);
             break;
         }
-        case 8: { // Ludwig (A4 Oil Leaking - Samus Metroid) : Métal Tekken
-            const sounds = ['tekken_decide', 'dbz_ok', 'smash_fixed'];
-            const rand = sounds[Math.floor(Math.random() * sounds.length)];
-            played = playRealSound(rand, 0.7);
+        case 'smash': {
+            played = playRealSound('smash_fixed', 0.85);
             break;
         }
-        case 9: { // Esteban (Titou Wyvern SRT) : DBZ Teleport & Mario Kart
-            const sounds = ['dbz_ok', 'mk_click', 'tekken_decide'];
-            const rand = sounds[Math.floor(Math.random() * sounds.length)];
-            played = playRealSound(rand, 0.7);
-            if (Math.random() < 0.2) playTaunt('rev');
+        case 'ac_bell':
+        case 'bell': {
+            played = playRealSound('ac_bell', 0.85);
             break;
         }
-        case 10: { // Diego (Doom Slayer Issue GP) : K.O. Tekken et Frappes
-            const sounds = ['tekken_ko', 'tekken_decide', 'smash_fixed'];
-            const rand = sounds[Math.floor(Math.random() * sounds.length)];
-            played = playRealSound(rand, 0.75);
+        case 'coins':
+        case 'balatro': {
+            const list = ['lego_buy', 'coin', 'red_coin'];
+            played = playRealSound(list[Math.floor(Math.random() * list.length)], 0.85);
             break;
         }
-        case 11: { // Gabrielle (Milo's Princess) : Clochettes magiques Peach
-            const sounds = ['ac_bell', 'mk_click', 'points'];
-            const rand = sounds[Math.floor(Math.random() * sounds.length)];
-            played = playRealSound(rand, 0.75);
+        case 'rev':
+        case 'motor': {
+            const list = ['tekken_decide', 'dbz_ok', 'batman_they_never_learn'];
+            played = playRealSound(list[Math.floor(Math.random() * list.length)], 0.85);
             break;
         }
-        case 12: { // Thom / Bob (Bob's Bizarre Racing - JoJo) : JoJo & Tekken
-            const sounds = ['tekken_decide', 'smash_fixed', 'dbz_ok'];
-            const rand = sounds[Math.floor(Math.random() * sounds.length)];
-            played = playRealSound(rand, 0.75);
-            if (Math.random() < 0.15) playRealSound('jojo_jotaro', 0.85);
+        case 'turbo': {
+            const list = ['joker_laugh', 'dbz_ok', 'galaxy_star'];
+            played = playRealSound(list[Math.floor(Math.random() * list.length)], 0.85);
             break;
         }
-        case 13: { // Jonah (Jojo la Sirène Veloce) : Bip d'alerte rythmique
-            const sounds = ['mk_click', 'dbz_ok', 'mk_lap'];
-            const rand = sounds[Math.floor(Math.random() * sounds.length)];
-            played = playRealSound(rand, 0.7);
-            break;
-        }
-        case 14: { // Janis (Ninja-Nissan Street Racing) : Turbo & Crépitement
-            const sounds = ['mk_click', 'tekken_decide', 'dbz_ok'];
-            const rand = sounds[Math.floor(Math.random() * sounds.length)];
-            played = playRealSound(rand, 0.7);
-            if (Math.random() < 0.2) playTaunt('turbo');
-            break;
-        }
-        case 15: { // Élie (Princess Blooming Speed) : Clic joyeux & Pièce rouge
-            const sounds = ['red_coin', 'mk_click', 'points'];
-            const rand = sounds[Math.floor(Math.random() * sounds.length)];
-            played = playRealSound(rand, 0.75);
+        case 'horn': {
+            const list = ['ac_bell', 'pipe', 'lego_brick'];
+            played = playRealSound(list[Math.floor(Math.random() * list.length)], 0.85);
             break;
         }
         default: {
-            const sounds = ['mk_click', 'mk_race_ok', 'smash_fixed', 'dbz_ok'];
-            const rand = sounds[Math.floor(Math.random() * sounds.length)];
-            played = playRealSound(rand, 0.6);
+            played = playRealSound('race_ok', 0.8);
+            break;
+        }
+    }
+    return played;
+}
+
+// -----------------------------------------------------------------------------
+// CLICS SONORES INTERACTIFS ULTRA-RÉACTIFS (0ms DE LATENCE POINTERDOWN)
+// -----------------------------------------------------------------------------
+function initUiClickSounds() {
+    let lastInteractiveSoundTime = 0;
+
+    const unlockAudio = () => {
+        const ctx = getAudioContext();
+        if (ctx) {
+            try {
+                const buf = ctx.createBuffer(1, 1, 22050);
+                const src = ctx.createBufferSource();
+                src.buffer = buf;
+                src.connect(ctx.destination);
+                src.start(0);
+                if (ctx.state === 'suspended') ctx.resume();
+            } catch (e) {}
+        }
+        preloadAudioBuffers();
+    };
+
+    window.addEventListener('touchstart', unlockAudio, { once: true, capture: true, passive: true });
+    window.addEventListener('pointerdown', unlockAudio, { once: true, capture: true, passive: true });
+    window.addEventListener('click', unlockAudio, { once: true, capture: true, passive: true });
+
+    function handleDirectTapSound(e) {
+        // 1. Si une réplique / taunt / son de bolide a été joué il y a moins de 500ms : AUCUN clic (ZÉRO doublon !)
+        if (Date.now() - (window.__GPN_LAST_TAUNT_TIME || 0) < 500) return;
+
+        // 2. Protection anti-rebond ultra rapide (pointerdown + touchstart + click successifs)
+        if (Date.now() - lastInteractiveSoundTime < 130) return;
+
+        const target = e.target.closest('button, .btn, .nav-btn, .mobile-nav-btn, select, .car-picker, .team-item-card, .radio-btn, .bet-card, .item-card, .profile-card, .wallet-badge, .tab-btn, .paddock-slot, .team-pick-card, .tab-btn-pill');
+        if (!target) return;
+        if (target.disabled || target.classList.contains('disabled')) return;
+
+        // 3. Si l'élément ciblé est un bolide ou sonne lui-même : ne pas jouer de clic
+        if (target.closest('.car-card, .paddock-car-card, .paddock-slot.occupied')) return;
+
+        lastInteractiveSoundTime = Date.now();
+        playInteractiveUiClick();
+    }
+
+    // Déclenchement à 0ms sur PointerDown (instantané dès le contact physique du doigt, sans attendre le délai de 300ms du clic mobile)
+    if (window.PointerEvent) {
+        document.addEventListener('pointerdown', handleDirectTapSound, { capture: true, passive: true });
+    } else {
+        document.addEventListener('touchstart', handleDirectTapSound, { capture: true, passive: true });
+    }
+    // Secours desktop si pointerdown n'a pas déclenché
+    document.addEventListener('click', (e) => {
+        if (Date.now() - lastInteractiveSoundTime > 200) {
+            handleDirectTapSound(e);
+        }
+    }, { capture: true, passive: true });
+}
+
+function playInteractiveUiClick() {
+    // Si une réplique a été jouée il y a moins de 500ms, ne pas jouer de clic (ZÉRO doublon)
+    if (Date.now() - (window.__GPN_LAST_TAUNT_TIME || 0) < 500) return;
+
+    const teamId = APP_STATE.activeTeamId || 9;
+    let played = false;
+
+    // 1 chance sur 5 : Joue une vraie réplique culte en solo (et RIEN d'autre, pas de clic superposé)
+    const isTauntRoll = Math.random() < 0.22;
+
+    switch (teamId) {
+        case 1: { // Laurent (Petite Mimine Racing) : Batman & Gotham
+            if (isTauntRoll) {
+                playTaunt('batman');
+                return; // SORTIE IMMÉDIATE : Pas de bruit de clic, zéro doublon !
+            }
+            const sounds = ['mk_click', 'mk_race_ok', 'tekken_decide'];
+            played = playRealSound(sounds[Math.floor(Math.random() * sounds.length)], 0.65);
+            break;
+        }
+        case 2: { // Nadine (Twingo Oasis V16) : Clochette Candy & Animal Crossing
+            if (isTauntRoll) {
+                playTaunt('ac_bell');
+                return;
+            }
+            const sounds = ['ac_bell', 'mk_click', 'coin'];
+            played = playRealSound(sounds[Math.floor(Math.random() * sounds.length)], 0.65);
+            break;
+        }
+        case 3: { // Isabelle (Optic-Breuillet Racing) : Smash Bros & Triforce
+            if (isTauntRoll) {
+                playTaunt('smash');
+                return;
+            }
+            const sounds = ['smash_fixed', 'tekken_decide', 'mk_click'];
+            played = playRealSound(sounds[Math.floor(Math.random() * sounds.length)], 0.7);
+            break;
+        }
+        case 4: { // Frédéric (Tata Freddy Motorsport - Balatro & Vegas) : Pièces & Jetons
+            if (isTauntRoll) {
+                playTaunt('coins');
+                return;
+            }
+            const sounds = ['coin', 'red_coin', 'lego_buy', 'points'];
+            played = playRealSound(sounds[Math.floor(Math.random() * sounds.length)], 0.7);
+            break;
+        }
+        case 5: { // Mario (Super Mario Pression) : Voix cultes Mario & Bowser
+            if (isTauntRoll) {
+                playTaunt('mario');
+                return;
+            }
+            const sounds = ['mk_click', 'coin', 'race_ok', 'pipe'];
+            played = playRealSound(sounds[Math.floor(Math.random() * sounds.length)], 0.75);
+            break;
+        }
+        case 6: { // Lucine (Scuderia Symphonie E-Tech) : Étoiles Mario Galaxy
+            if (isTauntRoll) {
+                playTaunt('galaxy');
+                return;
+            }
+            const sounds = ['galaxy_star', 'galaxy_select', 'points', 'lap'];
+            played = playRealSound(sounds[Math.floor(Math.random() * sounds.length)], 0.7);
+            break;
+        }
+        case 7: { // Fanny (Yaris 2 Invincible - Zelda & Cupcakes) : Sons cultes Zelda
+            if (isTauntRoll) {
+                playTaunt('zelda');
+                return;
+            }
+            const sounds = ['zelda_select', 'zelda_menu', 'smash_fixed'];
+            played = playRealSound(sounds[Math.floor(Math.random() * sounds.length)], 0.7);
+            break;
+        }
+        case 8: { // Ludwig (A4 Oil Leaking - Samus Metroid) : Tekken & DBZ
+            if (isTauntRoll) {
+                playTaunt('tekken');
+                return;
+            }
+            const sounds = ['tekken_decide', 'dbz_ok', 'smash_fixed'];
+            played = playRealSound(sounds[Math.floor(Math.random() * sounds.length)], 0.7);
+            break;
+        }
+        case 9: { // Esteban (Titou Wyvern SRT - V8 Dodge & DBZ) : DBZ & Batman
+            if (isTauntRoll) {
+                playTaunt(Math.random() < 0.5 ? 'dbz' : 'batman');
+                return;
+            }
+            const sounds = ['dbz_ok', 'mk_click', 'tekken_decide'];
+            played = playRealSound(sounds[Math.floor(Math.random() * sounds.length)], 0.7);
+            break;
+        }
+        case 10: { // Diego (Doom Slayer Issue GP) : K.O. Tekken & Bowser
+            if (isTauntRoll) {
+                playTaunt(Math.random() < 0.5 ? 'tekken' : 'bowser');
+                return;
+            }
+            const sounds = ['tekken_ko', 'tekken_decide', 'smash_fixed'];
+            played = playRealSound(sounds[Math.floor(Math.random() * sounds.length)], 0.75);
+            break;
+        }
+        case 11: { // Gabrielle (Milo's Princess - Peach & Milo) : Pikachu & Animal Crossing
+            if (isTauntRoll) {
+                playTaunt('pikachu');
+                return;
+            }
+            const sounds = ['ac_bell', 'mk_click', 'points'];
+            played = playRealSound(sounds[Math.floor(Math.random() * sounds.length)], 0.75);
+            break;
+        }
+        case 12: { // Thom / Bob (Bob's Bizarre Racing - JoJo) : Jotaro & Dio
+            if (isTauntRoll) {
+                playTaunt('jojo');
+                return;
+            }
+            const sounds = ['tekken_decide', 'smash_fixed', 'dbz_ok'];
+            played = playRealSound(sounds[Math.floor(Math.random() * sounds.length)], 0.75);
+            break;
+        }
+        case 13: { // Jonah (Jojo la Sirène Veloce) : DBZ & Mario Galaxy
+            if (isTauntRoll) {
+                playTaunt('galaxy');
+                return;
+            }
+            const sounds = ['mk_click', 'dbz_ok', 'lap'];
+            played = playRealSound(sounds[Math.floor(Math.random() * sounds.length)], 0.7);
+            break;
+        }
+        case 14: { // Janis (Ninja-Nissan Street Racing) : Répliques du Joker & Rires
+            if (isTauntRoll) {
+                playTaunt('joker');
+                return;
+            }
+            const sounds = ['mk_click', 'tekken_decide', 'dbz_ok'];
+            played = playRealSound(sounds[Math.floor(Math.random() * sounds.length)], 0.7);
+            break;
+        }
+        case 15: { // Élie (Princess Blooming Speed) : Daisy, Mario 64 & Pikachu
+            if (isTauntRoll) {
+                playTaunt(Math.random() < 0.5 ? 'mario' : 'pikachu');
+                return;
+            }
+            const sounds = ['red_coin', 'mk_click', 'points'];
+            played = playRealSound(sounds[Math.floor(Math.random() * sounds.length)], 0.75);
+            break;
+        }
+        default: {
+            const sounds = ['mk_click', 'race_ok', 'smash_fixed', 'dbz_ok'];
+            played = playRealSound(sounds[Math.floor(Math.random() * sounds.length)], 0.6);
             break;
         }
     }
